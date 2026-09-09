@@ -1,0 +1,12 @@
+{
+  "extends": "../../../tsconfig.json",
+  "compilerOptions": {
+    "incremental": false
+  },
+  "include": [
+    "../../types/domain.ts",
+    "../../lib/demo-data.ts",
+    "./**/*.ts"
+  ],
+  "exclude": []
+}
