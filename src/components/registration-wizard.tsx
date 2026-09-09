@@ -60,6 +60,24 @@ export function RegistrationWizard() {
       .then((payload: TeamManager) => {
         if (!payload.playerId || !payload.displayName) return;
         setManager(payload);
+        setForm((current) => ({
+          ...current,
+          roster: current.roster.map((slot, index) =>
+            index === 0
+              ? {
+                  ...slot,
+                  player: {
+                    playerId: payload.playerId,
+                    profileId: payload.profileId,
+                    displayName: payload.displayName,
+                    username: payload.username,
+                    email: payload.email,
+                  },
+                  role: "IGL",
+                }
+              : slot,
+          ),
+        }));
       })
       .catch(() => {
         // Manager details load from the signed-in player session.
@@ -151,8 +169,9 @@ export function RegistrationWizard() {
         <StatusBadge status={`Step ${step + 1} of 5`} />
         <h3>{steps[step]}</h3>
         <p>
-          One player account is the team manager and controls the team. Roster slots are separate
-          registered players. Anyone not on ALCL yet must join at <Link href="/register">/register</Link> first.
+          You are the team manager and Player 1 on the roster. Pick two more starters and up to two
+          substitutes from registered ALCL players. Anyone not on ALCL yet must join at{" "}
+          <Link href="/register">/register</Link> first.
         </p>
 
         {step === 0 ? (
@@ -161,7 +180,7 @@ export function RegistrationWizard() {
               <small>TEAM MANAGER</small>
               <h3>{manager?.displayName ?? "Loading your player account…"}</h3>
               <p>{manager?.email ?? "Sign in as a player to create a team."}</p>
-              <p className="legal">You control this team — roster, registration, and lineup changes.</p>
+              <p className="legal">You are Player 1 on the roster and control registration, roster, and lineup changes.</p>
             </div>
             <div className="grid grid-2">
               <Field label="Team name" value={form.teamName} onChange={(value) => setForm({ ...form, teamName: value })} />
@@ -177,15 +196,32 @@ export function RegistrationWizard() {
           <div className="form">
             {form.roster.map((slot, index) => (
               <div className="card" key={index}>
-                <strong>{index < 3 ? `Starter ${index + 1}` : `Substitute ${index - 2} (optional)`}</strong>
+                <strong>
+                  {index === 0
+                    ? "Player 1 · Team manager (you)"
+                    : index < 3
+                      ? `Player ${index + 1} · Starter`
+                      : `Substitute ${index - 2} (optional)`}
+                </strong>
                 <div className="grid grid-2" style={{ marginTop: 12 }}>
-                  <PlayerSlotPicker
-                    label="Registered player"
-                    value={slot.player}
-                    required={index < 3}
-                    excludeIds={selectedIds.filter((id) => id !== slot.player?.playerId)}
-                    onChange={(player) => updateSlot(index, { player })}
-                  />
+                  {index === 0 ? (
+                    <label className="field">
+                      Registered player
+                      <input
+                        className="input"
+                        readOnly
+                        value={slot.player?.displayName ?? "Loading your player account…"}
+                      />
+                    </label>
+                  ) : (
+                    <PlayerSlotPicker
+                      label="Registered player"
+                      value={slot.player}
+                      required={index < 3}
+                      excludeIds={selectedIds.filter((id) => id !== slot.player?.playerId)}
+                      onChange={(player) => updateSlot(index, { player })}
+                    />
+                  )}
                   <Select
                     label="Role"
                     value={slot.role}
@@ -205,7 +241,7 @@ export function RegistrationWizard() {
               <p role="alert" className="legal">Each roster slot must be a different registered player.</p>
             ) : null}
             <p className="legal">
-              Optional: add yourself to the roster if you also compete. The manager account always controls the team.
+              The manager is always Player 1. Starters are Players 1–3; substitutes fill slots 4–5.
             </p>
           </div>
         ) : null}
@@ -231,10 +267,14 @@ export function RegistrationWizard() {
             <div className="card"><small>MANAGER</small><h3>{manager?.displayName ?? "—"}</h3><p>{manager?.email ?? "Your player account"}</p></div>
             <div className="card"><small>ROSTER PLAYERS</small><h3>{selectedIds.length} registered players</h3><p>{predatorCount} Predator rank snapshot</p></div>
             <div className="card" style={{ gridColumn: "1 / -1" }}>
-              {form.roster.filter((slot) => slot.player).map((slot, index) => (
+              {form.roster.filter((slot) => slot.player).map((slot, slotIndex) => (
                 <p key={slot.player!.playerId}>
-                  {index < 3 ? `Starter ${index + 1}` : `Sub ${index - 2}`}: {slot.player!.displayName}
-                  {slot.player!.playerId === manager?.playerId ? " (also team manager)" : ""} · {slot.role} · {slot.rank}
+                  {slotIndex === 0
+                    ? "Player 1 (manager)"
+                    : slotIndex < 3
+                      ? `Player ${slotIndex + 1}`
+                      : `Sub ${slotIndex - 2}`}
+                  : {slot.player!.displayName} · {slot.role} · {slot.rank}
                 </p>
               ))}
             </div>

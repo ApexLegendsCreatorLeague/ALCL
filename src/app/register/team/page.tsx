@@ -1,11 +1,5 @@
-import type { Metadata } from "next";
-import { RoutePage } from "@/components/pages";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "Register a team",
-  description: "Submit an ALCL community tournament team and roster registration.",
-};
-
-export default function RegisterTeamPage() {
-  return <RoutePage segments={["register", "team"]} />;
+export default function LegacyRegisterTeamPage() {
+  redirect("/dashboard/team/create");
 }

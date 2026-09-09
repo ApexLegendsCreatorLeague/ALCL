@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { RoutePage } from "@/components/pages";
 import { isSupabaseConfigured } from "@/lib/supabase/server";
-import { requireCompetitionManager, requireUser } from "@/server/auth";
+import {
+  AuthorizationError,
+  requireCompetitionManager,
+  requireUser,
+} from "@/server/auth";
 
 type Props = { params: Promise<{ slug: string[] }> };
 
@@ -14,16 +18,30 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CatchAllPage({ params }: Props) {
   const { slug } = await params;
-  if (isSupabaseConfigured()) {
+  const nextPath = `/${slug.join("/")}`;
+
+  if (slug[0] === "admin") {
+    if (!isSupabaseConfigured()) {
+      redirect(`/login?next=${encodeURIComponent(nextPath)}&error=auth_required`);
+    }
     try {
-      if (slug[0] === "admin") {
-        await requireCompetitionManager();
-      } else if (slug[0] === "dashboard") {
-        await requireUser();
+      await requireCompetitionManager();
+    } catch (error) {
+      if (error instanceof AuthorizationError) {
+        redirect("/dashboard?error=forbidden");
       }
+      redirect(`/login?next=${encodeURIComponent(nextPath)}`);
+    }
+  } else if (slug[0] === "dashboard") {
+    if (!isSupabaseConfigured()) {
+      redirect(`/login?next=${encodeURIComponent(nextPath)}&error=auth_required`);
+    }
+    try {
+      await requireUser();
     } catch {
-      redirect(`/login?next=/${slug.join("/")}`);
+      redirect(`/login?next=${encodeURIComponent(nextPath)}`);
     }
   }
+
   return <RoutePage segments={slug} />;
 }

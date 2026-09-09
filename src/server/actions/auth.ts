@@ -7,6 +7,7 @@ import { z } from "zod";
 import { siteUrl } from "@/lib/supabase/env";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/server";
+import { ensurePlayerRecord } from "@/server/players";
 import { actionFailure, actionSuccess, type ActionResult } from "@/server/action-result";
 
 async function bootstrapFirstOrganizer(userId: string) {
@@ -51,7 +52,7 @@ export async function signInWithPassword(
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
   if (error) return actionFailure("UNAUTHENTICATED", "The email or password was not accepted.");
-  redirect("/dashboard");
+  redirect("/dashboard/player");
 }
 
 export async function signUpWithPassword(
@@ -66,16 +67,22 @@ export async function signUpWithPassword(
       email: emailSchema,
       password: passwordSchema,
       displayName: z.string().trim().min(2).max(50),
+      platform: z.enum(["PC", "PlayStation", "Xbox", "Nintendo Switch"]).default("PC"),
+      region: z.enum(["North America", "Europe", "Oceania", "Asia Pacific"]).default("North America"),
     })
     .safeParse({
       email: formData.get("email"),
       password: formData.get("password"),
       displayName: formData.get("displayName"),
+      platform: formData.get("platform") ?? "PC",
+      region: formData.get("region") ?? "North America",
     });
   if (!parsed.success) {
-    return actionFailure("INVALID_INPUT", "Enter a valid email, display name, and password (8+ characters).", {
-      fieldErrors: parsed.error.flatten().fieldErrors,
-    });
+    return actionFailure(
+      "INVALID_INPUT",
+      "Enter a valid email, display name, platform, region, and password (8+ characters).",
+      { fieldErrors: parsed.error.flatten().fieldErrors },
+    );
   }
   const redirectBase = siteUrl((await headers()).get("origin") ?? "http://localhost:3000");
   const supabase = await createClient();
@@ -83,12 +90,12 @@ export async function signUpWithPassword(
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
-      emailRedirectTo: `${redirectBase}/auth/callback?next=/dashboard`,
+      emailRedirectTo: `${redirectBase}/auth/callback?next=/dashboard/player`,
       data: { display_name: parsed.data.displayName },
     },
   });
   if (error) {
-    return actionFailure("CONFLICT", error.message.includes("already") ? "An account with this email already exists." : "The account could not be created.");
+    return actionFailure("CONFLICT", error.message.includes("already") ? "An account with this email already exists." : "The player account could not be created.");
   }
   if (data.user?.id) {
     try {
@@ -96,8 +103,16 @@ export async function signUpWithPassword(
     } catch {
       // Service role missing locally; first admin can be assigned later.
     }
+    try {
+      await ensurePlayerRecord(supabase, data.user.id, {
+        platform: parsed.data.platform,
+        region: parsed.data.region,
+      });
+    } catch {
+      // Player row may be created on first dashboard visit if RLS blocked here.
+    }
   }
-  if (data.session) redirect("/dashboard");
+  if (data.session) redirect("/dashboard/player");
   return actionSuccess(null);
 }
 

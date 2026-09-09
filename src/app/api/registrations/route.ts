@@ -181,10 +181,17 @@ async function syncRosterMembers(
   }
 }
 
-function validateRoster(roster: RegistrationPayload["roster"]) {
+function validateRoster(
+  roster: RegistrationPayload["roster"],
+  managerPlayerId: string,
+) {
+  if (roster[0]?.playerId !== managerPlayerId) {
+    return "Player 1 must be the team manager.";
+  }
+
   const starters = roster.slice(0, 3);
   if (starters.some((slot) => !slot.playerId)) {
-    return "Three starters must be registered ALCL player accounts.";
+    return "Players 1–3 must be registered ALCL player accounts (manager plus two starters).";
   }
 
   const playerIds = roster.map((slot) => slot.playerId).filter(Boolean) as string[];
@@ -241,7 +248,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const rosterError = validateRoster(parsed.data.roster);
+  const rosterError = validateRoster(parsed.data.roster, managerPlayerId);
   if (rosterError) {
     return NextResponse.json({ message: rosterError }, { status: 422 });
   }

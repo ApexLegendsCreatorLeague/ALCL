@@ -10,10 +10,9 @@ test("home presents independent community positioning", async ({ page }) => {
   ).toBeVisible();
 });
 
-test("registration never asks for EA credentials", async ({ page }) => {
-  await page.goto("/register/team");
-  await expect(page.getByText(/never ask for your EA password/i)).toBeVisible();
-  await expect(page.getByLabel(/password/i)).toHaveCount(0);
+test("player registration never asks for EA credentials", async ({ page }) => {
+  await page.goto("/register");
+  await expect(page.getByText(/never request an EA password/i)).toBeVisible();
 });
 
 test("core public routes render on mobile", async ({ page }) => {
