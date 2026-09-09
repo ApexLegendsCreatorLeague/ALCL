@@ -85,7 +85,7 @@ export async function updatePlayerProfile(
   }
 
   const socials = normalizePlayerSocials(parsed.data);
-  const legendInputs = [
+  const legendInputs: [string, string, string] = [
     parsed.data.mainLegend1?.trim() ?? "",
     parsed.data.mainLegend2?.trim() ?? "",
     parsed.data.mainLegend3?.trim() ?? "",
