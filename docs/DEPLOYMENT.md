@@ -10,6 +10,8 @@
 
 ## Database
 
+See **`docs/SUPABASE_PRODUCTION.md`** for the full Vercel + Supabase runbook.
+
 ```powershell
 npx supabase login
 npx supabase link --project-ref YOUR_PROJECT_REF
@@ -23,17 +25,13 @@ accounts.
 
 ## Web application
 
-Configure the variables documented in `.env.example`. Deploy to a
-Node-compatible Next.js host. For Vercel:
+See **`docs/VERCEL.md`** for the full checklist.
 
-```powershell
-npx vercel
-npx vercel --prod
-```
+Set server-only secrets on Vercel (no `NEXT_PUBLIC_` prefix required):
 
-Set the production URL in Supabase Authentication URL Configuration, including
-the `/auth/callback` redirect. The service-role key must never use a
-`NEXT_PUBLIC_` prefix.
+- `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `SITE_URL`
+
+Set Supabase Auth site URL and `/auth/callback` redirect to match `SITE_URL`.
 
 ## Post-deployment smoke test
 

@@ -4,16 +4,15 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
 import type { Database } from "@/types/database";
+import { supabaseAnonKey, supabaseUrl } from "@/lib/supabase/env";
 
 function credentials() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key =
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const url = supabaseUrl();
+  const key = supabaseAnonKey();
 
   if (!url || !key) {
     throw new Error(
-      "Supabase is not configured. Copy .env.example to .env.local and provide the project URL and publishable key.",
+      "Supabase is not configured. Set SUPABASE_URL and SUPABASE_ANON_KEY (see .env.example).",
     );
   }
 
@@ -41,9 +40,5 @@ export async function createClient() {
 }
 
 export function isSupabaseConfigured() {
-  return Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL &&
-      (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
-  );
+  return Boolean(supabaseUrl() && supabaseAnonKey());
 }

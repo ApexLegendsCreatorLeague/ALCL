@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
+import { siteUrl } from "@/lib/supabase/env";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import { actionFailure, actionSuccess, type ActionResult } from "@/server/action-result";
 
@@ -44,15 +45,11 @@ export async function sendMagicLink(
   }
   const parsed = emailSchema.safeParse(formData.get("email"));
   if (!parsed.success) return actionFailure("INVALID_INPUT", "Enter a valid email address.");
-  const requestHeaders = await headers();
-  const origin =
-    process.env.NEXT_PUBLIC_SITE_URL ??
-    requestHeaders.get("origin") ??
-    "http://localhost:3000";
   const supabase = await createClient();
+  const redirectBase = siteUrl((await headers()).get("origin") ?? "http://localhost:3000");
   const { error } = await supabase.auth.signInWithOtp({
     email: parsed.data,
-    options: { emailRedirectTo: `${origin}/auth/callback` },
+    options: { emailRedirectTo: `${redirectBase}/auth/callback` },
   });
   if (error) return actionFailure("INTERNAL_ERROR", "The sign-in link could not be sent.");
   return actionSuccess(null);

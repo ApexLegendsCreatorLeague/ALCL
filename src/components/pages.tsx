@@ -8,7 +8,7 @@ import {
   StatusBadge, SupporterCard, TeamCard, TeamRoster, TournamentCard,
   TournamentTimeline
 } from "./alcl";
-import { sendMagicLink, signIn } from "@/app/auth/actions";
+import { AuthForm } from "@/components/auth-form";
 import { LiveApiAdmin } from "@/components/liveapi-admin";
 import { RegistrationWizard } from "@/components/registration-wizard";
 
@@ -114,4 +114,4 @@ function AdminPage({section}:{section?:string}){const name=section?section[0].to
 {section==="scoring"&&<div className="card" style={{marginBottom:16}}><h3>Tournament Scoring configuration</h3><div className="grid grid-3"><label className="field">First-place points<input className="input" defaultValue="12"/></label><label className="field">Kill points<input className="input" defaultValue="1"/></label><label className="field">Maximum matches<input className="input" defaultValue="6"/></label><label className="field">Bonus configuration<input className="input" defaultValue="{}"/></label><label className="field">Penalty configuration<input className="input" defaultValue="{}"/></label><label className="field">Tiebreakers<input className="input" defaultValue="Points, wins, kills"/></label></div><div className="actions"><button className="btn btn-primary">Save versioned ruleset</button><button className="btn">Preview scoring</button></div></div>}
 <AdminTable kind={(section??"operation").slice(0,-1)}/></section></AppShell>}
 
-function AuthPage(){return <AppShell><div className="container" style={{display:"grid",placeItems:"center",minHeight:"65vh"}}><div className="card" style={{width:"min(440px,100%)"}}><div className="eyebrow">Competitor access</div><h3 style={{fontSize:30}}>Welcome back</h3><form action={signIn} className="form"><label className="field">Email<input className="input" name="email" type="email" autoComplete="email" required placeholder="you@example.com"/></label><label className="field">ALCL password<input className="input" name="password" type="password" autoComplete="current-password" minLength={8} required placeholder="Your ALCL password"/></label><button className="btn btn-primary" type="submit">Sign in</button></form><form action={sendMagicLink} className="form" style={{marginTop:10}}><input className="input" name="email" type="email" required placeholder="Email for a secure magic link"/><button className="btn" type="submit">Email magic link</button></form><p>Use only your ALCL account credentials. ALCL never requests EA credentials, passwords, or authentication tokens.</p></div></div></AppShell>}
+function AuthPage(){return <AppShell><div className="container" style={{display:"grid",placeItems:"center",minHeight:"65vh"}}><div className="card" style={{width:"min(440px,100%)"}}><div className="eyebrow">Competitor access</div><h3 style={{fontSize:30}}>Welcome back</h3><AuthForm/></div></div></AppShell>}

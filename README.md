@@ -57,8 +57,9 @@ npx supabase db reset
 1. Create a Supabase project and link it with `npx supabase link`.
 2. Apply migrations with `npx supabase db push`.
 3. Run `supabase/seed.sql` only in development or an intentional demo project.
-4. Create production secrets from `.env.example`; never expose the service key.
-5. Configure Auth site URL and redirect URLs for the deployed domain.
+4. Set Vercel secrets from `.env.example` (`SUPABASE_URL`, `SUPABASE_ANON_KEY`,
+   `SUPABASE_SERVICE_ROLE_KEY`, `SITE_URL`). See `docs/VERCEL.md`.
+5. Configure Supabase Auth site URL and `/auth/callback` redirect.
 6. Create the first admin through the Supabase dashboard, then assign its
    `app_role` using a trusted SQL/admin process. Users cannot elevate themselves.
 

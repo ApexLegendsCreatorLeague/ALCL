@@ -246,7 +246,6 @@ declare
   target_year integer;
   supporter_total numeric(12,2);
   prize_total numeric(12,2);
-  increment_value numeric(12,2);
 begin
   target_year := case
     when tg_table_name = 'community_supporters' then extract(year from new.starts_on)::integer
@@ -263,13 +262,7 @@ begin
   where extract(year from coalesce(awarded_at, created_at)) = target_year
     and (tg_table_name <> 'prizes' or id is distinct from new.id);
 
-  if tg_table_name = 'community_supporters' then
-    increment_value := new.annual_non_cash_value_usd;
-  else
-    increment_value := new.fair_market_value_usd;
-  end if;
-
-  if supporter_total + prize_total + increment_value > 10000 then
+  if supporter_total + prize_total + case when tg_table_name = 'community_supporters' then new.annual_non_cash_value_usd else new.fair_market_value_usd end > 10000 then
     raise exception 'Combined annual supporter and prize value exceeds USD 10,000'
       using errcode = '23514';
   end if;

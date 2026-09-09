@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
+
+import { siteUrl } from "@/lib/supabase/env";
 import "./globals.css";
 
 const inter = Inter({
@@ -13,7 +15,7 @@ const display = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.SITE_URL?.trim () || "http://thessiatournamentsite.com"),
+  metadataBase: new URL(siteUrl()),
   title: { default: "ALCL", template: "%s · ALCL" },
   description: "Independent community tournaments for Apex Legends.",
   openGraph: {
