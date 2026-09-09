@@ -45,6 +45,26 @@ After a player registers on the site (or you add them under **Authentication →
 
 Quick first-time setup: edit email in **`bootstrap-admin.sql`** and run it (grants both admin + organizer).
 
-## Step 4 — Vercel
+## Step 4 — Auth URLs and password reset email
 
-Set env vars from Supabase **Settings → API**, redeploy, configure Auth redirect URLs.
+In Supabase **Authentication → URL Configuration**:
+
+- **Site URL:** `https://thessiatournamentsite.com`
+- **Redirect URLs** (add each line):
+  - `https://thessiatournamentsite.com/auth/callback`
+  - `https://thessiatournamentsite.com/auth/recovery`
+  - `https://thessiatournamentsite.com/auth/confirm`
+
+In **Authentication → Email Templates → Reset password**, replace the body with:
+
+```html
+<h2>Reset Password</h2>
+<p>Follow this link to reset the password for your ALCL player account:</p>
+<p><a href="{{ .SiteURL }}/auth/recovery?token_hash={{ .TokenHash }}&type=recovery">Reset Password</a></p>
+```
+
+This avoids PKCE expiry issues and works when the email is opened on a different device than the browser that requested the reset.
+
+## Step 5 — Vercel
+
+Set env vars from Supabase **Settings → API**, redeploy, and set `SITE_URL=https://thessiatournamentsite.com`.

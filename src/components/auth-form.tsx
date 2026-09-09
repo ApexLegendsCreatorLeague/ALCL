@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useActionState, useState, type FormEvent } from "react";
+import { useActionState, useEffect, useState, type FormEvent } from "react";
 
+import { readAuthReturnFailure, redirectAuthReturnFailure } from "@/lib/auth/complete-auth-return";
 import { DEFAULT_PLAYER_HOME, safeNextPath } from "@/lib/auth/redirect-path";
 import { sendMagicLink } from "@/server/actions/auth";
 
@@ -11,6 +12,15 @@ export function AuthForm() {
   const searchParams = useSearchParams();
   const nextPath = safeNextPath(searchParams.get("next"), DEFAULT_PLAYER_HOME);
   const callbackError = searchParams.get("error");
+
+  useEffect(() => {
+    const failure = readAuthReturnFailure();
+    if (!failure) {
+      return;
+    }
+
+    redirectAuthReturnFailure(failure);
+  }, []);
 
   const [passwordError, setPasswordError] = useState("");
   const [passwordPending, setPasswordPending] = useState(false);
@@ -53,7 +63,9 @@ export function AuthForm() {
         ? "Sign in to continue."
         : callbackError === "auth_callback"
           ? "The sign-in link expired or was invalid. Try again."
-          : null;
+          : callbackError === "reset_expired"
+            ? "That password reset link expired or was already used. Request a new one from Forgot password."
+            : null;
 
   return (
     <div className="form">
