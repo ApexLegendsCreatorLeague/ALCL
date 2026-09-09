@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, ShieldCheck } from "lucide-react";
 import { StatusBadge, Toast } from "@/components/alcl";
@@ -83,6 +84,9 @@ export function RegistrationWizard() {
           ALCL will never ask for your EA password, account credentials, or
           authentication tokens. Rank and results are self-reported or entered by
           organizers.
+        </p>
+        <p className="legal">
+          Need an ALCL account first? <Link href="/login">Sign in or create one</Link> before you submit.
         </p>
 
         {step === 0 ? (

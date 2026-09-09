@@ -46,7 +46,7 @@ function StandardHeader({type}:{type:string}){const d=info[type]??["ALCL","Compe
 export function RoutePage({segments}:{segments:string[]}){
  const [root,id,leaf]=segments; const key=segments.join("/");
  if(root==="broadcast") return <BroadcastView type={id??"leaderboard"}/>;
- if(root==="register") return <AppShell><PageHeader eyebrow="Season 05 applications" title="Register your team" copy="Create your ALCL team application in a few mobile-friendly steps. Sign in first if you already have an account."/><section className="container"><div className="actions" style={{marginBottom:18}}><Link className="btn" href="/login">Sign in to ALCL</Link><Link className="btn btn-primary" href="/register/team">Continue registration</Link></div><RegistrationWizard/></section></AppShell>;
+ if(root==="register") return <AppShell><PageHeader eyebrow="Season 05 applications" title="Register your team" copy="Create your ALCL team application in a few mobile-friendly steps. Sign in first if you already have an account."/><section className="container"><div className="actions" style={{marginBottom:18}}><Link className="btn" href="/login">Sign in to ALCL</Link></div><RegistrationWizard/></section></AppShell>;
  if(root==="login") return <AuthPage/>;
  if(root==="admin") return <AdminPage section={id}/>;
  if(root==="tournaments"&&id) return <TournamentDetail id={id} leaf={leaf}/>;
