@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { AppShell } from "@/components/alcl";
+import { AuthConfigBanner } from "@/components/auth-config-banner";
 import { PlayerRegisterForm } from "@/components/player-register-form";
 
 export const metadata: Metadata = {
@@ -20,6 +21,7 @@ export default function RegisterPlayerPage() {
             Every person who competes gets their own player login. Teams are just groups of those
             players — captains create teams after everyone has signed up.
           </p>
+          <AuthConfigBanner />
           <PlayerRegisterForm />
           <p className="legal">
             Already have a player account? <Link href="/login">Sign in</Link>

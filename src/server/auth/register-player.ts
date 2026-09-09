@@ -3,6 +3,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { supabaseServiceRoleKey } from "@/lib/supabase/env";
 import { isSupabaseConfigured } from "@/lib/supabase/server";
 import { ensurePlayerRecord } from "@/server/players";
 import type { Database } from "@/types/database";
@@ -80,14 +81,15 @@ export async function registerPlayerAccount(input: RegisterPlayerInput): Promise
   if (!isSupabaseConfigured()) {
     return {
       ok: false,
-      message: "Set SUPABASE_URL and SUPABASE_ANON_KEY on Vercel.",
+      message:
+        "Supabase is not configured. In Vercel → Settings → Environment Variables, add SUPABASE_URL and SUPABASE_ANON_KEY for Production, save, then Redeploy. Check /api/auth/status on your site.",
     };
   }
 
-  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  if (!supabaseServiceRoleKey()) {
     return {
       ok: false,
-      message: "Set SUPABASE_SERVICE_ROLE_KEY on Vercel.",
+      message: "Set SUPABASE_SERVICE_ROLE_KEY in Vercel env vars (Production), then redeploy.",
     };
   }
 

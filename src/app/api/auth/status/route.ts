@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 
-import { supabaseAnonKey, supabaseUrl, siteUrl } from "@/lib/supabase/env";
+import { supabaseAnonKey, supabaseServiceRoleKey, supabaseUrl, siteUrl } from "@/lib/supabase/env";
+
+export const dynamic = "force-dynamic";
 import { isSupabaseConfigured } from "@/lib/supabase/server";
 
 function hasValue(value: string | undefined) {
@@ -15,7 +17,7 @@ export async function GET() {
     configured: isSupabaseConfigured(),
     hasSupabaseUrl: hasValue(url),
     hasAnonKey: hasValue(anonKey),
-    hasServiceRole: hasValue(process.env.SUPABASE_SERVICE_ROLE_KEY),
+    hasServiceRole: hasValue(supabaseServiceRoleKey()),
     hasSiteUrl: hasValue(siteUrl("")),
     envKeysPresent: {
       SUPABASE_URL: hasValue(process.env.SUPABASE_URL),
