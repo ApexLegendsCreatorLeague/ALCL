@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 
-import { APEX_LEGEND_CLASSES, parsePreferredRoles } from "@/lib/player-legend-classes";
+import { APEX_LEGENDS } from "@/lib/apex-legends";
 import { PLAYER_SOCIAL_FIELDS } from "@/lib/social-links";
 import { savePlayerProfileAndRedirect } from "@/server/actions/player-profile";
 import type { PlayerProfile } from "@/server/player-profile";
@@ -46,7 +46,11 @@ function Field({
 
 export function PlayerProfileEditForm({ profile }: { profile: PlayerProfile }) {
   const [state, action, pending] = useActionState(savePlayerProfileAndRedirect, null);
-  const selectedRoles = parsePreferredRoles(profile.recruitment.preferredRoles);
+  const legendFields = [
+    { name: "mainLegend1", label: "#1 Most played", value: profile.recruitment.topLegends[0] },
+    { name: "mainLegend2", label: "#2 Second main", value: profile.recruitment.topLegends[1] },
+    { name: "mainLegend3", label: "#3 Third main", value: profile.recruitment.topLegends[2] },
+  ] as const;
 
   return (
     <form className="card profile-edit-form" action={action}>
@@ -95,24 +99,25 @@ export function PlayerProfileEditForm({ profile }: { profile: PlayerProfile }) {
         </label>
         <div className="form">
           <div className="field">
-            <span>Preferred legend classes</span>
-            <p className="legal">Select the classes you main or flex on roster.</p>
-            <div className="profile-role-grid">
-              {APEX_LEGEND_CLASSES.map((role) => (
-                <label className="profile-role-option" key={role}>
-                  <input
-                    type="checkbox"
-                    name="preferredRoles"
-                    value={role}
-                    defaultChecked={selectedRoles.includes(role)}
-                  />
-                  <span>{role}</span>
+            <span>Top 3 legends used</span>
+            <p className="legal">
+              Captains use this to build balanced rosters and avoid duplicate legend picks.
+            </p>
+            <div className="profile-legend-grid">
+              {legendFields.map((field) => (
+                <label className="field" key={field.name}>
+                  <span>{field.label}</span>
+                  <select className="input" name={field.name} defaultValue={field.value ?? ""}>
+                    <option value="">Select legend</option>
+                    {APEX_LEGENDS.map((legend) => (
+                      <option key={legend} value={legend}>
+                        {legend}
+                      </option>
+                    ))}
+                  </select>
                 </label>
               ))}
             </div>
-            {state && !state.ok && state.fieldErrors?.preferredRoles?.[0] ? (
-              <small style={{ color: "#ff986f" }}>{state.fieldErrors.preferredRoles[0]}</small>
-            ) : null}
           </div>
           <Field
             label="Availability"

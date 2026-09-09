@@ -3,6 +3,7 @@ import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { supabaseServiceRoleKey } from "@/lib/supabase/env";
 import { isSupabaseConfigured } from "@/lib/supabase/server";
+import { topLegendsFromProfile } from "@/lib/apex-legends";
 import type { PlayerSocialLinks } from "@/lib/social-links";
 import { formatPlatform } from "@/server/public-directory";
 
@@ -45,7 +46,7 @@ export type PlayerTournamentRow = {
 
 export type PlayerRecruitment = {
   lookingForTeam: boolean;
-  preferredRoles: string | null;
+  topLegends: [string | null, string | null, string | null];
   availability: string | null;
   recruitmentPitch: string | null;
 };
@@ -165,7 +166,7 @@ export async function getPlayerProfile(ref: string): Promise<PlayerProfile | nul
   const { data: profile } = await admin
     .from("profiles")
     .select(
-      "display_name, username, bio, youtube_url, x_url, tiktok_url, instagram_url, twitch_url, kick_url, looking_for_team, preferred_roles, availability, recruitment_pitch, country_code, is_active, created_at",
+      "display_name, username, bio, youtube_url, x_url, tiktok_url, instagram_url, twitch_url, kick_url, looking_for_team, main_legend_1, main_legend_2, main_legend_3, availability, recruitment_pitch, country_code, is_active, created_at",
     )
     .eq("id", player.profile_id)
     .eq("is_active", true)
@@ -352,7 +353,7 @@ export async function getPlayerProfile(ref: string): Promise<PlayerProfile | nul
     bio: profile.bio,
     recruitment: {
       lookingForTeam: profile.looking_for_team,
-      preferredRoles: profile.preferred_roles,
+      topLegends: topLegendsFromProfile(profile),
       availability: profile.availability,
       recruitmentPitch: profile.recruitment_pitch,
     },

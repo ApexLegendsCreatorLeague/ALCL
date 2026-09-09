@@ -3,7 +3,7 @@ import { Crosshair, ExternalLink, MapPin, Pencil, Shield, Target, Trophy, Users 
 
 import { AppShell } from "@/components/app-shell";
 import { EmptyState, PageHeader, StatCard } from "@/components/alcl";
-import { parsePreferredRoles } from "@/lib/player-legend-classes";
+import { hasTopLegends } from "@/lib/apex-legends";
 import { hasAnySocialLinks, PLAYER_SOCIAL_FIELDS, socialLabelFromUrl } from "@/lib/social-links";
 import type { PlayerProfile } from "@/server/player-profile";
 
@@ -82,7 +82,7 @@ export function PlayerProfileView({
     .toUpperCase();
 
   const hasStats = profile.stats.matchesPlayed > 0;
-  const preferredRoles = parsePreferredRoles(profile.recruitment.preferredRoles);
+  const topLegends = profile.recruitment.topLegends.filter(Boolean) as string[];
 
   return (
     <AppShell>
@@ -267,16 +267,19 @@ export function PlayerProfileView({
                 ) : null}
               </div>
               {profile.recruitment.recruitmentPitch ||
-              preferredRoles.length ||
+              hasTopLegends(profile.recruitment.topLegends) ||
               profile.recruitment.availability ? (
                 <>
-                  {preferredRoles.length ? (
-                    <div className="profile-role-tags">
-                      {preferredRoles.map((role) => (
-                        <span className="profile-role-tag" key={role}>
-                          {role}
-                        </span>
-                      ))}
+                  {topLegends.length ? (
+                    <div className="profile-legend-block">
+                      <p className="profile-recruitment-meta">
+                        <strong>Top legends used</strong>
+                      </p>
+                      <ol className="profile-legend-list">
+                        {topLegends.map((legend) => (
+                          <li key={legend}>{legend}</li>
+                        ))}
+                      </ol>
                     </div>
                   ) : null}
                   {profile.recruitment.availability ? (

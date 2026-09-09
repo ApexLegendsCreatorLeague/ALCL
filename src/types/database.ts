@@ -81,6 +81,9 @@ type ProfilesRow = Timestamped & {
   kick_url: string | null;
   looking_for_team: boolean;
   preferred_roles: string | null;
+  main_legend_1: string | null;
+  main_legend_2: string | null;
+  main_legend_3: string | null;
   availability: string | null;
   recruitment_pitch: string | null;
   is_active: boolean;

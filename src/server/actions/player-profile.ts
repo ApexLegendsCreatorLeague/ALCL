@@ -4,13 +4,19 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
-import { APEX_LEGEND_CLASSES, serializePreferredRoles } from "@/lib/player-legend-classes";
+import { APEX_LEGENDS, normalizeTopLegends } from "@/lib/apex-legends";
 import { normalizePlayerSocials } from "@/lib/social-links";
 import { createActionClient } from "@/lib/supabase/server";
 import { actionFailure, actionSuccess, type ActionResult } from "@/server/action-result";
 import { requireUser } from "@/server/auth";
 
 const optionalUrl = z.string().max(200).optional();
+const legendName = z
+  .string()
+  .trim()
+  .refine((value) => !value || (APEX_LEGENDS as readonly string[]).includes(value), {
+    message: "Pick a valid legend.",
+  });
 
 const profileSchema = z.object({
   playerId: z.string().uuid(),
@@ -27,7 +33,9 @@ const profileSchema = z.object({
   twitchUrl: optionalUrl,
   kickUrl: optionalUrl,
   lookingForTeam: z.enum(["true", "false"]).optional(),
-  preferredRoles: z.array(z.enum(APEX_LEGEND_CLASSES)).max(5).optional(),
+  mainLegend1: legendName.optional(),
+  mainLegend2: legendName.optional(),
+  mainLegend3: legendName.optional(),
   availability: z.string().max(250).optional(),
   recruitmentPitch: z.string().max(800).optional(),
 });
@@ -52,12 +60,9 @@ export async function updatePlayerProfile(
     twitchUrl: formData.get("twitchUrl") ?? "",
     kickUrl: formData.get("kickUrl") ?? "",
     lookingForTeam: formData.get("lookingForTeam") === "true" ? "true" : "false",
-    preferredRoles: formData
-      .getAll("preferredRoles")
-      .map((value) => String(value))
-      .filter((value): value is (typeof APEX_LEGEND_CLASSES)[number] =>
-        (APEX_LEGEND_CLASSES as readonly string[]).includes(value),
-      ),
+    mainLegend1: formData.get("mainLegend1") ?? "",
+    mainLegend2: formData.get("mainLegend2") ?? "",
+    mainLegend3: formData.get("mainLegend3") ?? "",
     availability: formData.get("availability") ?? "",
     recruitmentPitch: formData.get("recruitmentPitch") ?? "",
   });
@@ -80,6 +85,19 @@ export async function updatePlayerProfile(
   }
 
   const socials = normalizePlayerSocials(parsed.data);
+  const legendInputs = [
+    parsed.data.mainLegend1?.trim() ?? "",
+    parsed.data.mainLegend2?.trim() ?? "",
+    parsed.data.mainLegend3?.trim() ?? "",
+  ];
+  const chosenLegends = legendInputs.filter(Boolean);
+  if (new Set(chosenLegends).size !== chosenLegends.length) {
+    return actionFailure("INVALID_INPUT", "Pick three different legends.", {
+      fieldErrors: { mainLegend2: ["Each top legend must be unique."] },
+    });
+  }
+
+  const topLegends = normalizeTopLegends(legendInputs);
 
   const { error } = await supabase
     .from("profiles")
@@ -93,7 +111,9 @@ export async function updatePlayerProfile(
       twitch_url: socials.twitchUrl,
       kick_url: socials.kickUrl,
       looking_for_team: parsed.data.lookingForTeam === "true",
-      preferred_roles: serializePreferredRoles(parsed.data.preferredRoles ?? []),
+      main_legend_1: topLegends[0],
+      main_legend_2: topLegends[1],
+      main_legend_3: topLegends[2],
       availability: parsed.data.availability?.trim() ? parsed.data.availability.trim() : null,
       recruitment_pitch: parsed.data.recruitmentPitch?.trim()
         ? parsed.data.recruitmentPitch.trim()
@@ -104,8 +124,8 @@ export async function updatePlayerProfile(
   if (error) {
     const message = error.message.includes("profiles_username_key")
       ? "That username is already taken."
-      : error.message.includes("_url")
-        ? "Enter valid social profile links."
+      : error.message.includes("_url") || error.message.includes("main_legend")
+        ? "Enter valid profile details."
         : "Your profile could not be saved.";
     return actionFailure("CONFLICT", message);
   }

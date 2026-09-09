@@ -236,12 +236,11 @@ a.directory-card:hover .directory-card-chevron { color:var(--lime); }
 .profile-recruitment-meta { color:#b7bfca; font-size:13px; line-height:1.6; margin:0 0 10px; }
 .profile-recruitment-meta strong { color:white; font-weight:700; }
 .profile-recruitment-pitch { color:#d5dbe3; font-size:14px; line-height:1.7; margin:0; white-space:pre-wrap; }
-.profile-role-grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px; margin-top:8px; }
-.profile-role-option { display:flex; align-items:center; gap:9px; border:1px solid var(--line); border-radius:8px; padding:10px 12px; font-size:13px; color:#d5dbe3; cursor:pointer; }
-.profile-role-option:has(input:checked) { border-color:#c7ff4755; background:#c7ff470a; color:white; }
-.profile-role-option input { accent-color:var(--lime); }
-.profile-role-tags { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
-.profile-role-tag { border:1px solid #343c48; border-radius:999px; padding:5px 10px; font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--lime); }
+.profile-legend-grid { display:grid; gap:12px; margin-top:8px; }
+.profile-legend-block { margin-bottom:12px; }
+.profile-legend-list { margin:8px 0 0; padding-left:18px; color:white; font-size:14px; line-height:1.7; }
+.profile-legend-list li { padding-left:4px; }
+.profile-legend-list li::marker { color:var(--lime); font-weight:700; }
 .card-accent:before { content:""; position:absolute; inset:0 auto 0 0; width:3px; background:var(--lime); }
 .card h3 { font:700 20px var(--font-display); margin:10px 0; }.card p { color:var(--muted); line-height:1.6; font-size:14px; }
 .meta { display:flex; flex-wrap:wrap; gap:14px; color:#a5adba; font-size:12px; margin-top:16px; }

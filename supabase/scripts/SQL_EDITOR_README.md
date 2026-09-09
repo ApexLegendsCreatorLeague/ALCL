@@ -72,9 +72,20 @@ Adds captain-facing recruitment fields to **profiles**:
 | Column | Purpose |
 |--------|---------|
 | `looking_for_team` | Player is open to offers |
-| `preferred_roles` | Assault, Skirmisher, Recon, Support, Controller |
 | `availability` | Scrim / match schedule |
 | `recruitment_pitch` | Free-form pitch to captains |
+
+## Step 3d — Top 3 main legends (run once)
+
+Run **`add-profile-main-legends.sql`** in the SQL Editor.
+
+Adds to **profiles**:
+
+| Column | Purpose |
+|--------|---------|
+| `main_legend_1` | Most-played legend |
+| `main_legend_2` | Second main |
+| `main_legend_3` | Third main |
 
 ## Step 4 — Staff roles (admin / owner)
 
