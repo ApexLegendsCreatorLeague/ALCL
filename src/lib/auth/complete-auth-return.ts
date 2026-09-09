@@ -92,16 +92,7 @@ export async function completeAuthReturn(options: AuthReturnOptions = {}) {
     }
   }
 
-  if (code) {
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (error) {
-      return {
-        ok: false as const,
-        failure: (options.recoveryOnly ? "reset_expired" : "auth_callback") as AuthReturnFailure,
-      };
-    }
-    clearAuthReturnUrl();
-  } else if (tokenHash && type) {
+  if (tokenHash && type) {
     const { error } = await supabase.auth.verifyOtp({
       token_hash: tokenHash,
       type: type as EmailOtpType,
@@ -112,6 +103,15 @@ export async function completeAuthReturn(options: AuthReturnOptions = {}) {
         failure: (type === "recovery" || options.recoveryOnly
           ? "reset_expired"
           : "auth_callback") as AuthReturnFailure,
+      };
+    }
+    clearAuthReturnUrl();
+  } else if (code) {
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    if (error) {
+      return {
+        ok: false as const,
+        failure: (options.recoveryOnly ? "reset_expired" : "auth_callback") as AuthReturnFailure,
       };
     }
     clearAuthReturnUrl();

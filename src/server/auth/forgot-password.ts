@@ -1,8 +1,11 @@
 import "server-only";
 
+import { createClient } from "@supabase/supabase-js";
+
 import { createAdminClient } from "@/lib/supabase/admin";
-import { supabaseServiceRoleKey } from "@/lib/supabase/env";
+import { siteUrl, supabaseAnonKey, supabaseServiceRoleKey, supabaseUrl } from "@/lib/supabase/env";
 import { isSupabaseConfigured } from "@/lib/supabase/server";
+import type { Database } from "@/types/database";
 
 const RESET_NEXT_PATH = "/account/reset-password";
 const RESET_RECOVERY_PATH = "/auth/recovery";
@@ -54,7 +57,7 @@ function accountNameMatches(
   return profileName === expected || metadataName === expected;
 }
 
-export async function validatePasswordResetRequest(email: string, accountName: string) {
+export async function requestPasswordReset(email: string, accountName: string) {
   if (!isSupabaseConfigured()) {
     return {
       ok: false as const,
@@ -73,7 +76,7 @@ export async function validatePasswordResetRequest(email: string, accountName: s
   const authUser = await findAuthUserIdByEmail(normalizedEmail);
 
   if (!authUser) {
-    return { ok: true as const, dispatchReset: false as const };
+    return { ok: true as const };
   }
 
   const admin = createAdminClient();
@@ -90,18 +93,36 @@ export async function validatePasswordResetRequest(email: string, accountName: s
       authUser.user_metadata?.display_name,
     )
   ) {
-    return { ok: true as const, dispatchReset: false as const };
+    return { ok: true as const };
   }
 
-  return {
-    ok: true as const,
-    dispatchReset: true as const,
-    email: normalizedEmail,
-  };
-}
+  const url = supabaseUrl();
+  const anonKey = supabaseAnonKey();
+  if (!url || !anonKey) {
+    return {
+      ok: false as const,
+      message: "Password reset is not configured in this environment.",
+    };
+  }
 
-export async function requestPasswordReset(email: string, accountName: string) {
-  return validatePasswordResetRequest(email, accountName);
+  const mailClient = createClient<Database>(url, anonKey, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+
+  // Recovery email template must link to /auth/recovery with token_hash (see supabase/templates/recovery.html).
+  const redirectTo = `${siteUrl()}${RESET_RECOVERY_PATH}`;
+  const { error } = await mailClient.auth.resetPasswordForEmail(normalizedEmail, {
+    redirectTo,
+  });
+
+  if (error) {
+    return {
+      ok: false as const,
+      message: "The reset email could not be sent. Try again in a few minutes.",
+    };
+  }
+
+  return { ok: true as const };
 }
 
 export { RESET_NEXT_PATH, RESET_RECOVERY_PATH };

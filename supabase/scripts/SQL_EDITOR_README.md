@@ -45,25 +45,28 @@ After a player registers on the site (or you add them under **Authentication →
 
 Quick first-time setup: edit email in **`bootstrap-admin.sql`** and run it (grants both admin + organizer).
 
-## Step 4 — Auth URLs and password reset email
+## Step 4 — Password reset email (required once)
 
-In Supabase **Authentication → URL Configuration**:
+The default Supabase reset email uses a PKCE link that often fails with `otp_expired`.
+ALCL uses a direct `token_hash` link instead (`supabase/templates/recovery.html`).
 
-- **Site URL:** `https://thessiatournamentsite.com`
-- **Redirect URLs** (add each line):
-  - `https://thessiatournamentsite.com/auth/callback`
-  - `https://thessiatournamentsite.com/auth/recovery`
-  - `https://thessiatournamentsite.com/auth/confirm`
+**Option A — script (fastest):**
 
-In **Authentication → Email Templates → Reset password**, replace the body with:
+1. Create a token at https://supabase.com/dashboard/account/tokens
+2. Run:
 
-```html
-<h2>Reset Password</h2>
-<p>Follow this link to reset the password for your ALCL player account:</p>
-<p><a href="{{ .SiteURL }}/auth/recovery?token_hash={{ .TokenHash }}&type=recovery">Reset Password</a></p>
+```powershell
+$env:SUPABASE_ACCESS_TOKEN = "your-token"
+npm run supabase:push-recovery-template
 ```
 
-This avoids PKCE expiry issues and works when the email is opened on a different device than the browser that requested the reset.
+**Option B — Dashboard:**
+
+1. **Authentication → URL Configuration**
+   - Site URL: `https://thessiatournamentsite.com`
+   - Redirect URLs: add `/auth/recovery`, `/auth/callback`, `/auth/confirm`
+2. **Authentication → Email Templates → Reset password**
+   - Copy the contents of `supabase/templates/recovery.html`
 
 ## Step 5 — Vercel
 

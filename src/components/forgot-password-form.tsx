@@ -2,10 +2,6 @@
 
 import { useState, type FormEvent } from "react";
 
-import { createBrowserSupabaseAsync } from "@/lib/supabase/browser";
-
-const RESET_RECOVERY_PATH = "/auth/recovery";
-
 export function ForgotPasswordForm() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -24,36 +20,11 @@ export function ForgotPasswordForm() {
         credentials: "same-origin",
         body: formData,
       });
-      const result = (await response.json()) as {
-        ok: boolean;
-        message?: string;
-        dispatchReset?: boolean;
-        email?: string;
-      };
+      const result = (await response.json()) as { ok: boolean; message?: string };
 
       if (!response.ok || !result.ok) {
         setError(result.message ?? "The reset request could not be sent.");
         return;
-      }
-
-      if (result.dispatchReset && result.email) {
-        const supabase = await createBrowserSupabaseAsync();
-        if (!supabase) {
-          setError(
-            "Password reset is not configured in this browser. Contact an organizer for help.",
-          );
-          return;
-        }
-
-        const redirectTo = `${window.location.origin}${RESET_RECOVERY_PATH}`;
-        const { error: resetError } = await supabase.auth.resetPasswordForEmail(result.email, {
-          redirectTo,
-        });
-
-        if (resetError) {
-          setError("The reset email could not be sent. Try again in a few minutes.");
-          return;
-        }
       }
 
       setMessage(

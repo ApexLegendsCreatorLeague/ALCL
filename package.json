@@ -18,6 +18,7 @@
     "collector:liveapi": "tsx scripts/liveapi-collector.ts",
     "db:link": "npx supabase link",
     "db:push": "npx supabase db push",
+    "supabase:push-recovery-template": "node scripts/push-supabase-recovery-template.mjs",
     "db:lint": "npx supabase db lint",
     "verify": "pnpm typecheck && pnpm lint && pnpm test && pnpm build"
   },
