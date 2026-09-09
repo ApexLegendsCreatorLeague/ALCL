@@ -122,7 +122,6 @@ export async function createTournament(
     slug: parsed.data.slug,
     format: "online",
     country_code: parsed.data.countryCode,
-    entry_fee_usd: parsed.data.entryFeeUsd,
     status: "draft",
     registration_opens_at: parsed.data.registrationOpensAt ?? null,
     registration_closes_at: parsed.data.registrationClosesAt ?? null,

@@ -26,7 +26,6 @@ export const POLICY_SOURCES = [
 ] as const;
 
 export const COMMUNITY_LIMITS = {
-  entryFeeUsd: 0,
   cashPrizeUsd: 0,
   annualPrizeCashValueUsd: 10_000,
   maximumRosterPlayers: 5,
@@ -82,8 +81,6 @@ export type ProhibitedSupporterCategory =
 export const COMMUNITY_MODE_MESSAGES = {
   monetaryPrize:
     "Monetary prizes are disabled for the ALCL community-tournament configuration. Additional authorization may be required for a different tournament structure.",
-  entryFee:
-    "Participant entry fees are disabled while ALCL community-tournament mode is enabled.",
   commercialFeature:
     "Commercial tournament features require separate written authorization and legal review.",
   officialAsset:
@@ -110,16 +107,12 @@ export function isProhibitedSupporterCategory(
 }
 
 export function assertCommunityTournamentConfiguration(input: {
-  entryFeeUsd: number;
   cashPrizeUsd: number;
   territory: string;
   rulesPublished: boolean;
   distribution: "public-stream" | "tv" | "paid-digital" | "other";
 }): string[] {
   const errors: string[] = [];
-  if (COMMUNITY_TOURNAMENT_MODE && input.entryFeeUsd > 0) {
-    errors.push(COMMUNITY_MODE_MESSAGES.entryFee);
-  }
   if (COMMUNITY_TOURNAMENT_MODE && input.cashPrizeUsd > 0) {
     errors.push(COMMUNITY_MODE_MESSAGES.monetaryPrize);
   }
@@ -145,14 +138,10 @@ export const POLICY_LINKS = POLICY_SOURCES;
 export const isTurkeyTerritory = isBlockedTerritory;
 
 export function assertCommunityConfiguration(input: {
-  entryFeeUsd?: number;
   cashPrizeUsd?: number;
   territory?: string;
   supporterCategory?: string;
 }) {
-  if ((input.entryFeeUsd ?? 0) > 0) {
-    throw new Error("Participant entry fees are disabled in ALCL community mode.");
-  }
   if ((input.cashPrizeUsd ?? 0) > 0) {
     throw new Error(MONETARY_PRIZE_DISABLED_MESSAGE);
   }

@@ -32,10 +32,18 @@ Run `verify-schema.sql`. Expect:
 - `app_roles_count` → `6`
 - `compliance_rows` → `1`
 
-## Step 3 — First admin
+## Step 3 — Staff roles (admin / owner)
 
-1. **Authentication → Users → Add user**
-2. Copy UUID → run `bootstrap-admin.sql` (replace `YOUR_USER_UUID`)
+After a player registers on the site (or you add them under **Authentication → Users**):
+
+1. Open **`manage-staff-roles.sql`** in this folder
+2. Run block **1** to list accounts and current roles
+3. Run block **2**, **3**, or **4** with the target email:
+   - **`admin`** — platform administrator
+   - **`organizer`** — league / organization owner (ALCL “owner” access)
+4. User must **sign out and sign back in**, then open **`/admin`**
+
+Quick first-time setup: edit email in **`bootstrap-admin.sql`** and run it (grants both admin + organizer).
 
 ## Step 4 — Vercel
 

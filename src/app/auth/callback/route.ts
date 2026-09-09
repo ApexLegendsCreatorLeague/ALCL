@@ -1,18 +1,18 @@
 import { NextResponse, type NextRequest } from "next/server";
 
+import { DEFAULT_PLAYER_HOME, safeNextPath } from "@/lib/auth/redirect-path";
 import { createRouteHandlerClient } from "@/lib/supabase/route-handler";
 import { ensurePlayerRecord } from "@/server/players";
 
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get("code");
-  const next = request.nextUrl.searchParams.get("next") ?? "/";
-  const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/";
+  const next = safeNextPath(request.nextUrl.searchParams.get("next"), DEFAULT_PLAYER_HOME);
 
   if (!code) {
     return NextResponse.redirect(new URL("/login?error=auth_callback", request.url));
   }
 
-  const redirect = NextResponse.redirect(new URL(safeNext, request.url));
+  const redirect = NextResponse.redirect(new URL(next, request.url));
   const supabase = createRouteHandlerClient(request, redirect);
   const { error, data } = await supabase.auth.exchangeCodeForSession(code);
 

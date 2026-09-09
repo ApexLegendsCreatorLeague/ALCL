@@ -17,7 +17,7 @@ export type RegisterPlayerInput = {
 };
 
 export type RegisterPlayerResult =
-  | { ok: true; email: string; password: string }
+  | { ok: true; email: string; password: string; provisionWarning?: string }
   | { ok: false; message: string };
 
 async function bootstrapFirstOrganizer(admin: SupabaseClient<Database>, userId: string) {
@@ -111,7 +111,20 @@ export async function registerPlayerAccount(input: RegisterPlayerInput): Promise
     }
 
     await bootstrapFirstOrganizer(admin, userId);
-    await provisionPlayerAccount(admin, userId, input);
+
+    try {
+      await provisionPlayerAccount(admin, userId, input);
+    } catch (provisionError) {
+      return {
+        ok: true,
+        email: input.email,
+        password: input.password,
+        provisionWarning:
+          provisionError instanceof Error
+            ? provisionError.message
+            : "Profile setup will finish when you sign in.",
+      };
+    }
 
     return { ok: true, email: input.email, password: input.password };
   } catch (error) {

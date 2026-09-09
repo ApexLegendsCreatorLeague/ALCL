@@ -1,22 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useActionState, useState, type FormEvent } from "react";
 
+import { DEFAULT_PLAYER_HOME, safeNextPath } from "@/lib/auth/redirect-path";
 import { sendMagicLink } from "@/server/actions/auth";
 
-function safeNextPath(next: string | null) {
-  if (!next || !next.startsWith("/") || next.startsWith("//")) {
-    return "/";
-  }
-  return next;
-}
-
 export function AuthForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
-  const nextPath = safeNextPath(searchParams.get("next"));
+  const nextPath = safeNextPath(searchParams.get("next"), DEFAULT_PLAYER_HOME);
   const callbackError = searchParams.get("error");
 
   const [passwordError, setPasswordError] = useState("");
@@ -30,8 +23,10 @@ export function AuthForm() {
 
     try {
       const formData = new FormData(event.currentTarget);
+      formData.set("next", nextPath);
       const response = await fetch("/api/auth/sign-in", {
         method: "POST",
+        credentials: "same-origin",
         body: formData,
       });
       const result = (await response.json()) as { ok: boolean; message?: string; redirectTo?: string };
@@ -41,8 +36,7 @@ export function AuthForm() {
         return;
       }
 
-      router.push(result.redirectTo ?? nextPath);
-      router.refresh();
+      window.location.assign(result.redirectTo ?? nextPath);
     } catch {
       setPasswordError("Sign in could not reach the server. Try again.");
     } finally {
@@ -50,12 +44,16 @@ export function AuthForm() {
     }
   }
 
+  const resetSuccess = searchParams.get("reset") === "success";
+
   const callbackMessage =
-    callbackError === "auth_required"
-      ? "Sign in to continue."
-      : callbackError === "auth_callback"
-        ? "The sign-in link expired or was invalid. Try again."
-        : null;
+    resetSuccess
+      ? "Password updated. Sign in with your new password."
+      : callbackError === "auth_required"
+        ? "Sign in to continue."
+        : callbackError === "auth_callback"
+          ? "The sign-in link expired or was invalid. Try again."
+          : null;
 
   return (
     <div className="form">
@@ -71,7 +69,12 @@ export function AuthForm() {
           <input className="input" name="email" type="email" autoComplete="email" required />
         </label>
         <label className="field">
-          Password
+          <span className="field-label-row">
+            <span>Password</span>
+            <Link className="auth-forgot-link" href="/forgot-password">
+              Forgot password?
+            </Link>
+          </span>
           <input
             className="input"
             name="password"
@@ -94,6 +97,7 @@ export function AuthForm() {
       </div>
 
       <form action={magicAction} className="form">
+        <input type="hidden" name="next" value={nextPath} />
         <label className="field">
           Player email for magic link
           <input className="input" name="email" type="email" autoComplete="email" required />

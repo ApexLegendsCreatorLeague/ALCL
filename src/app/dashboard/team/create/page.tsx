@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { AppShell, PageHeader } from "@/components/alcl";
+import { AppShell } from "@/components/app-shell";
+import { PageHeader } from "@/components/alcl";
+import { DashboardTabs } from "@/components/dashboard-tabs";
 import { RegistrationWizard } from "@/components/registration-wizard";
 
 export const metadata: Metadata = {
@@ -17,7 +19,8 @@ export default function CreateTeamPage() {
         title="Create a team"
         copy="You will be the team manager — one account controls the team. Add registered player accounts to your roster."
       />
-      <section className="container">
+      <section className="container dashboard-page">
+        <DashboardTabs />
         <div className="actions" style={{ marginBottom: 18 }}>
           <Link className="btn" href="/dashboard/player">
             Back to player profile

@@ -53,7 +53,6 @@ export interface CommunitySupporter {
 }
 
 export interface CommunityCompetition {
-  entryFee: number;
   cashPrize: number;
   annualNonCashPrizeValue: number;
   hostCountryCode: string;
@@ -73,7 +72,6 @@ export function validateCommunityCompetition(
   competition: CommunityCompetition,
 ): ComplianceResult {
   const violations: string[] = [];
-  if (competition.entryFee !== 0) violations.push("Entry fees are not permitted");
   if (competition.cashPrize !== 0) violations.push("Cash prizes are not permitted");
   if (competition.annualNonCashPrizeValue > 10_000) {
     violations.push("Annual non-cash prize value exceeds 10,000");

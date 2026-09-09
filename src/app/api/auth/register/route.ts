@@ -4,6 +4,7 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 import { z } from "zod";
 
+import { DEFAULT_PLAYER_HOME, safeNextPath } from "@/lib/auth/redirect-path";
 import { createRouteHandlerClient } from "@/lib/supabase/route-handler";
 import { registerPlayerAccount } from "@/server/auth/register-player";
 
@@ -13,6 +14,7 @@ const schema = z.object({
   displayName: z.string().trim().min(2).max(50),
   platform: z.enum(["PC", "PlayStation", "Xbox", "Nintendo Switch"]).default("PC"),
   region: z.enum(["North America", "Europe", "Oceania", "Asia Pacific"]).default("North America"),
+  next: z.string().optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -29,6 +31,7 @@ export async function POST(request: NextRequest) {
       displayName: formData.get("displayName"),
       platform: formData.get("platform") ?? "PC",
       region: formData.get("region") ?? "North America",
+      next: formData.get("next"),
     };
   }
 
@@ -45,7 +48,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(registered, { status: 422 });
   }
 
-  const response = NextResponse.json({ ok: true, redirectTo: "/" });
+  const redirectTo = safeNextPath(parsed.data.next, DEFAULT_PLAYER_HOME);
+  const response = NextResponse.json({ ok: true, redirectTo });
   const supabase = createRouteHandlerClient(request, response);
   const { error: signInError } = await supabase.auth.signInWithPassword({
     email: registered.email,
@@ -57,7 +61,18 @@ export async function POST(request: NextRequest) {
       ok: true,
       redirectTo: null,
       needsSignIn: true,
-      message: "Account created. Sign in with your email and password.",
+      message: registered.provisionWarning
+        ? "Account created. Sign in to finish setup."
+        : "Account created. Sign in with your email and password.",
+      warning: registered.provisionWarning,
+    });
+  }
+
+  if (registered.provisionWarning) {
+    return NextResponse.json({
+      ok: true,
+      redirectTo,
+      warning: registered.provisionWarning,
     });
   }
 

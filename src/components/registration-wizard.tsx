@@ -42,6 +42,7 @@ export function RegistrationWizard() {
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [manager, setManager] = useState<TeamManager | null>(null);
+  const [managerError, setManagerError] = useState("");
   const [form, setForm] = useState({
     teamName: "",
     abbreviation: "",
@@ -56,10 +57,16 @@ export function RegistrationWizard() {
 
   useEffect(() => {
     fetch("/api/players/me")
-      .then((response) => response.json())
-      .then((payload: TeamManager) => {
-        if (!payload.playerId || !payload.displayName) return;
+      .then(async (response) => {
+        const payload = (await response.json()) as TeamManager & { message?: string };
+        if (!response.ok) {
+          throw new Error(payload.message ?? "Sign in required.");
+        }
+        if (!payload.playerId || !payload.displayName) {
+          throw new Error("Your player profile is not ready yet.");
+        }
         setManager(payload);
+        setManagerError("");
         setForm((current) => ({
           ...current,
           roster: current.roster.map((slot, index) =>
@@ -79,8 +86,10 @@ export function RegistrationWizard() {
           ),
         }));
       })
-      .catch(() => {
-        // Manager details load from the signed-in player session.
+      .catch((loadError: unknown) => {
+        setManagerError(
+          loadError instanceof Error ? loadError.message : "Sign in to create a team.",
+        );
       });
   }, []);
 
@@ -173,6 +182,12 @@ export function RegistrationWizard() {
           substitutes from registered ALCL players. Anyone not on ALCL yet must join at{" "}
           <Link href="/register">/register</Link> first.
         </p>
+
+        {managerError ? (
+          <p role="alert" className="legal">
+            {managerError} <Link href="/login?next=/dashboard/team/create">Sign in</Link>
+          </p>
+        ) : null}
 
         {step === 0 ? (
           <div className="form">

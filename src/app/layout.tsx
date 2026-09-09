@@ -14,6 +14,8 @@ const display = Space_Grotesk({
   subsets: ["latin"],
 });
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
   title: { default: "ALCL", template: "%s · ALCL" },

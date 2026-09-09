@@ -5,7 +5,6 @@ import { createHistoricalSnapshot, manualResultIngestor } from "./records";
 import { determineQualifications, validateCommunityCompliance } from "./rules";
 
 const compliant: ComplianceInput = {
-  entryFeeUsd: 0,
   cashPrizeUsd: 0,
   annualPrizeCashValueUsd: 10_000,
   territory: "Canada",
@@ -34,7 +33,6 @@ describe("qualification and compliance", () => {
     expect(validateCommunityCompliance(compliant)).toEqual([]);
     const codes = validateCommunityCompliance({
       ...compliant,
-      entryFeeUsd: 1,
       cashPrizeUsd: 1,
       annualPrizeCashValueUsd: 10_001,
       territory: "Türkiye",
@@ -44,7 +42,7 @@ describe("qualification and compliance", () => {
       broadcastHasRequiredDisclaimer: false,
     }).map((violation) => violation.code);
     expect(codes).toEqual(expect.arrayContaining([
-      "ENTRY_FEE", "CASH_PRIZE", "ANNUAL_VALUE_LIMIT", "TURKEY",
+      "CASH_PRIZE", "ANNUAL_VALUE_LIMIT", "TURKEY",
       "PROHIBITED_SUPPORTER", "RULES_PUBLISHED_LATE",
       "OFFICIAL_BROADCAST_ASSETS", "MISSING_BROADCAST_DISCLAIMER",
     ]));

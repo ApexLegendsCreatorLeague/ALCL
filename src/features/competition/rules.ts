@@ -49,9 +49,6 @@ export function validateCommunityCompliance(
   input: ComplianceInput,
 ): readonly ComplianceViolation[] {
   const violations: ComplianceViolation[] = [];
-  if (input.entryFeeUsd > 0) {
-    violations.push({ code: "ENTRY_FEE", message: "Participant entry fees are not permitted." });
-  }
   if (input.cashPrizeUsd > 0) {
     violations.push({ code: "CASH_PRIZE", message: "Cash prizes are disabled for this community configuration." });
   }

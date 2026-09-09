@@ -40,7 +40,6 @@ export const tournamentSchema = z
     name: z.string().trim().min(3).max(120),
     slug,
     countryCode,
-    entryFeeUsd: zeroMoney.default(0),
     registrationOpensAt: z.iso.datetime().optional(),
     registrationClosesAt: z.iso.datetime().optional(),
     startsAt: z.iso.datetime().optional(),

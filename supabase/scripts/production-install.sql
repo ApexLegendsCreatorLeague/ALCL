@@ -62,7 +62,6 @@ create table public.compliance_settings (
   id boolean primary key default true check (id),
   community_mode boolean not null default true check (community_mode),
   commercial_authorization_enabled boolean not null default false check (not commercial_authorization_enabled),
-  entry_fee_usd numeric(12,2) not null default 0 check (entry_fee_usd = 0),
   cash_prize_usd numeric(12,2) not null default 0 check (cash_prize_usd = 0),
   annual_prize_value_limit_usd numeric(12,2) not null default 10000 check (annual_prize_value_limit_usd = 10000),
   disabled_country_codes text[] not null default array['TR']::text[] check ('TR' = any(disabled_country_codes)),
@@ -124,7 +123,6 @@ create table public.tournaments (
   slug text not null check (slug ~ '^[a-z0-9-]+$'),
   format text not null default 'online' check (format = 'online'),
   country_code text not null check (country_code ~ '^[A-Z]{2}$' and country_code <> 'TR'),
-  entry_fee_usd numeric(12,2) not null default 0 check (entry_fee_usd = 0),
   status public.competition_status not null default 'draft',
   registration_opens_at timestamptz,
   registration_closes_at timestamptz,
@@ -582,14 +580,11 @@ as $$
 declare
   annual_total numeric(12,2);
 begin
-  if tg_table_name in ('leagues', 'tournaments', 'players') and new.country_code = 'TR' then
-    raise exception 'ALCL community tournaments are unavailable in Turkey'
-      using errcode = '23514';
-  end if;
-
-  if tg_table_name = 'tournaments' and new.entry_fee_usd <> 0 then
-    raise exception 'Participant entry fees are disabled in community mode'
-      using errcode = '23514';
+  if tg_table_name in ('leagues', 'tournaments', 'players') then
+    if new.country_code = 'TR' then
+      raise exception 'ALCL community tournaments are unavailable in Turkey'
+        using errcode = '23514';
+    end if;
   end if;
 
   if tg_table_name = 'community_supporters' then

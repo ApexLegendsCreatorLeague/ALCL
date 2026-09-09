@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ArrowRight, Calendar, Check, ChevronRight, Search as SearchIcon, Shield, Trophy, Users, X } from "lucide-react";
+import { useNavSessionReady, useNavUser } from "@/components/auth-session-provider";
 import { players as demoPlayers, teams as demoTeams } from "@/lib/content";
 
 export const teams = demoTeams.map((team) => team.name);
@@ -12,28 +13,16 @@ export function LegalDisclaimer() {
   return <p className="legal">This tournament is not affiliated with or sponsored by Electronic Arts Inc.</p>;
 }
 
-export function Navbar() {
-  return <nav className="nav"><div className="container nav-inner">
-    <Link className="brand" href="/"><span className="brand-mark">A</span>ALCL</Link>
-    <span className="badge badge-warn">Demo data</span>
-    <div className="nav-links"><Link href="/league">League</Link><Link href="/tournaments">Tournaments</Link><Link href="/standings">Standings</Link><Link href="/teams">Teams</Link><Link href="/players">Players</Link><Link href="/championship">Championship</Link><Link aria-label="Search ALCL" href="/teams"><SearchIcon size={16}/></Link></div>
-    <div className="nav-actions">
-      <Link className="btn nav-login" href="/login">Player sign in</Link>
-      <Link className="btn btn-primary nav-cta" href="/register">Register <ArrowRight size={14}/></Link>
-    </div>
-  </div></nav>;
-}
-
 export function Footer() {
+  const user = useNavUser();
+  const ready = useNavSessionReady();
   return <footer className="footer"><div className="container"><div className="footer-grid">
     <div><div className="brand"><span className="brand-mark">A</span>ALCL</div><p style={{color:"var(--muted)",maxWidth:410,lineHeight:1.6}}>Independent community tournaments for Apex Legends. Built for competitors, organizers, and fans.</p></div>
     <div className="footer-links"><strong style={{color:"white"}}>Compete</strong><Link href="/tournaments">Tournaments</Link><Link href="/standings">Standings</Link><Link href="/rules">Rules</Link><Link href="/teams">Teams</Link></div>
-    <div className="footer-links"><strong style={{color:"white"}}>Players</strong><Link href="/login">Player sign in</Link><Link href="/register">Create player account</Link><Link href="/dashboard/team/create">Create a team</Link></div>
+    <div className="footer-links"><strong style={{color:"white"}}>Players</strong>{!ready ? null : user ? <><Link href="/dashboard/player">My profile</Link><Link href="/dashboard/team/create">Create a team</Link><Link href="/dashboard">Dashboard</Link></> : <><Link href="/login">Player sign in</Link><Link href="/register">Create player account</Link><Link href="/login?next=/dashboard/team/create">Create a team</Link></>}</div>
     <div className="footer-links"><strong style={{color:"white"}}>ALCL</strong><Link href="/championship">Championship</Link><Link href="/hall-of-fame">Hall of fame</Link><Link href="/supporters">Supporters</Link><Link href="/legal">Legal</Link></div>
   </div><LegalDisclaimer/></div></footer>;
 }
-
-export function AppShell({children}:{children:React.ReactNode}) { return <div className="shell"><Navbar/><main className="main">{children}</main><Footer/></div>; }
 
 export function StatusBadge({status="Registration open"}:{status?:string}) {
   const live = /live|open|active/i.test(status); return <span className={`badge ${live?"badge-live":"badge-warn"}`}>{live&&"● "}{status}</span>;
@@ -48,11 +37,16 @@ export function Countdown({to}:{to?:string}) {
 }
 
 export function Hero() {
+  const user = useNavUser();
+  const ready = useNavSessionReady();
   return <section className="hero"><div className="container" style={{position:"relative",zIndex:1}}><div className="eyebrow">Season 05 · Now recruiting</div>
     <h1 className="display">THE ARENA<br/><span style={{color:"var(--lime)"}}>BELONGS TO YOU.</span></h1>
     <p>Independent community tournaments for Apex Legends. Compete in structured seasons, build your legacy, and earn your place at the ALCL Championship.</p>
-    <div className="actions"><Link className="btn btn-primary" href="/register">Register <ArrowRight size={15}/></Link><Link className="btn" href="/login">Player sign in</Link><Link className="btn btn-ghost" href="/tournaments">Explore tournaments</Link></div>
-    <div className="hero-stats"><div className="hero-stat"><strong>20</strong><span>Community teams</span></div><div className="hero-stat"><strong>$0</strong><span>Entry fees</span></div><div className="hero-stat"><strong>05</strong><span>Community events</span></div></div>
+    <div className="actions">{!ready ? null : user
+      ? <><Link className="btn btn-primary" href="/dashboard/player">My profile <ArrowRight size={15}/></Link><Link className="btn" href="/dashboard/team/create">Create a team</Link><Link className="btn btn-ghost" href="/tournaments">Explore tournaments</Link></>
+      : <><Link className="btn btn-primary" href="/register">Register <ArrowRight size={15}/></Link><Link className="btn" href="/login">Player sign in</Link><Link className="btn btn-ghost" href="/tournaments">Explore tournaments</Link></>
+    }</div>
+    <div className="hero-stats"><div className="hero-stat"><strong>20</strong><span>Community teams</span></div><div className="hero-stat"><strong>5</strong><span>Player rosters</span></div><div className="hero-stat"><strong>05</strong><span>Community events</span></div></div>
   </div></section>;
 }
 

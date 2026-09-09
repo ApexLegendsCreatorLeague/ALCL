@@ -16,9 +16,9 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "collector:liveapi": "tsx scripts/liveapi-collector.ts",
-    "db:link": "supabase link",
-    "db:push": "supabase db push",
-    "db:lint": "supabase db lint",
+    "db:link": "npx supabase link",
+    "db:push": "npx supabase db push",
+    "db:lint": "npx supabase db lint",
     "verify": "pnpm typecheck && pnpm lint && pnpm test && pnpm build"
   },
   "dependencies": {

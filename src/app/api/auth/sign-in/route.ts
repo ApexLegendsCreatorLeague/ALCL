@@ -4,12 +4,14 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 import { z } from "zod";
 
+import { DEFAULT_PLAYER_HOME, safeNextPath } from "@/lib/auth/redirect-path";
 import { createRouteHandlerClient } from "@/lib/supabase/route-handler";
 import { isSupabaseConfigured } from "@/lib/supabase/server";
 
 const schema = z.object({
   email: z.email().max(254),
   password: z.string().min(8).max(128),
+  next: z.string().optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -30,6 +32,7 @@ export async function POST(request: NextRequest) {
     payload = {
       email: formData.get("email"),
       password: formData.get("password"),
+      next: formData.get("next"),
     };
   }
 
@@ -41,8 +44,9 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const response = NextResponse.json({ ok: true, redirectTo: "/" });
-  const supabase = createRouteHandlerClient(request, response);
+  const redirectTo = safeNextPath(parsed.data.next, DEFAULT_PLAYER_HOME);
+  const successBody = NextResponse.json({ ok: true, redirectTo });
+  const supabase = createRouteHandlerClient(request, successBody);
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
 
   if (error) {
@@ -52,5 +56,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: false, message }, { status: 401 });
   }
 
-  return response;
+  successBody.headers.set("Cache-Control", "private, no-store, max-age=0");
+  return successBody;
 }

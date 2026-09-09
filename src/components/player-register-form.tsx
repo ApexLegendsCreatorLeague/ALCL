@@ -1,16 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
 type RegisterResponse =
-  | { ok: true; redirectTo: "/" }
-  | { ok: true; redirectTo: null; emailConfirmationRequired?: boolean; needsSignIn?: boolean }
+  | {
+      ok: true;
+      redirectTo: string | null;
+      emailConfirmationRequired?: boolean;
+      needsSignIn?: boolean;
+      message?: string;
+      warning?: string;
+    }
   | { ok: false; message: string };
 
 export function PlayerRegisterForm() {
-  const router = useRouter();
   const [error, setError] = useState("");
   const [status, setStatus] = useState("");
   const [pending, setPending] = useState(false);
@@ -25,6 +29,7 @@ export function PlayerRegisterForm() {
       const formData = new FormData(event.currentTarget);
       const response = await fetch("/api/auth/register", {
         method: "POST",
+        credentials: "same-origin",
         body: formData,
       });
       const result = (await response.json()) as RegisterResponse;
@@ -35,8 +40,7 @@ export function PlayerRegisterForm() {
       }
 
       if (result.redirectTo) {
-        router.push(result.redirectTo);
-        router.refresh();
+        window.location.assign(result.redirectTo);
         return;
       }
 
@@ -46,11 +50,11 @@ export function PlayerRegisterForm() {
       }
 
       if (result.needsSignIn) {
-        setStatus("Player account created. Sign in to continue.");
+        setStatus(result.message ?? "Player account created. Sign in to continue.");
         return;
       }
 
-      setStatus("Player account created.");
+      setStatus(result.message ?? "Player account created.");
     } catch {
       setError("Registration could not reach the server. Try again.");
     } finally {

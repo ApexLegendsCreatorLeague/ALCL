@@ -8,7 +8,6 @@ import { createAdapter, DisabledDataAdapter, ManualDataAdapter } from "@/feature
 import { demoData } from "@/lib/demo-data";
 
 const compliant: CommunityCompetition = {
-  entryFee: 0,
   cashPrize: 0,
   annualNonCashPrizeValue: 10_000,
   hostCountryCode: "US",
@@ -32,7 +31,6 @@ describe("community compliance", () => {
   it("reports all simultaneous competition violations", () => {
     const output = validateCommunityCompetition({
       ...compliant,
-      entryFee: 1,
       cashPrize: 1,
       annualNonCashPrizeValue: 10_001,
       hostCountryCode: "tr",
@@ -48,7 +46,7 @@ describe("community compliance", () => {
       }],
     });
     expect(output.compliant).toBe(false);
-    expect(output.violations).toHaveLength(9);
+    expect(output.violations).toHaveLength(8);
   });
 
   it.each(PROHIBITED_SUPPORTER_CATEGORIES)("strictly blocks supporter category %s", (category) => {

@@ -1,14 +1,25 @@
--- Run once in the Supabase SQL editor (or via psql) after creating your first
--- auth user in Authentication > Users. Replace the placeholder UUID below.
+-- Bootstrap the first ALCL administrator (Supabase SQL Editor)
 --
--- 1. Supabase Dashboard > Authentication > Users > Add user (email + password)
--- 2. Copy the user's UUID from the users table
--- 3. Replace YOUR_USER_UUID and run this script
+-- Option A — by email (easiest after the player has registered):
+--   1. Replace the email below
+--   2. Run this script
+--
+-- Option B — by UUID:
+--   Authentication → Users → copy UUID → replace in the profile_id filter
 
+-- Grant platform admin + organizer (owner) to one account:
 insert into public.profile_roles (profile_id, role, granted_by)
-values
-  ('YOUR_USER_UUID'::uuid, 'organizer', 'YOUR_USER_UUID'::uuid),
-  ('YOUR_USER_UUID'::uuid, 'admin', 'YOUR_USER_UUID'::uuid)
+select u.id, role_name, u.id
+from auth.users u
+cross join (values ('admin'::public.app_role), ('organizer'::public.app_role)) as roles(role_name)
+where lower(u.email) = lower('YOUR_EMAIL@example.com')
 on conflict (profile_id, role) do nothing;
 
--- Verify: this user should now access /admin after signing in on the live site.
+-- Verify:
+select u.email, pr.role
+from auth.users u
+join public.profile_roles pr on pr.profile_id = u.id
+where lower(u.email) = lower('YOUR_EMAIL@example.com')
+order by pr.role;
+
+-- Sign out and back in on the live site, then visit /admin

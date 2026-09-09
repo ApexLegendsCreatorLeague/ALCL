@@ -1,16 +1,24 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { AppShell } from "@/components/alcl";
+import { redirect } from "next/navigation";
+
+import { AppShell } from "@/components/app-shell";
 import { AuthConfigBanner } from "@/components/auth-config-banner";
 import { PlayerRegisterForm } from "@/components/player-register-form";
+import { getNavUser } from "@/server/auth/nav-user";
 
 export const metadata: Metadata = {
   title: "Player registration",
   description: "Create your ALCL player account. Teams do not have separate logins.",
 };
 
-export default function RegisterPlayerPage() {
+export default async function RegisterPlayerPage() {
+  const user = await getNavUser();
+  if (user) {
+    redirect("/dashboard/player");
+  }
+
   return (
     <AppShell>
       <div className="container" style={{ display: "grid", placeItems: "center", minHeight: "65vh" }}>

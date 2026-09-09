@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
+import { DEFAULT_PLAYER_HOME, safeNextPath } from "@/lib/auth/redirect-path";
 import { siteUrl } from "@/lib/supabase/env";
 import { createActionClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import { registerPlayerAccount } from "@/server/auth/register-player";
@@ -43,7 +44,7 @@ export async function signInWithPassword(
 }
 
 type SignUpResult = {
-  redirectTo: "/" | null;
+  redirectTo: string | null;
   emailConfirmationRequired?: boolean;
   needsSignIn?: boolean;
 };
@@ -93,7 +94,7 @@ export async function signUpWithPassword(
     return actionSuccess({ redirectTo: null, needsSignIn: true });
   }
 
-  return actionSuccess({ redirectTo: "/" });
+  return actionSuccess({ redirectTo: DEFAULT_PLAYER_HOME });
 }
 
 export async function sendMagicLink(
@@ -105,11 +106,14 @@ export async function sendMagicLink(
   }
   const parsed = emailSchema.safeParse(formData.get("email"));
   if (!parsed.success) return actionFailure("INVALID_INPUT", "Enter a valid email address.");
+  const next = safeNextPath(formData.get("next")?.toString(), DEFAULT_PLAYER_HOME);
   const supabase = await createActionClient();
   const redirectBase = siteUrl((await headers()).get("origin") ?? "http://localhost:3000");
   const { error } = await supabase.auth.signInWithOtp({
     email: parsed.data,
-    options: { emailRedirectTo: `${redirectBase}/auth/callback?next=/` },
+    options: {
+      emailRedirectTo: `${redirectBase}/auth/callback?next=${encodeURIComponent(next)}`,
+    },
   });
   if (error) return actionFailure("INTERNAL_ERROR", "The sign-in link could not be sent.");
   return actionSuccess(null);

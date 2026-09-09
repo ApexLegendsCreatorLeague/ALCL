@@ -73,7 +73,7 @@ insert into public.seasons (
 );
 
 insert into public.tournaments (
-  id, season_id, name, slug, format, country_code, entry_fee_usd, status,
+  id, season_id, name, slug, format, country_code, status,
   registration_opens_at, registration_closes_at, starts_at, ends_at, max_teams
 )
 select
@@ -83,7 +83,6 @@ select
   'fictional-community-tournament-' || g,
   'online',
   'US',
-  0,
   'draft',
   now() - interval '1 day',
   now() + interval '7 days',

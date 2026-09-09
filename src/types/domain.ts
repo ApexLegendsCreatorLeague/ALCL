@@ -213,7 +213,6 @@ export interface Supporter {
 }
 
 export interface ComplianceInput {
-  readonly entryFeeUsd: number;
   readonly cashPrizeUsd: number;
   readonly annualPrizeCashValueUsd: number;
   readonly territory: string;
@@ -226,7 +225,6 @@ export interface ComplianceInput {
 
 export interface ComplianceViolation {
   readonly code:
-    | "ENTRY_FEE"
     | "CASH_PRIZE"
     | "ANNUAL_VALUE_LIMIT"
     | "TURKEY"

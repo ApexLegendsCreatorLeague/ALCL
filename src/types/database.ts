@@ -107,7 +107,6 @@ type TournamentsRow = Timestamped & {
   slug: string;
   format: string;
   country_code: string;
-  entry_fee_usd: number;
   status: CompetitionStatus;
   registration_opens_at: string | null;
   registration_closes_at: string | null;
@@ -451,7 +450,6 @@ export interface Database {
         id: boolean;
         community_mode: boolean;
         commercial_authorization_enabled: boolean;
-        entry_fee_usd: number;
         cash_prize_usd: number;
         annual_prize_value_limit_usd: number;
         disabled_country_codes: string[];

@@ -20,20 +20,18 @@ describe("community tournament configuration", () => {
 
   it("rejects prohibited event settings", () => {
     const errors = assertCommunityTournamentConfiguration({
-      entryFeeUsd: 5,
       cashPrizeUsd: 100,
       territory: "TR",
       rulesPublished: false,
       distribution: "paid-digital",
     });
 
-    expect(errors).toHaveLength(5);
+    expect(errors).toHaveLength(4);
   });
 
   it("accepts the strict community defaults", () => {
     expect(
       assertCommunityTournamentConfiguration({
-        entryFeeUsd: 0,
         cashPrizeUsd: 0,
         territory: "US",
         rulesPublished: true,
