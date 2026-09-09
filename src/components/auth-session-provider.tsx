@@ -127,7 +127,12 @@ export function AuthSessionProvider({
         return;
       }
 
-      const result = supabase.auth.onAuthStateChange(() => {
+      const result = supabase.auth.onAuthStateChange((event) => {
+        if (event === "PASSWORD_RECOVERY" && pathname !== "/account/reset-password") {
+          window.location.assign("/account/reset-password");
+          return;
+        }
+
         void syncSession();
       });
       subscription = result.data.subscription;
