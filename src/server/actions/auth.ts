@@ -6,7 +6,7 @@ import { z } from "zod";
 
 import { siteUrl } from "@/lib/supabase/env";
 import { createActionClient, isSupabaseConfigured } from "@/lib/supabase/server";
-import { registerPlayer } from "@/server/auth/register-player";
+import { registerPlayerAccount } from "@/server/auth/register-player";
 import { actionFailure, actionSuccess, type ActionResult } from "@/server/action-result";
 
 const emailSchema = z.email().max(254);
@@ -78,25 +78,22 @@ export async function signUpWithPassword(
     );
   }
 
-  const redirectBase = siteUrl((await headers()).get("origin") ?? "http://localhost:3000");
-  const result = await registerPlayer({
-    ...parsed.data,
-    redirectBase,
-  });
+  const result = await registerPlayerAccount(parsed.data);
 
   if (!result.ok) {
     return actionFailure("INTERNAL_ERROR", result.message);
   }
 
-  if (result.redirectTo) {
-    return actionSuccess({ redirectTo: result.redirectTo });
+  const supabase = await createActionClient();
+  const { error: signInError } = await supabase.auth.signInWithPassword({
+    email: result.email,
+    password: result.password,
+  });
+  if (signInError) {
+    return actionSuccess({ redirectTo: null, needsSignIn: true });
   }
 
-  if ("emailConfirmationRequired" in result && result.emailConfirmationRequired) {
-    return actionSuccess({ redirectTo: null, emailConfirmationRequired: true });
-  }
-
-  return actionSuccess({ redirectTo: null, needsSignIn: true });
+  return actionSuccess({ redirectTo: "/" });
 }
 
 export async function sendMagicLink(

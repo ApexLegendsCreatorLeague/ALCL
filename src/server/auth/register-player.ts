@@ -3,7 +3,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createActionClient, isSupabaseConfigured } from "@/lib/supabase/server";
+import { isSupabaseConfigured } from "@/lib/supabase/server";
 import { ensurePlayerRecord } from "@/server/players";
 import type { Database } from "@/types/database";
 
@@ -13,16 +13,11 @@ export type RegisterPlayerInput = {
   displayName: string;
   platform: "PC" | "PlayStation" | "Xbox" | "Nintendo Switch";
   region: "North America" | "Europe" | "Oceania" | "Asia Pacific";
-  redirectBase: string;
 };
 
 export type RegisterPlayerResult =
-  | { ok: true; redirectTo: "/" }
-  | { ok: true; redirectTo: null; emailConfirmationRequired: true }
-  | { ok: true; redirectTo: null; needsSignIn: true }
+  | { ok: true; email: string; password: string }
   | { ok: false; message: string };
-
-type SignUpInput = RegisterPlayerInput;
 
 async function bootstrapFirstOrganizer(admin: SupabaseClient<Database>, userId: string) {
   const { count, error } = await admin
@@ -43,7 +38,7 @@ async function bootstrapFirstOrganizer(admin: SupabaseClient<Database>, userId: 
 async function provisionPlayerAccount(
   admin: SupabaseClient<Database>,
   userId: string,
-  input: SignUpInput,
+  input: RegisterPlayerInput,
 ) {
   const { error: profileError } = await admin.from("profiles").upsert(
     {
@@ -76,27 +71,25 @@ function mapSignUpError(message: string) {
     return "An account with this email already exists. Sign in instead.";
   }
   if (normalized.includes("database error")) {
-    return "Registration failed while saving your account. Run Supabase migrations (db push) on this project.";
+    return "Database schema is missing. Run: supabase db push";
   }
   return message || "The player account could not be created.";
 }
 
-export async function registerPlayer(input: RegisterPlayerInput): Promise<RegisterPlayerResult> {
+export async function registerPlayerAccount(input: RegisterPlayerInput): Promise<RegisterPlayerResult> {
   if (!isSupabaseConfigured()) {
     return {
       ok: false,
-      message: "Authentication is not configured. Set SUPABASE_URL and SUPABASE_ANON_KEY on Vercel.",
+      message: "Set SUPABASE_URL and SUPABASE_ANON_KEY on Vercel.",
     };
   }
 
   if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
     return {
       ok: false,
-      message: "Registration is missing SUPABASE_SERVICE_ROLE_KEY on the server.",
+      message: "Set SUPABASE_SERVICE_ROLE_KEY on Vercel.",
     };
   }
-
-  let userId: string | undefined;
 
   try {
     const admin = createAdminClient();
@@ -109,29 +102,20 @@ export async function registerPlayer(input: RegisterPlayerInput): Promise<Regist
     if (error) {
       return { ok: false, message: mapSignUpError(error.message) };
     }
-    userId = data.user?.id;
 
+    const userId = data.user?.id;
     if (!userId) {
       return { ok: false, message: "Registration did not create a player account." };
     }
 
     await bootstrapFirstOrganizer(admin, userId);
     await provisionPlayerAccount(admin, userId, input);
+
+    return { ok: true, email: input.email, password: input.password };
   } catch (error) {
     return {
       ok: false,
       message: error instanceof Error ? error.message : "Registration failed.",
     };
   }
-
-  const supabase = await createActionClient();
-  const { error: signInError } = await supabase.auth.signInWithPassword({
-    email: input.email,
-    password: input.password,
-  });
-  if (signInError) {
-    return { ok: true, redirectTo: null, needsSignIn: true };
-  }
-
-  return { ok: true, redirectTo: "/" };
 }

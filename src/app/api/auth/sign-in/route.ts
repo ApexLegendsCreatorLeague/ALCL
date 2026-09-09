@@ -1,7 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 
-import { createActionClient, isSupabaseConfigured } from "@/lib/supabase/server";
+import { createRouteHandlerClient } from "@/lib/supabase/route-handler";
+import { isSupabaseConfigured } from "@/lib/supabase/server";
 
 const schema = z.object({
   email: z.email().max(254),
@@ -11,7 +12,7 @@ const schema = z.object({
 export async function POST(request: NextRequest) {
   if (!isSupabaseConfigured()) {
     return NextResponse.json(
-      { ok: false, message: "Authentication is not configured on the server." },
+      { ok: false, message: "Set SUPABASE_URL and SUPABASE_ANON_KEY on Vercel." },
       { status: 503 },
     );
   }
@@ -37,8 +38,10 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const supabase = await createActionClient();
+  const response = NextResponse.json({ ok: true, redirectTo: "/" });
+  const supabase = createRouteHandlerClient(request, response);
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
+
   if (error) {
     const message = error.message.toLowerCase().includes("confirm")
       ? "Confirm your email first, then sign in."
@@ -46,5 +49,5 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: false, message }, { status: 401 });
   }
 
-  return NextResponse.json({ ok: true, redirectTo: "/" });
+  return response;
 }

@@ -1,8 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 
-import { siteUrl } from "@/lib/supabase/env";
-import { registerPlayer } from "@/server/auth/register-player";
+import { createRouteHandlerClient } from "@/lib/supabase/route-handler";
+import { registerPlayerAccount } from "@/server/auth/register-player";
 
 const schema = z.object({
   email: z.email().max(254),
@@ -37,15 +37,26 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const redirectBase = siteUrl(request.nextUrl.origin);
-  const result = await registerPlayer({
-    ...parsed.data,
-    redirectBase,
-  });
-
-  if (!result.ok) {
-    return NextResponse.json(result, { status: 422 });
+  const registered = await registerPlayerAccount(parsed.data);
+  if (!registered.ok) {
+    return NextResponse.json(registered, { status: 422 });
   }
 
-  return NextResponse.json(result);
+  const response = NextResponse.json({ ok: true, redirectTo: "/" });
+  const supabase = createRouteHandlerClient(request, response);
+  const { error: signInError } = await supabase.auth.signInWithPassword({
+    email: registered.email,
+    password: registered.password,
+  });
+
+  if (signInError) {
+    return NextResponse.json({
+      ok: true,
+      redirectTo: null,
+      needsSignIn: true,
+      message: "Account created. Sign in with your email and password.",
+    });
+  }
+
+  return response;
 }
