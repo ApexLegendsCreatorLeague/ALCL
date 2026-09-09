@@ -2,11 +2,19 @@
 
 import { useActionState } from "react";
 
-import { sendMagicLink, signInWithPassword } from "@/server/actions/auth";
+import {
+  sendMagicLink,
+  signInWithPassword,
+  signUpWithPassword,
+} from "@/server/actions/auth";
 
 export function AuthForm() {
   const [passwordState, passwordAction, passwordPending] = useActionState(
     signInWithPassword,
+    null,
+  );
+  const [signUpState, signUpAction, signUpPending] = useActionState(
+    signUpWithPassword,
     null,
   );
   const [magicState, magicAction, magicPending] = useActionState(sendMagicLink, null);
@@ -14,6 +22,7 @@ export function AuthForm() {
   return (
     <div className="form">
       <form action={passwordAction} className="form">
+        <p className="eyebrow">Sign in</p>
         <label className="field">
           Email
           <input className="input" name="email" type="email" autoComplete="email" required />
@@ -37,7 +46,9 @@ export function AuthForm() {
         </button>
       </form>
 
-      <div aria-hidden="true" className="legal">or use a magic link</div>
+      <div aria-hidden="true" className="legal" style={{ margin: "1.25rem 0" }}>
+        or use a magic link
+      </div>
 
       <form action={magicAction} className="form">
         <label className="field">
@@ -53,6 +64,53 @@ export function AuthForm() {
           {magicPending ? "Sending…" : "Email magic link"}
         </button>
       </form>
+
+      <div aria-hidden="true" className="legal" style={{ margin: "1.25rem 0" }}>
+        new to ALCL
+      </div>
+
+      <form action={signUpAction} className="form">
+        <p className="eyebrow">Create account</p>
+        <label className="field">
+          Display name
+          <input
+            className="input"
+            name="displayName"
+            type="text"
+            autoComplete="nickname"
+            minLength={2}
+            maxLength={50}
+            required
+            placeholder="Your ALCL name"
+          />
+        </label>
+        <label className="field">
+          Email
+          <input className="input" name="email" type="email" autoComplete="email" required />
+        </label>
+        <label className="field">
+          ALCL password
+          <input
+            className="input"
+            name="password"
+            type="password"
+            autoComplete="new-password"
+            minLength={8}
+            required
+          />
+        </label>
+        {signUpState && !signUpState.ok ? (
+          <p role="alert" className="legal">{signUpState.message}</p>
+        ) : signUpState?.ok ? (
+          <p role="status" className="legal">
+            Account created. If email confirmation is enabled, check your inbox, then sign in above.
+          </p>
+        ) : null}
+        <button className="btn" disabled={signUpPending}>
+          {signUpPending ? "Creating account…" : "Create account"}
+        </button>
+      </form>
+
       <p className="legal">
         These are ALCL credentials. ALCL will never request an EA password,
         authentication token, or private game-account access.

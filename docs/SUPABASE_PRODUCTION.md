@@ -96,14 +96,17 @@ Auth settings for early testing.
 
 ## 6. Bootstrap the first organizer / admin
 
-There is no public sign-up page yet. Create the first account manually:
+Create the first account **on your site** — not in the Supabase dashboard:
 
-1. **Authentication → Users → Add user** (email + password).
-2. Copy the user UUID.
-3. Run `supabase/scripts/bootstrap-admin.sql` in **SQL Editor**, replacing
-   `YOUR_USER_UUID`.
+1. Open `https://your-app.vercel.app/login`.
+2. Use **Create account** (display name, email, password).
+3. If email confirmation is enabled in Supabase Auth, confirm the email, then sign in.
+4. The first registered user automatically receives organizer + admin roles
+   (requires `SUPABASE_SERVICE_ROLE_KEY` on Vercel).
 
-Sign in at `https://your-app.vercel.app/login` and open `/admin`.
+Open `/admin` after sign-in.
+
+Fallback only if sign-up fails: `supabase/scripts/bootstrap-admin.sql` in SQL Editor.
 
 ## 7. Smoke test
 

@@ -10,7 +10,9 @@ npx supabase db push
 
 Reset first (SQL Editor): `supabase/scripts/00-teardown.sql`
 
-First admin: create user in Supabase Auth, then run `supabase/scripts/bootstrap-admin.sql`.
+First account: use **Create account** on `/login`. The first registered user
+automatically receives organizer + admin roles. (Requires `SUPABASE_SERVICE_ROLE_KEY`
+on Vercel.)
 
 ## 2. Vercel environment variables (all Secrets — no NEXT_PUBLIC_ required)
 
@@ -40,8 +42,8 @@ Node.js **22+** (set in `package.json` engines).
 
 ## 5. Smoke test
 
-- [ ] `/login` — sign in with Supabase user (not demo error)
-- [ ] `/admin` — works for bootstrap admin user
+- [ ] `/login` — **Create account**, then sign in
+- [ ] `/admin` — works for the first account (auto-admin)
 - [ ] Public pages load; no secrets in page source
 - [ ] Magic link lands on `/auth/callback` then `/dashboard`
 

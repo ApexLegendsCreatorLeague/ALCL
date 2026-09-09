@@ -16,7 +16,11 @@ export function Navbar() {
   return <nav className="nav"><div className="container nav-inner">
     <Link className="brand" href="/"><span className="brand-mark">A</span>ALCL</Link>
     <span className="badge badge-warn">Demo data</span>
-    <div className="nav-links"><Link href="/league">League</Link><Link href="/tournaments">Tournaments</Link><Link href="/standings">Standings</Link><Link href="/teams">Teams</Link><Link href="/players">Players</Link><Link href="/championship">Championship</Link><Link aria-label="Search ALCL" href="/teams"><SearchIcon size={16}/></Link><Link className="btn btn-primary nav-cta" href="/register/team">Register <ArrowRight size={14}/></Link></div>
+    <div className="nav-links"><Link href="/league">League</Link><Link href="/tournaments">Tournaments</Link><Link href="/standings">Standings</Link><Link href="/teams">Teams</Link><Link href="/players">Players</Link><Link href="/championship">Championship</Link><Link aria-label="Search ALCL" href="/teams"><SearchIcon size={16}/></Link></div>
+    <div className="nav-actions">
+      <Link className="btn nav-login" href="/login">Sign in</Link>
+      <Link className="btn btn-primary nav-cta" href="/register/team">Register <ArrowRight size={14}/></Link>
+    </div>
   </div></nav>;
 }
 
@@ -24,6 +28,7 @@ export function Footer() {
   return <footer className="footer"><div className="container"><div className="footer-grid">
     <div><div className="brand"><span className="brand-mark">A</span>ALCL</div><p style={{color:"var(--muted)",maxWidth:410,lineHeight:1.6}}>Independent community tournaments for Apex Legends. Built for competitors, organizers, and fans.</p></div>
     <div className="footer-links"><strong style={{color:"white"}}>Compete</strong><Link href="/tournaments">Tournaments</Link><Link href="/standings">Standings</Link><Link href="/rules">Rules</Link><Link href="/register/team">Registration</Link></div>
+    <div className="footer-links"><strong style={{color:"white"}}>Account</strong><Link href="/login">Sign in</Link><Link href="/login">Create account</Link><Link href="/dashboard">Dashboard</Link></div>
     <div className="footer-links"><strong style={{color:"white"}}>ALCL</strong><Link href="/championship">Championship</Link><Link href="/hall-of-fame">Hall of fame</Link><Link href="/supporters">Supporters</Link><Link href="/legal">Legal</Link></div>
   </div><LegalDisclaimer/></div></footer>;
 }
@@ -46,7 +51,7 @@ export function Hero() {
   return <section className="hero"><div className="container" style={{position:"relative",zIndex:1}}><div className="eyebrow">Season 05 · Now recruiting</div>
     <h1 className="display">THE ARENA<br/><span style={{color:"var(--lime)"}}>BELONGS TO YOU.</span></h1>
     <p>Independent community tournaments for Apex Legends. Compete in structured seasons, build your legacy, and earn your place at the ALCL Championship.</p>
-    <div className="actions"><Link className="btn btn-primary" href="/register/team">Register your team <ArrowRight size={15}/></Link><Link className="btn btn-ghost" href="/tournaments">Explore tournaments</Link></div>
+    <div className="actions"><Link className="btn btn-primary" href="/register/team">Register your team <ArrowRight size={15}/></Link><Link className="btn" href="/login">Sign in</Link><Link className="btn btn-ghost" href="/tournaments">Explore tournaments</Link></div>
     <div className="hero-stats"><div className="hero-stat"><strong>20</strong><span>Community teams</span></div><div className="hero-stat"><strong>$0</strong><span>Entry fees</span></div><div className="hero-stat"><strong>05</strong><span>Community events</span></div></div>
   </div></section>;
 }

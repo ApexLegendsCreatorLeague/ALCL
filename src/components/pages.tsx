@@ -46,7 +46,7 @@ function StandardHeader({type}:{type:string}){const d=info[type]??["ALCL","Compe
 export function RoutePage({segments}:{segments:string[]}){
  const [root,id,leaf]=segments; const key=segments.join("/");
  if(root==="broadcast") return <BroadcastView type={id??"leaderboard"}/>;
- if(root==="register") return <AppShell><PageHeader eyebrow="Season 05 applications" title="Register your team" copy="Create your ALCL team application in a few mobile-friendly steps."/><section className="container"><RegistrationWizard/></section></AppShell>;
+ if(root==="register") return <AppShell><PageHeader eyebrow="Season 05 applications" title="Register your team" copy="Create your ALCL team application in a few mobile-friendly steps. Sign in first if you already have an account."/><section className="container"><div className="actions" style={{marginBottom:18}}><Link className="btn" href="/login">Sign in to ALCL</Link><Link className="btn btn-primary" href="/register/team">Continue registration</Link></div><RegistrationWizard/></section></AppShell>;
  if(root==="login") return <AuthPage/>;
  if(root==="admin") return <AdminPage section={id}/>;
  if(root==="tournaments"&&id) return <TournamentDetail id={id} leaf={leaf}/>;
@@ -114,4 +114,4 @@ function AdminPage({section}:{section?:string}){const name=section?section[0].to
 {section==="scoring"&&<div className="card" style={{marginBottom:16}}><h3>Tournament Scoring configuration</h3><div className="grid grid-3"><label className="field">First-place points<input className="input" defaultValue="12"/></label><label className="field">Kill points<input className="input" defaultValue="1"/></label><label className="field">Maximum matches<input className="input" defaultValue="6"/></label><label className="field">Bonus configuration<input className="input" defaultValue="{}"/></label><label className="field">Penalty configuration<input className="input" defaultValue="{}"/></label><label className="field">Tiebreakers<input className="input" defaultValue="Points, wins, kills"/></label></div><div className="actions"><button className="btn btn-primary">Save versioned ruleset</button><button className="btn">Preview scoring</button></div></div>}
 <AdminTable kind={(section??"operation").slice(0,-1)}/></section></AppShell>}
 
-function AuthPage(){return <AppShell><div className="container" style={{display:"grid",placeItems:"center",minHeight:"65vh"}}><div className="card" style={{width:"min(440px,100%)"}}><div className="eyebrow">Competitor access</div><h3 style={{fontSize:30}}>Welcome back</h3><AuthForm/></div></div></AppShell>}
+function AuthPage(){return <AppShell><div className="container" style={{display:"grid",placeItems:"center",minHeight:"65vh"}}><div className="card" style={{width:"min(440px,100%)"}}><div className="eyebrow">Account access</div><h3 style={{fontSize:30}}>Sign in to ALCL</h3><AuthForm/></div></div></AppShell>}
