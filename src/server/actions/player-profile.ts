@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
+import { APEX_LEGEND_CLASSES, serializePreferredRoles } from "@/lib/player-legend-classes";
 import { normalizePlayerSocials } from "@/lib/social-links";
 import { createActionClient } from "@/lib/supabase/server";
 import { actionFailure, actionSuccess, type ActionResult } from "@/server/action-result";
@@ -25,6 +26,10 @@ const profileSchema = z.object({
   instagramUrl: optionalUrl,
   twitchUrl: optionalUrl,
   kickUrl: optionalUrl,
+  lookingForTeam: z.enum(["true", "false"]).optional(),
+  preferredRoles: z.array(z.enum(APEX_LEGEND_CLASSES)).max(5).optional(),
+  availability: z.string().max(250).optional(),
+  recruitmentPitch: z.string().max(800).optional(),
 });
 
 export async function updatePlayerProfile(
@@ -46,6 +51,15 @@ export async function updatePlayerProfile(
     instagramUrl: formData.get("instagramUrl") ?? "",
     twitchUrl: formData.get("twitchUrl") ?? "",
     kickUrl: formData.get("kickUrl") ?? "",
+    lookingForTeam: formData.get("lookingForTeam") === "true" ? "true" : "false",
+    preferredRoles: formData
+      .getAll("preferredRoles")
+      .map((value) => String(value))
+      .filter((value): value is (typeof APEX_LEGEND_CLASSES)[number] =>
+        (APEX_LEGEND_CLASSES as readonly string[]).includes(value),
+      ),
+    availability: formData.get("availability") ?? "",
+    recruitmentPitch: formData.get("recruitmentPitch") ?? "",
   });
 
   if (!parsed.success) {
@@ -78,6 +92,12 @@ export async function updatePlayerProfile(
       instagram_url: socials.instagramUrl,
       twitch_url: socials.twitchUrl,
       kick_url: socials.kickUrl,
+      looking_for_team: parsed.data.lookingForTeam === "true",
+      preferred_roles: serializePreferredRoles(parsed.data.preferredRoles ?? []),
+      availability: parsed.data.availability?.trim() ? parsed.data.availability.trim() : null,
+      recruitment_pitch: parsed.data.recruitmentPitch?.trim()
+        ? parsed.data.recruitmentPitch.trim()
+        : null,
     })
     .eq("id", user.id);
 

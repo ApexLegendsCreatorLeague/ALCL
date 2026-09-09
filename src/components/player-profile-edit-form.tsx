@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 
+import { APEX_LEGEND_CLASSES, parsePreferredRoles } from "@/lib/player-legend-classes";
 import { PLAYER_SOCIAL_FIELDS } from "@/lib/social-links";
 import { savePlayerProfileAndRedirect } from "@/server/actions/player-profile";
 import type { PlayerProfile } from "@/server/player-profile";
@@ -13,6 +14,7 @@ function Field({
   defaultValue,
   error,
   textarea,
+  maxLength,
 }: {
   label: string;
   hint?: string;
@@ -20,6 +22,7 @@ function Field({
   defaultValue?: string | null;
   error?: string;
   textarea?: boolean;
+  maxLength?: number;
 }) {
   return (
     <label className="field">
@@ -29,7 +32,7 @@ function Field({
           className="input textarea"
           name={name}
           defaultValue={defaultValue ?? ""}
-          maxLength={500}
+          maxLength={maxLength ?? 500}
           rows={4}
         />
       ) : (
@@ -43,6 +46,7 @@ function Field({
 
 export function PlayerProfileEditForm({ profile }: { profile: PlayerProfile }) {
   const [state, action, pending] = useActionState(savePlayerProfileAndRedirect, null);
+  const selectedRoles = parsePreferredRoles(profile.recruitment.preferredRoles);
 
   return (
     <form className="card profile-edit-form" action={action}>
@@ -72,6 +76,61 @@ export function PlayerProfileEditForm({ profile }: { profile: PlayerProfile }) {
           textarea
           error={state && !state.ok ? state.fieldErrors?.bio?.[0] : undefined}
         />
+      </div>
+
+      <div className="profile-edit-recruitment">
+        <h4>Team recruitment</h4>
+        <p className="legal">
+          Help captains understand why they should draft you. This shows on your public profile when
+          you are a free agent or actively looking.
+        </p>
+        <label className="field profile-checkbox-field">
+          <input
+            type="checkbox"
+            name="lookingForTeam"
+            value="true"
+            defaultChecked={profile.recruitment.lookingForTeam}
+          />
+          <span>I am open to team offers</span>
+        </label>
+        <div className="form">
+          <div className="field">
+            <span>Preferred legend classes</span>
+            <p className="legal">Select the classes you main or flex on roster.</p>
+            <div className="profile-role-grid">
+              {APEX_LEGEND_CLASSES.map((role) => (
+                <label className="profile-role-option" key={role}>
+                  <input
+                    type="checkbox"
+                    name="preferredRoles"
+                    value={role}
+                    defaultChecked={selectedRoles.includes(role)}
+                  />
+                  <span>{role}</span>
+                </label>
+              ))}
+            </div>
+            {state && !state.ok && state.fieldErrors?.preferredRoles?.[0] ? (
+              <small style={{ color: "#ff986f" }}>{state.fieldErrors.preferredRoles[0]}</small>
+            ) : null}
+          </div>
+          <Field
+            label="Availability"
+            name="availability"
+            defaultValue={profile.recruitment.availability}
+            hint="Days, time zones, and hours you can scrim or compete."
+            error={state && !state.ok ? state.fieldErrors?.availability?.[0] : undefined}
+          />
+          <Field
+            label="Pitch to captains"
+            name="recruitmentPitch"
+            defaultValue={profile.recruitment.recruitmentPitch}
+            hint="What you bring to a roster, past experience, comms style, and what kind of team you want."
+            textarea
+            maxLength={800}
+            error={state && !state.ok ? state.fieldErrors?.recruitmentPitch?.[0] : undefined}
+          />
+        </div>
       </div>
 
       <div className="profile-edit-socials">

@@ -63,6 +63,19 @@ Adds to **Table Editor → profiles**:
 
 The verify query at the bottom should return all six `has_*` columns as `true`.
 
+## Step 3c — Profile recruitment fields (run once)
+
+Run **`add-profile-recruitment.sql`** in the SQL Editor.
+
+Adds captain-facing recruitment fields to **profiles**:
+
+| Column | Purpose |
+|--------|---------|
+| `looking_for_team` | Player is open to offers |
+| `preferred_roles` | Assault, Skirmisher, Recon, Support, Controller |
+| `availability` | Scrim / match schedule |
+| `recruitment_pitch` | Free-form pitch to captains |
+
 ## Step 4 — Staff roles (admin / owner)
 
 After a player registers on the site:

@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { Crosshair, ExternalLink, MapPin, Pencil, Shield, Swords, Target, Trophy, Users } from "lucide-react";
+import { Crosshair, ExternalLink, MapPin, Pencil, Shield, Target, Trophy, Users } from "lucide-react";
 
 import { AppShell } from "@/components/app-shell";
 import { EmptyState, PageHeader, StatCard } from "@/components/alcl";
+import { parsePreferredRoles } from "@/lib/player-legend-classes";
 import { hasAnySocialLinks, PLAYER_SOCIAL_FIELDS, socialLabelFromUrl } from "@/lib/social-links";
 import type { PlayerProfile } from "@/server/player-profile";
 
@@ -81,6 +82,7 @@ export function PlayerProfileView({
     .toUpperCase();
 
   const hasStats = profile.stats.matchesPlayed > 0;
+  const preferredRoles = parsePreferredRoles(profile.recruitment.preferredRoles);
 
   return (
     <AppShell>
@@ -258,16 +260,42 @@ export function PlayerProfileView({
             </div>
 
             <div className="card profile-side-card">
-              <p className="eyebrow">Scouting notes</p>
-              <p className="legal">
-                Deaths are not tracked in ALCL match feeds yet. Focus on kills, assists, knocks,
-                damage, and team placement when evaluating tournament performance.
-              </p>
-              <div className="profile-scout-icons">
-                <Swords size={16} />
-                <Crosshair size={16} />
-                <Trophy size={16} />
+              <div className="profile-recruitment-head">
+                <p className="eyebrow">Team recruitment</p>
+                {profile.recruitment.lookingForTeam ? (
+                  <span className="badge badge-live">Open to offers</span>
+                ) : null}
               </div>
+              {profile.recruitment.recruitmentPitch ||
+              preferredRoles.length ||
+              profile.recruitment.availability ? (
+                <>
+                  {preferredRoles.length ? (
+                    <div className="profile-role-tags">
+                      {preferredRoles.map((role) => (
+                        <span className="profile-role-tag" key={role}>
+                          {role}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
+                  {profile.recruitment.availability ? (
+                    <p className="profile-recruitment-meta">
+                      <strong>Availability:</strong> {profile.recruitment.availability}
+                    </p>
+                  ) : null}
+                  {profile.recruitment.recruitmentPitch ? (
+                    <p className="profile-recruitment-pitch">{profile.recruitment.recruitmentPitch}</p>
+                  ) : null}
+                </>
+              ) : profile.teamName ? (
+                <p className="legal">Already rostered with {profile.teamName}.</p>
+              ) : (
+                <p className="legal">
+                  This player has not published recruitment details yet.
+                  {isOwner ? " Use Edit profile to tell captains why they should pick you up." : null}
+                </p>
+              )}
             </div>
           </aside>
         </div>

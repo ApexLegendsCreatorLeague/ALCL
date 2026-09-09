@@ -79,6 +79,10 @@ type ProfilesRow = Timestamped & {
   instagram_url: string | null;
   twitch_url: string | null;
   kick_url: string | null;
+  looking_for_team: boolean;
+  preferred_roles: string | null;
+  availability: string | null;
+  recruitment_pitch: string | null;
   is_active: boolean;
 };
 type ProfileRolesRow = {

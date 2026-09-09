@@ -43,6 +43,13 @@ export type PlayerTournamentRow = {
   status: string;
 };
 
+export type PlayerRecruitment = {
+  lookingForTeam: boolean;
+  preferredRoles: string | null;
+  availability: string | null;
+  recruitmentPitch: string | null;
+};
+
 export type PlayerProfile = {
   playerId: string;
   profileId: string;
@@ -51,6 +58,7 @@ export type PlayerProfile = {
   platform: string | null;
   rank: string | null;
   bio: string | null;
+  recruitment: PlayerRecruitment;
   countryCode: string | null;
   teamId: string | null;
   teamName: string | null;
@@ -157,7 +165,7 @@ export async function getPlayerProfile(ref: string): Promise<PlayerProfile | nul
   const { data: profile } = await admin
     .from("profiles")
     .select(
-      "display_name, username, bio, youtube_url, x_url, tiktok_url, instagram_url, twitch_url, kick_url, country_code, is_active, created_at",
+      "display_name, username, bio, youtube_url, x_url, tiktok_url, instagram_url, twitch_url, kick_url, looking_for_team, preferred_roles, availability, recruitment_pitch, country_code, is_active, created_at",
     )
     .eq("id", player.profile_id)
     .eq("is_active", true)
@@ -342,6 +350,12 @@ export async function getPlayerProfile(ref: string): Promise<PlayerProfile | nul
     platform: formatPlatform(player.platform),
     rank: player.rank,
     bio: profile.bio,
+    recruitment: {
+      lookingForTeam: profile.looking_for_team,
+      preferredRoles: profile.preferred_roles,
+      availability: profile.availability,
+      recruitmentPitch: profile.recruitment_pitch,
+    },
     youtubeUrl: profile.youtube_url,
     xUrl: profile.x_url,
     tiktokUrl: profile.tiktok_url,
