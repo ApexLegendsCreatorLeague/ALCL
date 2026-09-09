@@ -3,6 +3,7 @@ import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { supabaseServiceRoleKey } from "@/lib/supabase/env";
 import { isSupabaseConfigured } from "@/lib/supabase/server";
+import type { PlayerSocialLinks } from "@/lib/social-links";
 import { formatPlatform } from "@/server/public-directory";
 
 export type PlayerCareerStats = {
@@ -57,7 +58,7 @@ export type PlayerProfile = {
   stats: PlayerCareerStats;
   recentMatches: PlayerMatchRow[];
   tournaments: PlayerTournamentRow[];
-};
+} & PlayerSocialLinks;
 
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -155,7 +156,9 @@ export async function getPlayerProfile(ref: string): Promise<PlayerProfile | nul
 
   const { data: profile } = await admin
     .from("profiles")
-    .select("display_name, username, bio, country_code, is_active, created_at")
+    .select(
+      "display_name, username, bio, youtube_url, x_url, tiktok_url, instagram_url, twitch_url, kick_url, country_code, is_active, created_at",
+    )
     .eq("id", player.profile_id)
     .eq("is_active", true)
     .maybeSingle();
@@ -339,6 +342,12 @@ export async function getPlayerProfile(ref: string): Promise<PlayerProfile | nul
     platform: formatPlatform(player.platform),
     rank: player.rank,
     bio: profile.bio,
+    youtubeUrl: profile.youtube_url,
+    xUrl: profile.x_url,
+    tiktokUrl: profile.tiktok_url,
+    instagramUrl: profile.instagram_url,
+    twitchUrl: profile.twitch_url,
+    kickUrl: profile.kick_url,
     countryCode: player.country_code ?? profile.country_code,
     teamId,
     teamName,

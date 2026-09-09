@@ -73,6 +73,12 @@ type ProfilesRow = Timestamped & {
   country_code: string | null;
   avatar_path: string | null;
   bio: string | null;
+  youtube_url: string | null;
+  x_url: string | null;
+  tiktok_url: string | null;
+  instagram_url: string | null;
+  twitch_url: string | null;
+  kick_url: string | null;
   is_active: boolean;
 };
 type ProfileRolesRow = {

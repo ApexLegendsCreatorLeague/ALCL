@@ -46,6 +46,23 @@ After that, **Table Editor → profiles** shows:
 
 These stay in sync automatically when `profile_roles` changes.
 
+## Step 3b — Profile social links (run once)
+
+Run **`add-profile-socials.sql`** in the SQL Editor.
+
+Adds to **Table Editor → profiles**:
+
+| Column | Platform |
+|--------|----------|
+| `youtube_url` | YouTube |
+| `x_url` | X (Twitter) |
+| `tiktok_url` | TikTok |
+| `instagram_url` | Instagram |
+| `twitch_url` | Twitch |
+| `kick_url` | Kick |
+
+The verify query at the bottom should return all six `has_*` columns as `true`.
+
 ## Step 4 — Staff roles (admin / owner)
 
 After a player registers on the site:

@@ -21,7 +21,7 @@ export function AuthCtaButtons({ showCreateTeam = false, compact = false }: Auth
   if (user) {
     return (
       <>
-        <Link className="btn btn-primary" href="/dashboard/player">
+        <Link className="btn btn-primary" href="/players/me">
           My profile {!compact ? <ArrowRight size={14} /> : null}
         </Link>
         {showCreateTeam ? (

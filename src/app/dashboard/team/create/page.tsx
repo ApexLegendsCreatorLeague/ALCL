@@ -22,7 +22,7 @@ export default function CreateTeamPage() {
       <section className="container dashboard-page">
         <DashboardTabs />
         <div className="actions" style={{ marginBottom: 18 }}>
-          <Link className="btn" href="/dashboard/player">
+          <Link className="btn" href="/players/me">
             Back to player profile
           </Link>
         </div>

@@ -21,6 +21,7 @@ import { AuthForm } from "@/components/auth-form";
 import { LiveApiAdmin } from "@/components/liveapi-admin";
 import { PlayerProfileNotFound, PlayerProfileView } from "@/components/player-profile-view";
 import { PlayersDirectory } from "@/components/players-directory";
+import { getCurrentUser } from "@/server/auth";
 import { getPlayerProfile } from "@/server/player-profile";
 import { getPublicTeam, listPublicPlayers, listPublicTeams } from "@/server/public-directory";
 
@@ -503,7 +504,9 @@ async function PlayerDetail({ id }: { id: string }) {
   if (!profile) {
     return <PlayerProfileNotFound ref={id} />;
   }
-  return <PlayerProfileView profile={profile} />;
+  const user = await getCurrentUser();
+  const isOwner = Boolean(user && profile.profileId === user.id);
+  return <PlayerProfileView profile={profile} isOwner={isOwner} />;
 }
 
 function AdminPage({ section }: { section?: string }) {

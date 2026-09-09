@@ -211,6 +211,24 @@ a.directory-card:hover .directory-card-chevron { color:var(--lime); }
 .profile-tournament-list span { color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.08em; }
 .profile-scout-icons { display:flex; gap:10px; color:var(--lime); margin-top:14px; }
 .table-sub { color:var(--muted); font-size:11px; margin-top:4px; }
+.profile-hero-top { display:flex; justify-content:flex-end; margin-bottom:18px; min-height:42px; }
+.profile-edit-btn { display:inline-flex; align-items:center; gap:8px; }
+.profile-save-banner { margin-bottom:16px; border:1px solid #c7ff4755; background:#c7ff470f; color:var(--lime); border-radius:8px; padding:10px 14px; font-size:13px; font-weight:700; }
+.profile-socials { display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; }
+.profile-social-link { display:inline-flex; align-items:center; gap:7px; border:1px solid #343c48; border-radius:999px; padding:7px 12px; font-size:12px; font-weight:700; text-decoration:none; color:white; }
+.profile-social-link:hover { border-color:#c7ff4755; color:var(--lime); }
+.profile-social-youtube { background:#ff000014; border-color:#ff000033; }
+.profile-social-x { background:#ffffff10; }
+.profile-social-tiktok { background:#25f4ee10; border-color:#25f4ee33; }
+.profile-social-instagram { background:#e1306c14; border-color:#e1306c33; }
+.profile-social-twitch { background:#9146ff14; border-color:#9146ff33; }
+.profile-social-kick { background:#53fc1810; border-color:#53fc1833; }
+.profile-edit-page { padding-bottom:70px; }
+.profile-edit-form { max-width:760px; }
+.profile-edit-intro { margin-bottom:20px; }
+.profile-edit-intro h3 { margin:0 0 8px; font:700 24px var(--font-display); }
+.profile-edit-socials { margin-top:24px; padding-top:24px; border-top:1px solid var(--line); }
+.profile-edit-socials h4 { margin:0 0 8px; font:700 18px var(--font-display); }
 .card-accent:before { content:""; position:absolute; inset:0 auto 0 0; width:3px; background:var(--lime); }
 .card h3 { font:700 20px var(--font-display); margin:10px 0; }.card p { color:var(--muted); line-height:1.6; font-size:14px; }
 .meta { display:flex; flex-wrap:wrap; gap:14px; color:#a5adba; font-size:12px; margin-top:16px; }

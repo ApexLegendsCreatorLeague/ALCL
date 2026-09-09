@@ -94,7 +94,7 @@ export function DashboardShell({
     : [
         ["Overview", "/dashboard"],
         ["My team", "/dashboard/team"],
-        ["Player profile", "/dashboard/player"],
+        ["Player profile", "/players/me"],
       ];
   return (
     <div className="dashboard-layout">

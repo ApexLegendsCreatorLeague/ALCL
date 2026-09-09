@@ -45,7 +45,7 @@ export function Footer() {
             <strong style={{ color: "white" }}>Players</strong>
             {!ready ? null : user ? (
               <>
-                <Link href="/dashboard/player">My profile</Link>
+                <Link href="/players/me">My profile</Link>
                 <Link href="/dashboard/team/create">Create a team</Link>
                 <Link href="/dashboard">Dashboard</Link>
               </>
@@ -112,7 +112,7 @@ export function Hero() {
         <div className="actions">
           {!ready ? null : user ? (
             <>
-              <Link className="btn btn-primary" href="/dashboard/player">
+              <Link className="btn btn-primary" href="/players/me">
                 My profile <ArrowRight size={15} />
               </Link>
               <Link className="btn" href="/dashboard/team/create">

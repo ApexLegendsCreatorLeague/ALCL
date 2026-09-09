@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import { AuthConfigBanner } from "@/components/auth-config-banner";
 import { PlayerRegisterForm } from "@/components/player-register-form";
+import { DEFAULT_PLAYER_HOME } from "@/lib/auth/redirect-path";
 import { getNavUser } from "@/server/auth/nav-user";
 
 export const metadata: Metadata = {
@@ -16,7 +17,7 @@ export const metadata: Metadata = {
 export default async function RegisterPlayerPage() {
   const user = await getNavUser();
   if (user) {
-    redirect("/dashboard/player");
+    redirect(DEFAULT_PLAYER_HOME);
   }
 
   return (

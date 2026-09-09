@@ -55,7 +55,7 @@ export function NavProfileMenu({ user }: { user: NavUser }) {
 
       {open ? (
         <div className="nav-profile-menu" role="menu">
-          <Link href="/dashboard/player" role="menuitem" onClick={() => setOpen(false)}>
+          <Link href="/players/me" role="menuitem" onClick={() => setOpen(false)}>
             <UserRound size={15} aria-hidden="true" />
             My profile
           </Link>

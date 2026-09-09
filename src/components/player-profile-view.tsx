@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { Crosshair, MapPin, Shield, Swords, Target, Trophy, Users } from "lucide-react";
+import { Crosshair, ExternalLink, MapPin, Pencil, Shield, Swords, Target, Trophy, Users } from "lucide-react";
 
 import { AppShell } from "@/components/app-shell";
 import { EmptyState, PageHeader, StatCard } from "@/components/alcl";
+import { hasAnySocialLinks, PLAYER_SOCIAL_FIELDS, socialLabelFromUrl } from "@/lib/social-links";
 import type { PlayerProfile } from "@/server/player-profile";
 
 function formatNumber(value: number) {
@@ -36,7 +37,42 @@ function StatTile({
   );
 }
 
-export function PlayerProfileView({ profile }: { profile: PlayerProfile }) {
+function SocialLinks({ profile }: { profile: PlayerProfile }) {
+  if (!hasAnySocialLinks(profile)) {
+    return null;
+  }
+
+  return (
+    <div className="profile-socials">
+      {PLAYER_SOCIAL_FIELDS.map((field) => {
+        const url = profile[field.profileKey];
+        if (!url) return null;
+        return (
+          <a
+            key={field.platform}
+            className={`profile-social-link ${field.cssClass}`}
+            href={url}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <ExternalLink size={15} />
+            {socialLabelFromUrl(url, field.platform) ?? field.label}
+          </a>
+        );
+      })}
+    </div>
+  );
+}
+
+export function PlayerProfileView({
+  profile,
+  isOwner = false,
+  saved = false,
+}: {
+  profile: PlayerProfile;
+  isOwner?: boolean;
+  saved?: boolean;
+}) {
   const initials = profile.displayName
     .split(" ")
     .map((part) => part[0])
@@ -50,6 +86,15 @@ export function PlayerProfileView({ profile }: { profile: PlayerProfile }) {
     <AppShell>
       <section className="profile-hero">
         <div className="container">
+          {saved ? <div className="profile-save-banner">Profile updated.</div> : null}
+          <div className="profile-hero-top">
+            {isOwner ? (
+              <Link className="btn btn-primary profile-edit-btn" href={`/players/${profile.playerId}/edit`}>
+                <Pencil size={15} />
+                Edit profile
+              </Link>
+            ) : null}
+          </div>
           <div className="profile-hero-grid">
             <div className="profile-identity">
               <div className="profile-avatar">{initials}</div>
@@ -70,6 +115,7 @@ export function PlayerProfileView({ profile }: { profile: PlayerProfile }) {
                 ) : (
                   <span className="profile-team-link muted">Free agent</span>
                 )}
+                <SocialLinks profile={profile} />
               </div>
             </div>
             <div className="profile-hero-stats">
@@ -192,6 +238,7 @@ export function PlayerProfileView({ profile }: { profile: PlayerProfile }) {
                   <strong>{profile.stats.tournamentsEntered}</strong>
                 </li>
               </ul>
+              <SocialLinks profile={profile} />
             </div>
 
             <div className="card profile-side-card">

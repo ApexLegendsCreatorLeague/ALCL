@@ -23,18 +23,12 @@ export default async function DashboardRoute({
   const focusedTeam = focusedTeamId ? await getManagedTeam(focusedTeamId) : null;
 
   const title =
-    view === "player"
-      ? "My profile"
-      : view === "team"
-        ? focusedTeam?.name ?? "My team"
-        : "Player dashboard";
+    view === "team" ? (focusedTeam?.name ?? "My team") : "Player dashboard";
 
   const copy =
-    view === "player"
-      ? "Your ALCL player account, platform details, and competition identity."
-      : view === "team"
-        ? "Manage the team you captain, review roster players, and track registration status."
-        : "Your home base after sign-in — profile, team, and next steps.";
+    view === "team"
+      ? "Manage the team you captain, review roster players, and track registration status."
+      : "Your home base after sign-in — profile, team, and next steps.";
 
   return (
     <AppShell>
@@ -46,39 +40,6 @@ export default async function DashboardRoute({
           status={query.status}
           message={query.message}
         />
-
-        {view === "player" ? (
-          <div className="grid grid-2" style={{ marginTop: 18 }}>
-            <div className="card">
-              <small>PLAYER ACCOUNT</small>
-              <h3>{player.displayName}</h3>
-              <p>
-                {player.email}
-                {player.username ? ` · @${player.username}` : ""}
-              </p>
-              <p>
-                Platform: {player.platform ?? "Not set"} · Region: {player.countryCode}
-              </p>
-              <p>Rank snapshot: {player.rank ?? "Not recorded yet"}</p>
-            </div>
-            <div className="card">
-              <small>NEXT STEPS</small>
-              <h3>Compete with your team</h3>
-              <p>
-                Team managers create a team and add registered players. You are always Player 1 on
-                your own roster.
-              </p>
-              <div className="actions">
-                <Link className="btn btn-primary" href="/dashboard/team/create">
-                  Create a team
-                </Link>
-                <Link className="btn" href="/tournaments">
-                  Browse tournaments
-                </Link>
-              </div>
-            </div>
-          </div>
-        ) : null}
 
         {view === "team" ? (
           focusedTeam ? (
@@ -138,7 +99,7 @@ export default async function DashboardRoute({
           )
         ) : null}
 
-        {view === "overview" || (view !== "player" && view !== "team") ? (
+        {view === "overview" || view !== "team" ? (
           <div style={{ marginTop: 18 }}>
             <div className="grid grid-4">
               <StatCard label="Display name" value={player.displayName} />
@@ -151,7 +112,7 @@ export default async function DashboardRoute({
                 <h3>Welcome back, {player.displayName}</h3>
                 <p>Signed in as a player. Teams never log in — only player accounts do.</p>
                 <div className="actions">
-                  <Link className="btn btn-primary" href="/dashboard/player">
+                  <Link className="btn btn-primary" href={`/players/${player.playerId}`}>
                     View profile
                   </Link>
                   {player.managedTeams[0] ? (
