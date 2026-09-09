@@ -79,10 +79,10 @@ function mapSignUpError(message: string) {
 
 export async function registerPlayerAccount(input: RegisterPlayerInput): Promise<RegisterPlayerResult> {
   if (!isSupabaseConfigured()) {
+    const scope = process.env.VERCEL_ENV ?? "production";
     return {
       ok: false,
-      message:
-        "Supabase is not configured. In Vercel → Settings → Environment Variables, add SUPABASE_URL and SUPABASE_ANON_KEY for Production, save, then Redeploy. Check /api/auth/status on your site.",
+      message: `Supabase keys are not available to this ${scope} deployment. In Vercel, edit each env var → Environments → enable Production AND Preview. If using the Supabase integration, names are SUPABASE_URL + SUPABASE_PUBLISHABLE_KEY (not ANON_KEY). Open /api/auth/status to verify, then redeploy.`,
     };
   }
 

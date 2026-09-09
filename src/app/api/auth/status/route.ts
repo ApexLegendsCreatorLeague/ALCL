@@ -1,9 +1,16 @@
 import { NextResponse } from "next/server";
 
-import { supabaseAnonKey, supabaseServiceRoleKey, supabaseUrl, siteUrl } from "@/lib/supabase/env";
+import {
+  envDiagnostics,
+  supabaseAnonKey,
+  supabaseServiceRoleKey,
+  supabaseUrl,
+  siteUrl,
+} from "@/lib/supabase/env";
+import { isSupabaseConfigured } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
-import { isSupabaseConfigured } from "@/lib/supabase/server";
+export const runtime = "nodejs";
 
 function hasValue(value: string | undefined) {
   return Boolean(value && value.trim().length > 0);
@@ -12,25 +19,27 @@ function hasValue(value: string | undefined) {
 export async function GET() {
   const url = supabaseUrl();
   const anonKey = supabaseAnonKey();
+  const serviceRole = supabaseServiceRoleKey();
+  const vercelEnv = process.env.VERCEL_ENV ?? "unknown";
+
+  let hint = "Auth env looks configured.";
+  if (!hasValue(url) || !hasValue(anonKey)) {
+    hint =
+      vercelEnv === "preview"
+        ? "Vars may be set for Production only. Edit each env var → Environments → check Production AND Preview, save, redeploy."
+        : "Add Supabase vars for this Vercel environment, then redeploy. Vercel integration uses SUPABASE_PUBLISHABLE_KEY / SUPABASE_SECRET_KEY (not ANON_KEY).";
+  } else if (!hasValue(serviceRole)) {
+    hint = "Add SUPABASE_SERVICE_ROLE_KEY or SUPABASE_SECRET_KEY for registration.";
+  }
 
   return NextResponse.json({
     configured: isSupabaseConfigured(),
     hasSupabaseUrl: hasValue(url),
     hasAnonKey: hasValue(anonKey),
-    hasServiceRole: hasValue(supabaseServiceRoleKey()),
+    hasServiceRole: hasValue(serviceRole),
     hasSiteUrl: hasValue(siteUrl("")),
-    envKeysPresent: {
-      SUPABASE_URL: hasValue(process.env.SUPABASE_URL),
-      SUPABASE_ANON_KEY: hasValue(process.env.SUPABASE_ANON_KEY),
-      NEXT_PUBLIC_SUPABASE_URL: hasValue(process.env.NEXT_PUBLIC_SUPABASE_URL),
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: hasValue(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
-      SUPABASE_SERVICE_ROLE_KEY: hasValue(process.env.SUPABASE_SERVICE_ROLE_KEY),
-      SITE_URL: hasValue(process.env.SITE_URL),
-    },
-    hint: !hasValue(url) || !hasValue(anonKey)
-      ? "Add SUPABASE_URL and SUPABASE_ANON_KEY in Vercel → Settings → Environment Variables → Production, then redeploy."
-      : !hasValue(process.env.SUPABASE_SERVICE_ROLE_KEY)
-        ? "Add SUPABASE_SERVICE_ROLE_KEY for registration to work."
-        : "Auth env looks configured.",
+    vercelEnv,
+    envKeysPresent: envDiagnostics(),
+    hint,
   });
 }

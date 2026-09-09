@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 import { z } from "zod";
 
 import { createRouteHandlerClient } from "@/lib/supabase/route-handler";
