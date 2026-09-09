@@ -19,12 +19,10 @@ import {
 } from "./alcl";
 import { AuthForm } from "@/components/auth-form";
 import { LiveApiAdmin } from "@/components/liveapi-admin";
-import {
-  getPublicPlayer,
-  getPublicTeam,
-  listPublicPlayers,
-  listPublicTeams,
-} from "@/server/public-directory";
+import { PlayerProfileNotFound, PlayerProfileView } from "@/components/player-profile-view";
+import { PlayersDirectory } from "@/components/players-directory";
+import { getPlayerProfile } from "@/server/player-profile";
+import { getPublicTeam, listPublicPlayers, listPublicTeams } from "@/server/public-directory";
 
 export async function HomePage() {
   const [players, teams] = await Promise.all([listPublicPlayers(6), listPublicTeams(6)]);
@@ -274,32 +272,7 @@ async function Directory({ type }: { type: string }) {
     );
   } else if (type === "players") {
     const players = await listPublicPlayers();
-    content = (
-      <>
-        <div className="toolbar">
-          <Search placeholder="Search players…" />
-        </div>
-        {players.length ? (
-          <div className="grid grid-3">
-            {players.map((player) => (
-              <PlayerCard
-                key={player.playerId}
-                playerId={player.playerId}
-                name={player.displayName}
-                teamName={player.teamName}
-                platform={player.platform}
-                rank={player.rank}
-              />
-            ))}
-          </div>
-        ) : (
-          <EmptyState
-            title="No players listed yet"
-            message="Player profiles will appear here after accounts are created."
-          />
-        )}
-      </>
-    );
+    content = <PlayersDirectory players={players} />;
   } else if (type === "standings") {
     content = (
       <EmptyState
@@ -526,54 +499,11 @@ async function TeamDetail({ id }: { id: string }) {
 }
 
 async function PlayerDetail({ id }: { id: string }) {
-  const player = await getPublicPlayer(id);
-
-  return (
-    <AppShell>
-      <PageHeader
-        eyebrow="Player profile"
-        title={player?.displayName ?? "Player not found"}
-        copy={
-          player
-            ? [player.teamName, player.platform, player.rank].filter(Boolean).join(" · ") ||
-              "ALCL competitor"
-            : "This player profile is not available yet."
-        }
-      />
-      <section className="container">
-        {player ? (
-          <div className="card">
-            <div className="team">
-              <div className="avatar">
-                {player.displayName
-                  .split(" ")
-                  .map((part) => part[0])
-                  .join("")
-                  .slice(0, 2)
-                  .toUpperCase()}
-              </div>
-              <div>
-                <h3 style={{ margin: 0 }}>{player.displayName}</h3>
-                {player.username ? (
-                  <span style={{ color: "var(--muted)", fontSize: 12 }}>@{player.username}</span>
-                ) : null}
-              </div>
-            </div>
-            <div className="meta" style={{ marginTop: 16 }}>
-              {player.teamName ? <span>{player.teamName}</span> : null}
-              {player.platform ? <span>{player.platform}</span> : null}
-              {player.rank ? <span>{player.rank}</span> : null}
-            </div>
-          </div>
-        ) : (
-          <EmptyState
-            title="Player not found"
-            message="This player profile is not available yet."
-          />
-        )}
-      </section>
-    </AppShell>
-  );
+  const profile = await getPlayerProfile(id);
+  if (!profile) {
+    return <PlayerProfileNotFound ref={id} />;
+  }
+  return <PlayerProfileView profile={profile} />;
 }
 
 function AdminPage({ section }: { section?: string }) {

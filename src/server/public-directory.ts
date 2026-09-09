@@ -23,7 +23,7 @@ export type PublicTeam = {
   memberCount: number;
 };
 
-function formatPlatform(platform: string | null) {
+export function formatPlatform(platform: string | null) {
   if (!platform) return null;
   const labels: Record<string, string> = {
     pc: "PC",

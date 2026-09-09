@@ -2,7 +2,17 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ArrowRight, Calendar, Check, ChevronRight, Search as SearchIcon, Shield, Trophy, Users, X } from "lucide-react";
+import {
+  ArrowRight,
+  Calendar,
+  Check,
+  ChevronRight,
+  Search as SearchIcon,
+  Shield,
+  Trophy,
+  Users,
+  X,
+} from "lucide-react";
 import { useNavSessionReady, useNavUser } from "@/components/auth-session-provider";
 
 export function LegalDisclaimer() {
@@ -176,8 +186,9 @@ export function TeamCard({
 
   if (teamId) {
     return (
-      <Link href={`/teams/${teamId}`} className="card">
+      <Link href={`/teams/${teamId}`} className="card directory-card">
         {body}
+        <ChevronRight className="directory-card-chevron" size={18} aria-hidden="true" />
       </Link>
     );
   }
@@ -226,8 +237,9 @@ export function PlayerCard({
 
   if (playerId) {
     return (
-      <Link href={`/players/${playerId}`} className="card">
+      <Link href={`/players/${playerId}`} className="card directory-card">
         {body}
+        <ChevronRight className="directory-card-chevron" size={18} aria-hidden="true" />
       </Link>
     );
   }
