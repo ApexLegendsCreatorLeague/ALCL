@@ -19,7 +19,7 @@ export function Navbar() {
     <div className="nav-links"><Link href="/league">League</Link><Link href="/tournaments">Tournaments</Link><Link href="/standings">Standings</Link><Link href="/teams">Teams</Link><Link href="/players">Players</Link><Link href="/championship">Championship</Link><Link aria-label="Search ALCL" href="/teams"><SearchIcon size={16}/></Link></div>
     <div className="nav-actions">
       <Link className="btn nav-login" href="/login">Player sign in</Link>
-      <Link className="btn btn-primary nav-cta" href="/register">Join as player <ArrowRight size={14}/></Link>
+      <Link className="btn btn-primary nav-cta" href="/register">Register <ArrowRight size={14}/></Link>
     </div>
   </div></nav>;
 }
@@ -51,7 +51,7 @@ export function Hero() {
   return <section className="hero"><div className="container" style={{position:"relative",zIndex:1}}><div className="eyebrow">Season 05 · Now recruiting</div>
     <h1 className="display">THE ARENA<br/><span style={{color:"var(--lime)"}}>BELONGS TO YOU.</span></h1>
     <p>Independent community tournaments for Apex Legends. Compete in structured seasons, build your legacy, and earn your place at the ALCL Championship.</p>
-    <div className="actions"><Link className="btn btn-primary" href="/register">Join as player <ArrowRight size={15}/></Link><Link className="btn" href="/login">Player sign in</Link><Link className="btn btn-ghost" href="/tournaments">Explore tournaments</Link></div>
+    <div className="actions"><Link className="btn btn-primary" href="/register">Register <ArrowRight size={15}/></Link><Link className="btn" href="/login">Player sign in</Link><Link className="btn btn-ghost" href="/tournaments">Explore tournaments</Link></div>
     <div className="hero-stats"><div className="hero-stat"><strong>20</strong><span>Community teams</span></div><div className="hero-stat"><strong>$0</strong><span>Entry fees</span></div><div className="hero-stat"><strong>05</strong><span>Community events</span></div></div>
   </div></section>;
 }

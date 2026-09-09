@@ -49,7 +49,7 @@ export function Navbar() {
             Player sign in
           </Link>
           <Link className="button button-primary nav-register" href="/register">
-            Join as player
+            Register
           </Link>
           <button className="mobile-menu" aria-label="Open menu">
             <Menu size={22} />
@@ -95,6 +95,7 @@ export function Footer() {
             <Link href="/tournaments">Tournaments</Link>
             <Link href="/standings">Standings</Link>
             <Link href="/rules">Sign up rules</Link>
+            <Link href="/register">Register</Link>
           </div>
           <div>
             <strong>Community</strong>
