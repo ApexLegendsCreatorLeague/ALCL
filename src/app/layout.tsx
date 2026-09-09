@@ -13,7 +13,7 @@ const display = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  metadataBase: new URL(process.env.SITE_URL?.trim () || "http://thessiatournamentsite.com"),
   title: { default: "ALCL", template: "%s · ALCL" },
   description: "Independent community tournaments for Apex Legends.",
   openGraph: {
