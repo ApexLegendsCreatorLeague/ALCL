@@ -1,65 +1,135 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, ShieldCheck } from "lucide-react";
-import { StatusBadge, Toast } from "@/components/alcl";
+import { StatusBadge } from "@/components/alcl";
+import { PlayerSlotPicker, type SelectedPlayer } from "@/components/player-slot-picker";
 
 const steps = ["Team Information", "Roster", "Eligibility", "Review", "Submit"];
-const emptyPlayer = { displayName: "", platform: "PC", role: "Flex", rank: "Diamond" };
+
+type RosterSlot = {
+  player: SelectedPlayer | null;
+  role: "IGL" | "Fragger" | "Support" | "Flex" | "Substitute";
+  rank: "Platinum" | "Diamond" | "Master" | "Predator";
+};
+
+type TeamManager = {
+  playerId: string;
+  profileId: string;
+  displayName: string;
+  username: string | null;
+  email: string | null;
+};
+
+const emptySlot = (): RosterSlot => ({
+  player: null,
+  role: "Flex",
+  rank: "Diamond",
+});
+
+type SubmitResult = {
+  message?: string;
+  id?: string;
+  teamId?: string;
+  status?: string;
+};
 
 export function RegistrationWizard() {
+  const router = useRouter();
   const [step, setStep] = useState(0);
-  const [notice, setNotice] = useState("");
+  const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [manager, setManager] = useState<TeamManager | null>(null);
   const [form, setForm] = useState({
     teamName: "",
     abbreviation: "",
     region: "North America",
-    managerEmail: "",
     website: "",
     socialLink: "",
-    players: Array.from({ length: 5 }, () => ({ ...emptyPlayer })),
+    roster: Array.from({ length: 5 }, emptySlot),
     eligibilityAccepted: false,
     rosterLockAccepted: false,
     rulesAccepted: false,
   });
 
+  useEffect(() => {
+    fetch("/api/players/me")
+      .then((response) => response.json())
+      .then((payload: TeamManager) => {
+        if (!payload.playerId || !payload.displayName) return;
+        setManager(payload);
+      })
+      .catch(() => {
+        // Manager details load from the signed-in player session.
+      });
+  }, []);
+
+  const selectedIds = useMemo(
+    () => form.roster.map((slot) => slot.player?.playerId).filter(Boolean) as string[],
+    [form.roster],
+  );
+
   const predatorCount = useMemo(
-    () => form.players.filter((player) => player.rank === "Predator").length,
-    [form.players],
+    () => form.roster.filter((slot) => slot.player && slot.rank === "Predator").length,
+    [form.roster],
   );
   const eligible = predatorCount <= 1;
 
-  function updatePlayer(index: number, field: keyof typeof emptyPlayer, value: string) {
+  function updateSlot(index: number, patch: Partial<RosterSlot>) {
     setForm((current) => ({
       ...current,
-      players: current.players.map((player, playerIndex) =>
-        playerIndex === index ? { ...player, [field]: value } : player,
+      roster: current.roster.map((slot, slotIndex) =>
+        slotIndex === index ? { ...slot, ...patch } : slot,
       ),
     }));
   }
 
   async function submit() {
     setSubmitting(true);
-    setNotice("");
+    setError("");
+    const payload = {
+      teamName: form.teamName,
+      abbreviation: form.abbreviation,
+      region: form.region,
+      website: form.website,
+      socialLink: form.socialLink,
+      roster: form.roster.map((slot, index) => ({
+        playerId: slot.player?.playerId ?? null,
+        role: slot.role,
+        rank: slot.rank,
+        isSubstitute: index >= 3,
+      })),
+      eligibilityAccepted: form.eligibilityAccepted,
+      rosterLockAccepted: form.rosterLockAccepted,
+      rulesAccepted: form.rulesAccepted,
+    };
     const response = await fetch("/api/registrations", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify(form),
+      body: JSON.stringify(payload),
     });
-    const result = (await response.json()) as { message?: string; id?: string };
+    const result = (await response.json()) as SubmitResult;
     setSubmitting(false);
-    setNotice(
-      response.ok
-        ? `Registration submitted${result.id ? ` · ${result.id.slice(0, 8)}` : ""}`
-        : result.message ?? "Registration could not be submitted.",
-    );
+    if (!response.ok) {
+      setError(result.message ?? "Registration could not be submitted.");
+      return;
+    }
+    const teamId = result.teamId ?? result.id;
+    const params = new URLSearchParams();
+    if (teamId) params.set("team", teamId);
+    if (result.status) params.set("status", result.status);
+    router.push(`/dashboard/team${params.size ? `?${params.toString()}` : ""}`);
+    router.refresh();
   }
 
+  const startersFilled = form.roster.slice(0, 3).every((slot) => slot.player?.playerId);
+  const rosterIdsUnique = new Set(selectedIds).size === selectedIds.length;
+
   const canContinue =
-    (step !== 0 || Boolean(form.teamName && form.abbreviation && form.managerEmail)) &&
-    (step !== 1 || form.players.slice(0, 3).every((player) => player.displayName)) &&
+    (step !== 0 || Boolean(form.teamName && form.abbreviation && manager)) &&
+    (step !== 1 || (startersFilled && rosterIdsUnique)) &&
     (step !== 2 || (eligible && form.eligibilityAccepted && form.rosterLockAccepted)) &&
     (step !== 4 || form.rulesAccepted);
 
@@ -81,38 +151,62 @@ export function RegistrationWizard() {
         <StatusBadge status={`Step ${step + 1} of 5`} />
         <h3>{steps[step]}</h3>
         <p>
-          ALCL will never ask for your EA password, account credentials, or
-          authentication tokens. Rank and results are self-reported or entered by
-          organizers.
-        </p>
-        <p className="legal">
-          Need an ALCL account first? <Link href="/login">Sign in or create one</Link> before you submit.
+          One player account is the team manager and controls the team. Roster slots are separate
+          registered players. Anyone not on ALCL yet must join at <Link href="/register">/register</Link> first.
         </p>
 
         {step === 0 ? (
-          <div className="form grid grid-2">
-            <Field label="Team name" value={form.teamName} onChange={(value) => setForm({ ...form, teamName: value })} />
-            <Field label="Abbreviation" value={form.abbreviation} maxLength={5} onChange={(value) => setForm({ ...form, abbreviation: value.toUpperCase() })} />
-            <Select label="Region" value={form.region} options={["North America", "Europe", "Oceania", "Asia Pacific"]} onChange={(value) => setForm({ ...form, region: value })} />
-            <Field label="Manager email" type="email" value={form.managerEmail} onChange={(value) => setForm({ ...form, managerEmail: value })} />
-            <Field label="Website (optional)" value={form.website} onChange={(value) => setForm({ ...form, website: value })} />
-            <Field label="Social link (optional)" value={form.socialLink} onChange={(value) => setForm({ ...form, socialLink: value })} />
+          <div className="form">
+            <div className="card card-accent">
+              <small>TEAM MANAGER</small>
+              <h3>{manager?.displayName ?? "Loading your player account…"}</h3>
+              <p>{manager?.email ?? "Sign in as a player to create a team."}</p>
+              <p className="legal">You control this team — roster, registration, and lineup changes.</p>
+            </div>
+            <div className="grid grid-2">
+              <Field label="Team name" value={form.teamName} onChange={(value) => setForm({ ...form, teamName: value })} />
+              <Field label="Abbreviation" value={form.abbreviation} maxLength={5} onChange={(value) => setForm({ ...form, abbreviation: value.toUpperCase() })} />
+              <Select label="Region" value={form.region} options={["North America", "Europe", "Oceania", "Asia Pacific"]} onChange={(value) => setForm({ ...form, region: value })} />
+              <Field label="Website (optional)" value={form.website} onChange={(value) => setForm({ ...form, website: value })} />
+              <Field label="Social link (optional)" value={form.socialLink} onChange={(value) => setForm({ ...form, socialLink: value })} />
+            </div>
           </div>
         ) : null}
 
         {step === 1 ? (
           <div className="form">
-            {form.players.map((player, index) => (
+            {form.roster.map((slot, index) => (
               <div className="card" key={index}>
-                <strong>{index < 3 ? `Starter ${index + 1}` : `Substitute ${index - 2}`}</strong>
+                <strong>{index < 3 ? `Starter ${index + 1}` : `Substitute ${index - 2} (optional)`}</strong>
                 <div className="grid grid-2" style={{ marginTop: 12 }}>
-                  <Field label="Display name" value={player.displayName} onChange={(value) => updatePlayer(index, "displayName", value)} />
-                  <Select label="Platform" value={player.platform} options={["PC", "PlayStation", "Xbox", "Nintendo Switch"]} onChange={(value) => updatePlayer(index, "platform", value)} />
-                  <Select label="Role" value={player.role} options={["IGL", "Fragger", "Support", "Flex", "Substitute"]} onChange={(value) => updatePlayer(index, "role", value)} />
-                  <Select label="Rank snapshot" value={player.rank} options={["Platinum", "Diamond", "Master", "Predator"]} onChange={(value) => updatePlayer(index, "rank", value)} />
+                  <PlayerSlotPicker
+                    label="Registered player"
+                    value={slot.player}
+                    required={index < 3}
+                    excludeIds={selectedIds.filter((id) => id !== slot.player?.playerId)}
+                    onChange={(player) => updateSlot(index, { player })}
+                  />
+                  <Select
+                    label="Role"
+                    value={slot.role}
+                    options={["IGL", "Fragger", "Support", "Flex", "Substitute"]}
+                    onChange={(value) => updateSlot(index, { role: value as RosterSlot["role"] })}
+                  />
+                  <Select
+                    label="Rank snapshot"
+                    value={slot.rank}
+                    options={["Platinum", "Diamond", "Master", "Predator"]}
+                    onChange={(value) => updateSlot(index, { rank: value as RosterSlot["rank"] })}
+                  />
                 </div>
               </div>
             ))}
+            {!rosterIdsUnique ? (
+              <p role="alert" className="legal">Each roster slot must be a different registered player.</p>
+            ) : null}
+            <p className="legal">
+              Optional: add yourself to the roster if you also compete. The manager account always controls the team.
+            </p>
           </div>
         ) : null}
 
@@ -120,34 +214,44 @@ export function RegistrationWizard() {
           <div className="form">
             <div className="card">
               <strong>{eligible ? "Roster currently eligible" : "Roster needs changes"}</strong>
-              <p>
-                Default example rule: maximum one Predator across all five competitive
-                roster slots. Current count: {predatorCount}.
-              </p>
+              <p>Maximum one Predator rank snapshot across the roster. Current count: {predatorCount}.</p>
             </div>
             <Check checked={form.eligibilityAccepted} onChange={(value) => setForm({ ...form, eligibilityAccepted: value })}>
-              I confirm the roster meets the published event eligibility rules.
+              I confirm every selected player meets the published event eligibility rules.
             </Check>
             <Check checked={form.rosterLockAccepted} onChange={(value) => setForm({ ...form, rosterLockAccepted: value })}>
-              I understand changes after the deadline require organizer approval.
+              I understand roster changes after the deadline require organizer approval.
             </Check>
           </div>
         ) : null}
 
         {step === 3 ? (
           <div className="grid grid-2">
-            <div className="card"><small>TEAM</small><h3>{form.teamName} · {form.abbreviation}</h3><p>{form.region} · {form.managerEmail}</p></div>
-            <div className="card"><small>REGISTERED ROSTER</small><h3>{form.players.filter((player) => player.displayName).length} players</h3><p>{predatorCount} Predator rank snapshot</p></div>
-            <div className="card" style={{ gridColumn: "1 / -1" }}><ShieldCheck color="var(--lime)" /><p>Eligibility is recalculated on the server. ALCL never asks for EA credentials, passwords, or authentication tokens.</p></div>
+            <div className="card"><small>TEAM</small><h3>{form.teamName} · {form.abbreviation}</h3><p>{form.region}</p></div>
+            <div className="card"><small>MANAGER</small><h3>{manager?.displayName ?? "—"}</h3><p>{manager?.email ?? "Your player account"}</p></div>
+            <div className="card"><small>ROSTER PLAYERS</small><h3>{selectedIds.length} registered players</h3><p>{predatorCount} Predator rank snapshot</p></div>
+            <div className="card" style={{ gridColumn: "1 / -1" }}>
+              {form.roster.filter((slot) => slot.player).map((slot, index) => (
+                <p key={slot.player!.playerId}>
+                  {index < 3 ? `Starter ${index + 1}` : `Sub ${index - 2}`}: {slot.player!.displayName}
+                  {slot.player!.playerId === manager?.playerId ? " (also team manager)" : ""} · {slot.role} · {slot.rank}
+                </p>
+              ))}
+            </div>
+            <div className="card" style={{ gridColumn: "1 / -1" }}><ShieldCheck color="var(--lime)" /><p>Roster players are accounts. The manager account controls the team.</p></div>
           </div>
         ) : null}
 
         {step === 4 ? (
           <div className="form">
-            <div className="card"><strong>Timestamped organizer review</strong><p>The registration will enter Pending status. Rank and eligibility configuration snapshots are retained for auditability.</p></div>
+            <div className="card">
+              <strong>Create team</strong>
+              <p>You will remain the team manager. Roster players are linked as registered ALCL accounts.</p>
+            </div>
             <Check checked={form.rulesAccepted} onChange={(value) => setForm({ ...form, rulesAccepted: value })}>
               I accept the published event rules and terms of participation.
             </Check>
+            {error ? <p role="alert" className="legal">{error}</p> : null}
           </div>
         ) : null}
 
@@ -156,11 +260,10 @@ export function RegistrationWizard() {
           {step < 4 ? (
             <button className="btn btn-primary" disabled={!canContinue} type="button" onClick={() => setStep(step + 1)}>Continue <ChevronRight size={14} /></button>
           ) : (
-            <button className="btn btn-primary" disabled={!canContinue || submitting} type="button" onClick={submit}>{submitting ? "Submitting…" : "Submit registration"}</button>
+            <button className="btn btn-primary" disabled={!canContinue || submitting} type="button" onClick={submit}>{submitting ? "Creating team…" : "Create team"}</button>
           )}
         </div>
       </div>
-      {notice ? <Toast message={notice} onClose={() => setNotice("")} /> : null}
     </div>
   );
 }
