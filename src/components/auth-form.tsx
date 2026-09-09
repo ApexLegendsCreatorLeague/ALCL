@@ -1,19 +1,52 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useActionState, useEffect } from "react";
 
 import { sendMagicLink, signInWithPassword } from "@/server/actions/auth";
 
+function safeNextPath(next: string | null) {
+  if (!next || !next.startsWith("/") || next.startsWith("//")) {
+    return "/dashboard/player";
+  }
+  return next;
+}
+
 export function AuthForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const nextPath = safeNextPath(searchParams.get("next"));
+  const callbackError = searchParams.get("error");
+
   const [passwordState, passwordAction, passwordPending] = useActionState(
     signInWithPassword,
     null,
   );
   const [magicState, magicAction, magicPending] = useActionState(sendMagicLink, null);
 
+  useEffect(() => {
+    if (passwordState?.ok) {
+      router.push(nextPath);
+      router.refresh();
+    }
+  }, [passwordState, nextPath, router]);
+
+  const callbackMessage =
+    callbackError === "auth_required"
+      ? "Sign in to continue."
+      : callbackError === "auth_callback"
+        ? "The sign-in link expired or was invalid. Try again."
+        : null;
+
   return (
     <div className="form">
+      {callbackMessage ? (
+        <p role="alert" className="legal">
+          {callbackMessage}
+        </p>
+      ) : null}
+
       <form action={passwordAction} className="form">
         <label className="field">
           Player email
@@ -33,7 +66,7 @@ export function AuthForm() {
         {passwordState && !passwordState.ok ? (
           <p role="alert" className="legal">{passwordState.message}</p>
         ) : null}
-        <button className="btn btn-primary" disabled={passwordPending}>
+        <button className="btn btn-primary" disabled={passwordPending} type="submit">
           {passwordPending ? "Signing in…" : "Player sign in"}
         </button>
       </form>
@@ -52,7 +85,7 @@ export function AuthForm() {
             {magicState.ok ? "Check your email for the secure ALCL sign-in link." : magicState.message}
           </p>
         ) : null}
-        <button className="btn" disabled={magicPending}>
+        <button className="btn" disabled={magicPending} type="submit">
           {magicPending ? "Sending…" : "Email magic link"}
         </button>
       </form>

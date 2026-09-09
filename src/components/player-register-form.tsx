@@ -1,12 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useRouter } from "next/navigation";
+import { useActionState, useEffect } from "react";
 
 import { signUpWithPassword } from "@/server/actions/auth";
 
 export function PlayerRegisterForm() {
+  const router = useRouter();
   const [state, action, pending] = useActionState(signUpWithPassword, null);
+
+  useEffect(() => {
+    if (state?.ok && state.data.redirectTo) {
+      router.push(state.data.redirectTo);
+      router.refresh();
+    }
+  }, [router, state]);
 
   return (
     <form action={action} className="form">
@@ -59,12 +68,13 @@ export function PlayerRegisterForm() {
       </label>
       {state && !state.ok ? (
         <p role="alert" className="legal">{state.message}</p>
-      ) : state?.ok ? (
+      ) : state?.ok && state.data.emailConfirmationRequired ? (
         <p role="status" className="legal">
-          Player account created. If email confirmation is enabled, check your inbox, then sign in.
+          Player account created. Confirm your email, then use{" "}
+          <Link href="/login">Player sign in</Link>.
         </p>
       ) : null}
-      <button className="btn btn-primary" disabled={pending}>
+      <button className="btn btn-primary" disabled={pending} type="submit">
         {pending ? "Creating player account…" : "Create player account"}
       </button>
       <p className="legal">

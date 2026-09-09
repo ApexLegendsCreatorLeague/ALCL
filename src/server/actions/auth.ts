@@ -6,7 +6,7 @@ import { z } from "zod";
 
 import { siteUrl } from "@/lib/supabase/env";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient, isSupabaseConfigured } from "@/lib/supabase/server";
+import { createActionClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import { ensurePlayerRecord } from "@/server/players";
 import { actionFailure, actionSuccess, type ActionResult } from "@/server/action-result";
 
@@ -49,16 +49,26 @@ export async function signInWithPassword(
       fieldErrors: parsed.error.flatten().fieldErrors,
     });
   }
-  const supabase = await createClient();
+  const supabase = await createActionClient();
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
-  if (error) return actionFailure("UNAUTHENTICATED", "The email or password was not accepted.");
-  redirect("/dashboard/player");
+  if (error) {
+    const message = error.message.toLowerCase().includes("confirm")
+      ? "Confirm your email first, then sign in."
+      : "The email or password was not accepted.";
+    return actionFailure("UNAUTHENTICATED", message);
+  }
+  return actionSuccess(null);
 }
 
+type SignUpResult = {
+  redirectTo: "/dashboard/player" | null;
+  emailConfirmationRequired?: boolean;
+};
+
 export async function signUpWithPassword(
-  _previous: ActionResult<null> | null,
+  _previous: ActionResult<SignUpResult> | null,
   formData: FormData,
-): Promise<ActionResult<null>> {
+): Promise<ActionResult<SignUpResult>> {
   if (!isSupabaseConfigured()) {
     return actionFailure("INTERNAL_ERROR", "Authentication is not configured in this environment.");
   }
@@ -85,7 +95,7 @@ export async function signUpWithPassword(
     );
   }
   const redirectBase = siteUrl((await headers()).get("origin") ?? "http://localhost:3000");
-  const supabase = await createClient();
+  const supabase = await createActionClient();
   const { data, error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
@@ -112,8 +122,13 @@ export async function signUpWithPassword(
       // Player row may be created on first dashboard visit if RLS blocked here.
     }
   }
-  if (data.session) redirect("/dashboard/player");
-  return actionSuccess(null);
+  if (data.session) {
+    return actionSuccess({ redirectTo: "/dashboard/player" as const });
+  }
+  return actionSuccess({
+    redirectTo: null,
+    emailConfirmationRequired: true,
+  });
 }
 
 export async function sendMagicLink(
@@ -125,7 +140,7 @@ export async function sendMagicLink(
   }
   const parsed = emailSchema.safeParse(formData.get("email"));
   if (!parsed.success) return actionFailure("INVALID_INPUT", "Enter a valid email address.");
-  const supabase = await createClient();
+  const supabase = await createActionClient();
   const redirectBase = siteUrl((await headers()).get("origin") ?? "http://localhost:3000");
   const { error } = await supabase.auth.signInWithOtp({
     email: parsed.data,
@@ -137,7 +152,7 @@ export async function sendMagicLink(
 
 export async function signOut(): Promise<void> {
   if (isSupabaseConfigured()) {
-    const supabase = await createClient();
+    const supabase = await createActionClient();
     await supabase.auth.signOut();
   }
   redirect("/");

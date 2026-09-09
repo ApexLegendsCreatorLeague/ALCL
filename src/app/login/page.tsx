@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 
 import { AppShell } from "@/components/alcl";
 import { AuthForm } from "@/components/auth-form";
@@ -19,7 +20,9 @@ export default function LoginPage() {
           <p className="legal" style={{ marginBottom: "1rem" }}>
             Only players have ALCL accounts. Teams are groups of players — they never sign in.
           </p>
-          <AuthForm />
+          <Suspense fallback={<p className="legal">Loading sign in…</p>}>
+            <AuthForm />
+          </Suspense>
           <p className="legal">
             No account yet? <Link href="/register">Create a player account</Link>
           </p>
