@@ -1,13 +1,11 @@
 import "server-only";
 
-import { createClient } from "@supabase/supabase-js";
-
 import { createAdminClient } from "@/lib/supabase/admin";
-import { siteUrl, supabaseAnonKey, supabaseServiceRoleKey, supabaseUrl } from "@/lib/supabase/env";
+import { supabaseServiceRoleKey } from "@/lib/supabase/env";
 import { isSupabaseConfigured } from "@/lib/supabase/server";
-import type { Database } from "@/types/database";
 
 const RESET_NEXT_PATH = "/account/reset-password";
+const RESET_RECOVERY_PATH = "/auth/recovery";
 
 function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
@@ -56,7 +54,7 @@ function accountNameMatches(
   return profileName === expected || metadataName === expected;
 }
 
-export async function requestPasswordReset(email: string, accountName: string) {
+export async function validatePasswordResetRequest(email: string, accountName: string) {
   if (!isSupabaseConfigured()) {
     return {
       ok: false as const,
@@ -75,7 +73,7 @@ export async function requestPasswordReset(email: string, accountName: string) {
   const authUser = await findAuthUserIdByEmail(normalizedEmail);
 
   if (!authUser) {
-    return { ok: true as const };
+    return { ok: true as const, dispatchReset: false as const };
   }
 
   const admin = createAdminClient();
@@ -92,35 +90,18 @@ export async function requestPasswordReset(email: string, accountName: string) {
       authUser.user_metadata?.display_name,
     )
   ) {
-    return { ok: true as const };
+    return { ok: true as const, dispatchReset: false as const };
   }
 
-  const url = supabaseUrl();
-  const anonKey = supabaseAnonKey();
-  if (!url || !anonKey) {
-    return {
-      ok: false as const,
-      message: "Password reset is not configured in this environment.",
-    };
-  }
-
-  const mailClient = createClient<Database>(url, anonKey, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
-
-  const redirectTo = `${siteUrl()}/auth/callback?next=${encodeURIComponent(RESET_NEXT_PATH)}`;
-  const { error } = await mailClient.auth.resetPasswordForEmail(normalizedEmail, {
-    redirectTo,
-  });
-
-  if (error) {
-    return {
-      ok: false as const,
-      message: "The reset email could not be sent. Try again in a few minutes.",
-    };
-  }
-
-  return { ok: true as const };
+  return {
+    ok: true as const,
+    dispatchReset: true as const,
+    email: normalizedEmail,
+  };
 }
 
-export { RESET_NEXT_PATH };
+export async function requestPasswordReset(email: string, accountName: string) {
+  return validatePasswordResetRequest(email, accountName);
+}
+
+export { RESET_NEXT_PATH, RESET_RECOVERY_PATH };

@@ -40,6 +40,8 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({
     ok: true,
+    dispatchReset: result.dispatchReset,
+    email: result.dispatchReset ? result.email : undefined,
     message:
       "If the email and account name match an ALCL player account, a password reset link is on its way.",
   });

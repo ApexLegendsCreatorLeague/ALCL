@@ -128,7 +128,11 @@ export function AuthSessionProvider({
       }
 
       const result = supabase.auth.onAuthStateChange((event) => {
-        if (event === "PASSWORD_RECOVERY" && pathname !== "/account/reset-password") {
+        if (
+          event === "PASSWORD_RECOVERY" &&
+          pathname !== "/account/reset-password" &&
+          pathname !== "/auth/recovery"
+        ) {
           window.location.assign("/account/reset-password");
           return;
         }
