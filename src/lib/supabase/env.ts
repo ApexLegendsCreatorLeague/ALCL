@@ -29,8 +29,12 @@ export function supabaseServiceRoleKey() {
 
 export function siteUrl(fallback = "http://localhost:3000") {
   const configured = readEnv("SITE_URL", "NEXT_PUBLIC_SITE_URL", "VERCEL_PROJECT_PRODUCTION_URL");
-  const base = configured || fallback;
-  return base.replace(/\/$/, "");
+  let base = configured || fallback;
+  base = base.replace(/\/$/, "");
+  if (!/^https?:\/\//i.test(base)) {
+    base = `https://${base}`;
+  }
+  return base;
 }
 
 export function envDiagnostics() {

@@ -1,7 +1,12 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 
-import { requestPasswordReset } from "@/server/auth/forgot-password";
+import {
+  RESET_COOKIE_MAX_AGE_SECONDS,
+  RESET_COOKIE_NAME,
+  signResetDispatchToken,
+  validatePasswordResetRequest,
+} from "@/server/auth/forgot-password";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -33,14 +38,26 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const result = await requestPasswordReset(parsed.data.email, parsed.data.accountName);
+  const result = await validatePasswordResetRequest(parsed.data.email, parsed.data.accountName);
   if (!result.ok) {
     return NextResponse.json(result, { status: 503 });
   }
 
-  return NextResponse.json({
+  const response = NextResponse.json({
     ok: true,
     message:
       "If the email and account name match an ALCL player account, a password reset link is on its way.",
   });
+
+  if (result.authorized) {
+    response.cookies.set(RESET_COOKIE_NAME, signResetDispatchToken(result.email), {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: RESET_COOKIE_MAX_AGE_SECONDS,
+      path: "/api/auth/dispatch-reset",
+    });
+  }
+
+  return response;
 }

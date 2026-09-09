@@ -43,5 +43,5 @@ export default async function CatchAllPage({ params }: Props) {
     }
   }
 
-  return <RoutePage segments={slug} />;
+  return await RoutePage({ segments: slug });
 }

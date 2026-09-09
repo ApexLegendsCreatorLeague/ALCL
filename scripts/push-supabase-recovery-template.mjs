@@ -36,6 +36,7 @@ const recoveryContent = readFileSync(templatePath, "utf8");
 
 const redirectUrls = [
   siteUrl,
+  `${siteUrl}/**`,
   `${siteUrl}/auth/callback`,
   `${siteUrl}/auth/recovery`,
   `${siteUrl}/auth/confirm`,

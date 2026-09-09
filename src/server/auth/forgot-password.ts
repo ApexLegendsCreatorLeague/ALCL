@@ -1,5 +1,7 @@
 import "server-only";
 
+import { createHmac, timingSafeEqual } from "node:crypto";
+
 import { createClient } from "@supabase/supabase-js";
 
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -9,6 +11,8 @@ import type { Database } from "@/types/database";
 
 const RESET_NEXT_PATH = "/account/reset-password";
 const RESET_RECOVERY_PATH = "/auth/recovery";
+const RESET_COOKIE_NAME = "alcl_reset_dispatch";
+const RESET_COOKIE_MAX_AGE_SECONDS = 5 * 60;
 
 function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
@@ -16,6 +20,64 @@ function normalizeEmail(email: string) {
 
 function normalizeAccountName(name: string) {
   return name.trim().toLocaleLowerCase("en-US");
+}
+
+function resetCookieSecret() {
+  return supabaseServiceRoleKey() ?? supabaseAnonKey() ?? "alcl-reset-cookie";
+}
+
+function signResetDispatchToken(email: string) {
+  const normalizedEmail = normalizeEmail(email);
+  const signature = createHmac("sha256", resetCookieSecret())
+    .update(normalizedEmail)
+    .digest("base64url");
+
+  return `${normalizedEmail}.${signature}`;
+}
+
+function readResetDispatchEmail(token: string | undefined) {
+  if (!token) {
+    return null;
+  }
+
+  const separator = token.lastIndexOf(".");
+  if (separator <= 0) {
+    return null;
+  }
+
+  const email = token.slice(0, separator);
+  const signature = token.slice(separator + 1);
+  const expected = createHmac("sha256", resetCookieSecret()).update(email).digest("base64url");
+
+  const providedBuffer = Buffer.from(signature);
+  const expectedBuffer = Buffer.from(expected);
+  if (
+    providedBuffer.length !== expectedBuffer.length ||
+    !timingSafeEqual(providedBuffer, expectedBuffer)
+  ) {
+    return null;
+  }
+
+  return email;
+}
+
+function mapResetEmailError(message: string) {
+  const lower = message.toLowerCase();
+
+  if (lower.includes("redirect")) {
+    return "Password reset is blocked by Supabase redirect settings. Add https://thessiatournamentsite.com/auth/recovery under Authentication → URL Configuration → Redirect URLs.";
+  }
+
+  if (
+    lower.includes("smtp") ||
+    lower.includes("mail") ||
+    lower.includes("email provider") ||
+    lower.includes("send")
+  ) {
+    return "Supabase could not send the reset email. Check Authentication → SMTP in your Supabase project.";
+  }
+
+  return "The reset email could not be sent. Try again in a few minutes.";
 }
 
 async function findAuthUserIdByEmail(email: string) {
@@ -57,7 +119,7 @@ function accountNameMatches(
   return profileName === expected || metadataName === expected;
 }
 
-export async function requestPasswordReset(email: string, accountName: string) {
+export async function validatePasswordResetRequest(email: string, accountName: string) {
   if (!isSupabaseConfigured()) {
     return {
       ok: false as const,
@@ -76,7 +138,7 @@ export async function requestPasswordReset(email: string, accountName: string) {
   const authUser = await findAuthUserIdByEmail(normalizedEmail);
 
   if (!authUser) {
-    return { ok: true as const };
+    return { ok: true as const, authorized: false as const };
   }
 
   const admin = createAdminClient();
@@ -93,7 +155,22 @@ export async function requestPasswordReset(email: string, accountName: string) {
       authUser.user_metadata?.display_name,
     )
   ) {
-    return { ok: true as const };
+    return { ok: true as const, authorized: false as const };
+  }
+
+  return {
+    ok: true as const,
+    authorized: true as const,
+    email: normalizedEmail,
+  };
+}
+
+export async function dispatchPasswordResetEmail(email: string, redirectBase: string) {
+  if (!isSupabaseConfigured()) {
+    return {
+      ok: false as const,
+      message: "Password reset is not configured in this environment.",
+    };
   }
 
   const url = supabaseUrl();
@@ -109,20 +186,44 @@ export async function requestPasswordReset(email: string, accountName: string) {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 
-  // Recovery email template must link to /auth/recovery with token_hash (see supabase/templates/recovery.html).
-  const redirectTo = `${siteUrl()}${RESET_RECOVERY_PATH}`;
-  const { error } = await mailClient.auth.resetPasswordForEmail(normalizedEmail, {
+  const redirectTo = `${redirectBase.replace(/\/$/, "")}${RESET_RECOVERY_PATH}`;
+  const { error } = await mailClient.auth.resetPasswordForEmail(normalizeEmail(email), {
     redirectTo,
   });
 
   if (error) {
+    console.error("Supabase resetPasswordForEmail failed:", error.message, { redirectTo });
     return {
       ok: false as const,
-      message: "The reset email could not be sent. Try again in a few minutes.",
+      message: mapResetEmailError(error.message),
     };
   }
 
   return { ok: true as const };
 }
 
-export { RESET_NEXT_PATH, RESET_RECOVERY_PATH };
+export async function requestPasswordReset(
+  email: string,
+  accountName: string,
+  redirectBase?: string,
+) {
+  const validation = await validatePasswordResetRequest(email, accountName);
+  if (!validation.ok) {
+    return validation;
+  }
+
+  if (!validation.authorized) {
+    return { ok: true as const };
+  }
+
+  return dispatchPasswordResetEmail(validation.email, redirectBase ?? siteUrl());
+}
+
+export {
+  RESET_COOKIE_MAX_AGE_SECONDS,
+  RESET_COOKIE_NAME,
+  RESET_NEXT_PATH,
+  RESET_RECOVERY_PATH,
+  readResetDispatchEmail,
+  signResetDispatchToken,
+};

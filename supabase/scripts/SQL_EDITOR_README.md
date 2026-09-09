@@ -32,20 +32,32 @@ Run `verify-schema.sql`. Expect:
 - `app_roles_count` → `6`
 - `compliance_rows` → `1`
 
-## Step 3 — Staff roles (admin / owner)
+## Step 3 — Profile role columns (run once)
 
-After a player registers on the site (or you add them under **Authentication → Users**):
+Run **`add-profile-role-flags.sql`** in the SQL Editor.
 
-1. Open **`manage-staff-roles.sql`** in this folder
-2. Run block **1** to list accounts and current roles
-3. Run block **2**, **3**, or **4** with the target email:
-   - **`admin`** — platform administrator
-   - **`organizer`** — league / organization owner (ALCL “owner” access)
+After that, **Table Editor → profiles** shows:
+
+| Column | Meaning |
+|--------|---------|
+| `is_player` | Player rights (teams, dashboard) |
+| `is_admin` | Admin rights |
+| `is_owner` | Owner rights — ALL access (backed by `organizer` role) |
+
+These stay in sync automatically when `profile_roles` changes.
+
+## Step 4 — Staff roles (admin / owner)
+
+After a player registers on the site:
+
+1. Run **`add-profile-role-flags.sql`** if you have not already
+2. Open **`grant-staff-admin.sql`**
+3. Run blocks **1 → 2 → 3** (default account name: `KushyKush`)
 4. User must **sign out and sign back in**, then open **`/admin`**
 
-Quick first-time setup: edit email in **`bootstrap-admin.sql`** and run it (grants both admin + organizer).
+For email-based lookup instead, use **`bootstrap-admin.sql`** or **`manage-staff-roles.sql`**.
 
-## Step 4 — Password reset email (required once)
+## Step 5 — Password reset email (required once)
 
 The default Supabase reset email uses a PKCE link that often fails with `otp_expired`.
 ALCL uses a direct `token_hash` link instead (`supabase/templates/recovery.html`).
@@ -68,6 +80,6 @@ npm run supabase:push-recovery-template
 2. **Authentication → Email Templates → Reset password**
    - Copy the contents of `supabase/templates/recovery.html`
 
-## Step 5 — Vercel
+## Step 6 — Vercel
 
 Set env vars from Supabase **Settings → API**, redeploy, and set `SITE_URL=https://thessiatournamentsite.com`.

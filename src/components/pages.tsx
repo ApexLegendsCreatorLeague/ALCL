@@ -1,104 +1,617 @@
 import Link from "next/link";
-import { Trophy } from "lucide-react";
-import { players as playerRecords, teams as teamRecords } from "@/lib/content";
+
 import { AppShell } from "@/components/app-shell";
 import { AuthCtaButtons } from "@/components/auth-cta-buttons";
 import {
-  AdminActions, AdminTable, BroadcastView, Countdown, Hero, Leaderboard,
-  LegalDisclaimer, MatchCard, PageHeader, PlayerCard, PlayerStats, QualificationProgress,
-  ScoreTable, Search, SectionTitle, StandingsTable, StatCard,
-  StatusBadge, SupporterCard, TeamCard, TeamRoster, TournamentCard,
-  TournamentTimeline
+  AdminActions,
+  AdminTable,
+  BroadcastView,
+  EmptyState,
+  LegalDisclaimer,
+  PageHeader,
+  PlayerCard,
+  QualificationProgress,
+  Search,
+  SectionTitle,
+  StatusBadge,
+  TeamCard,
+  TournamentTimeline,
 } from "./alcl";
 import { AuthForm } from "@/components/auth-form";
 import { LiveApiAdmin } from "@/components/liveapi-admin";
-const teams = teamRecords.map((team) => team.name);
-const players = playerRecords.map((player) => player.displayName);
-const tourneys=["Open Circuit #5","Midseason Invitational","Rising Stars Cup"];
+import {
+  getPublicPlayer,
+  getPublicTeam,
+  listPublicPlayers,
+  listPublicTeams,
+} from "@/server/public-directory";
 
-export function HomePage(){
- return <AppShell><Hero/>
- <section className="section"><div className="container"><div className="grid grid-4"><StatCard label="Current season" value="Season 05"/><StatCard label="Next event" value="Sep 12"/><StatCard label="Registration" value="Open"/><StatCard label="Format" value="Trios"/></div></div></section>
- <section className="section"><div className="container"><SectionTitle eyebrow="Next up" title="Enter the circuit" copy="Open competitions, transparent formats, and a configurable path to the community championship." action={<Link className="btn" href="/tournaments">View all</Link>}/><div className="grid grid-3">{tourneys.map((x,i)=><TournamentCard name={x} index={i} key={x}/>)}</div></div></section>
- <section className="section" style={{background:"#0b0e13"}}><div className="container"><SectionTitle eyebrow="Season leaderboard" title="Teams setting the pace" action={<Link className="btn" href="/standings">Full standings</Link>}/><StandingsTable limit={8}/></div></section>
- <section className="section"><div className="container"><SectionTitle eyebrow="Community spotlight" title="Featured teams & players"/><div className="grid grid-3">{teams.slice(0,3).map((x,i)=><TeamCard name={x} index={i} key={x}/>)}</div><div className="grid grid-3" style={{marginTop:16}}>{players.slice(0,3).map((x,i)=><PlayerCard name={x} index={i} key={x}/>)}</div></div></section>
- <section className="section" style={{background:"#0b0e13"}}><div className="container"><SectionTitle eyebrow="Latest action" title="Recent results"/><div className="grid">{[0,1,2].map(i=><MatchCard index={i} key={i}/>)}</div></div></section>
- <section className="section"><div className="container"><SectionTitle eyebrow="Community powered" title="Supporters & history"/><div className="grid grid-3">{["Local LAN Cooperative","Creator Commons","Open Signal Studio"].map((x,i)=><SupporterCard name={x} index={i} key={x}/>)}</div><div className="card" style={{marginTop:16}}><Trophy color="var(--lime)"/><h3>ALCL Hall of Fame</h3><p>Season champions, community event winners, MVPs, and record holders.</p><Link className="btn" href="/hall-of-fame">Explore history</Link></div></div></section>
- </AppShell>
+export async function HomePage() {
+  const [players, teams] = await Promise.all([listPublicPlayers(6), listPublicTeams(6)]);
+  return (
+    <AppShell>
+      <section className="hero">
+        <div className="container" style={{ position: "relative", zIndex: 1 }}>
+          <div className="eyebrow">ALCL community league</div>
+          <h1 className="display">
+            THE ARENA
+            <br />
+            <span style={{ color: "var(--lime)" }}>BELONGS TO YOU.</span>
+          </h1>
+          <p>
+            Independent community tournaments for Apex Legends. Compete in structured seasons, build
+            your legacy, and earn your place at the ALCL Championship.
+          </p>
+          <div className="actions">
+            <Link className="btn btn-primary" href="/register">
+              Create player account
+            </Link>
+            <Link className="btn" href="/login">
+              Player sign in
+            </Link>
+            <Link className="btn btn-ghost" href="/tournaments">
+              Explore tournaments
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="container">
+          <SectionTitle
+            eyebrow="Next up"
+            title="Enter the circuit"
+            copy="Tournaments, standings, and schedules will appear here as organizers publish them."
+            action={
+              <Link className="btn" href="/tournaments">
+                View tournaments
+              </Link>
+            }
+          />
+          <EmptyState
+            title="No tournaments published yet"
+            message="Check back soon — the first ALCL events are being prepared."
+          />
+        </div>
+      </section>
+
+      <section className="section" style={{ background: "#0b0e13" }}>
+        <div className="container">
+          <SectionTitle
+            eyebrow="Season leaderboard"
+            title="Standings"
+            action={
+              <Link className="btn" href="/standings">
+                Full standings
+              </Link>
+            }
+          />
+          <EmptyState
+            title="No standings yet"
+            message="Season standings will appear after the first completed event."
+          />
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="container">
+          <SectionTitle
+            eyebrow="Community"
+            title="Teams & players"
+            copy="Registered teams and player profiles appear here as the league grows."
+            action={
+              players.length || teams.length ? (
+                <Link className="btn" href="/players">
+                  View all players
+                </Link>
+              ) : undefined
+            }
+          />
+          {players.length || teams.length ? (
+            <div className="grid grid-3">
+              {teams.map((team) => (
+                <TeamCard
+                  key={team.teamId}
+                  teamId={team.teamId}
+                  name={team.name}
+                  shortName={team.shortName}
+                  captainName={team.captainName}
+                  memberCount={team.memberCount}
+                />
+              ))}
+              {players.map((player) => (
+                <PlayerCard
+                  key={player.playerId}
+                  playerId={player.playerId}
+                  name={player.displayName}
+                  teamName={player.teamName}
+                  platform={player.platform}
+                  rank={player.rank}
+                />
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              title="No teams or players listed yet"
+              message="Create a player account and form a team to get started."
+            />
+          )}
+        </div>
+      </section>
+    </AppShell>
+  );
 }
 
-const info:Record<string,[string,string,string]>={
- league:["Season 05","The ALCL League","Eight weeks. Four circuit events. One championship. Follow every chapter of the current competitive season."],
- tournaments:["Competition hub","Find your next fight","Browse open registrations, live events, and completed community tournaments."],
- standings:["Season standings","Every point matters","Live cumulative standings across the ALCL Season 05 circuit."],
- teams:["Team directory","Built to compete","Discover the squads defining this season and follow their path through the circuit."],
- players:["Player directory","Meet the competitors","Profiles, performance snapshots, and team affiliations for ALCL competitors."],
- championship:["The final stage","ALCL Championship","The season’s best teams converge for one decisive weekend."],
- supporters:["Community powered","ALCL supporters","The people and groups helping independent competition thrive."],
- rules:["Competition guide","Rules & format","Clear standards for fair, consistent, and community-first competition."],
- "hall-of-fame":["ALCL history","Hall of fame","Celebrating champions, record breakers, and unforgettable seasons."],
- legal:["Policies","Legal & integrity","How ALCL operates, protects competitors, and communicates its independent status."],
- dashboard:["Competitor portal","Your dashboard","Your season at a glance—registrations, matches, and account actions."],
+const info: Record<string, [string, string, string]> = {
+  league: [
+    "ALCL league",
+    "The ALCL League",
+    "Season schedule, milestones, and cumulative performance will be published here.",
+  ],
+  tournaments: [
+    "Competition hub",
+    "Find your next fight",
+    "Browse open registrations, live events, and completed community tournaments.",
+  ],
+  standings: [
+    "Season standings",
+    "Every point matters",
+    "Cumulative standings across the ALCL season circuit.",
+  ],
+  teams: [
+    "Team directory",
+    "Built to compete",
+    "Discover squads and follow their path through the circuit.",
+  ],
+  players: [
+    "Player directory",
+    "Meet the competitors",
+    "Profiles, performance snapshots, and team affiliations for ALCL competitors.",
+  ],
+  championship: [
+    "The final stage",
+    "ALCL Championship",
+    "The season’s best teams converge for one decisive weekend.",
+  ],
+  supporters: [
+    "Community powered",
+    "ALCL supporters",
+    "The people and groups helping independent competition thrive.",
+  ],
+  rules: [
+    "Competition guide",
+    "Rules & format",
+    "Clear standards for fair, consistent, and community-first competition.",
+  ],
+  "hall-of-fame": [
+    "ALCL history",
+    "Hall of fame",
+    "Celebrating champions, record breakers, and unforgettable seasons.",
+  ],
+  legal: [
+    "Policies",
+    "Legal & integrity",
+    "How ALCL operates, protects competitors, and communicates its independent status.",
+  ],
+  dashboard: [
+    "Competitor portal",
+    "Your dashboard",
+    "Your season at a glance—registrations, matches, and account actions.",
+  ],
 };
 
-function StandardHeader({type}:{type:string}){const d=info[type]??["ALCL","Competition center","Everything you need for the current ALCL season."];return <PageHeader eyebrow={d[0]} title={d[1]} copy={d[2]}/>}
-
-export function RoutePage({segments}:{segments:string[]}){
- const [root,id,leaf]=segments; const key=segments.join("/");
- if(root==="broadcast") return <BroadcastView type={id??"leaderboard"}/>;
- if(root==="login") return <AuthPage/>;
- if(root==="admin") return <AdminPage section={id}/>;
- if(root==="tournaments"&&id) return <TournamentDetail id={id} leaf={leaf}/>;
- if(root==="league"&&id) return <SeasonDetail season={id}/>;
- if(root==="teams"&&id) return <TeamDetail id={id}/>;
- if(root==="players"&&id) return <PlayerDetail id={id}/>;
- return <Directory type={root||key}/>;
+function StandardHeader({ type }: { type: string }) {
+  const data = info[type] ?? ["ALCL", "Competition center", "Everything you need for the current ALCL season."];
+  return <PageHeader eyebrow={data[0]} title={data[1]} copy={data[2]} />;
 }
 
-function Directory({type}:{type:string}){
- let content:React.ReactNode;
- if(type==="tournaments") content=<div className="grid grid-3">{tourneys.concat(["Last Chance Qualifier","Community Night","ALCL Championship"]).map((x,i)=><TournamentCard name={x} index={i} key={x}/>)}</div>;
- else if(type==="teams") content=<><div className="toolbar"><Search placeholder="Search teams, players, or tournaments…"/><div className="actions" style={{marginTop:0}}><AuthCtaButtons showCreateTeam compact /></div></div><div className="grid grid-3">{teams.map((x,i)=><TeamCard name={x} index={i} key={x}/>)}</div></>;
- else if(type==="players") content=<><div className="toolbar"><Search placeholder="Search players or teams…"/></div><div className="grid grid-3">{players.map((x,i)=><PlayerCard name={x} index={i} key={x}/>)}</div></>;
- else if(type==="standings") content=<><div className="grid grid-3" style={{marginBottom:16}}><StatCard label="Events completed" value="3 / 5"/><StatCard label="Teams ranked" value="20"/><StatCard label="Qualification line" value="Top 12"/></div><StandingsTable/></>;
- else if(type==="league") content=<><div className="card" style={{marginBottom:22}}><StatusBadge status="Season active"/><h3>Open Circuit #5 begins soon</h3><Countdown/><QualificationProgress/></div><TournamentTimeline/><div style={{marginTop:40}}><StandingsTable/></div></>;
- else if(type==="championship") content=<><div className="grid grid-3"><StatCard label="Qualified teams" value="12"/><StatCard label="Scheduled matches" value="8"/><StatCard label="Awards" value="Recognition"/></div><div style={{marginTop:20}}><QualificationProgress value={66}/></div><div style={{marginTop:40}}><SectionTitle eyebrow="Qualified" title="The community field so far"/><div className="grid grid-3">{teams.slice(0,6).map((x,i)=><TeamCard name={x} index={i} key={x}/>)}</div></div><div style={{marginTop:40}}><Article sections={[["Qualification rules","Top teams qualify under the season configuration published before play."],["Format & schedule","The culminating community event uses its own published match and scoring configuration."],["Champion & history","Community recognition, badges, and season history are recorded without commercial-prize claims."]]}/></div></>;
- else if(type==="supporters") content=<div className="grid grid-3">{["Obsidian Tier","Lumen Collective","Dropzone Community"].map((x,i)=><SupporterCard name={x} index={i} key={x}/>)}</div>;
- else if(type==="hall-of-fame") content=<div className="grid grid-3">{["Season 04 · Northstar","Season 03 · Wildcards","Season 02 · Final Form"].map((x,i)=><div className="card" key={x}><Trophy color="var(--lime)"/><h3>{x}</h3><p>{12-i*2} match wins · {186-i*13} eliminations</p></div>)}</div>;
- else if(type==="rules") content=<><div className="card" style={{borderColor:"#ff6b3566",marginBottom:20}}><StatusBadge status="RULES — PLACEHOLDER"/><h3>ALCL SIGN UP RULES</h3><p>Official ALCL rules will be reviewed and published before registration opens for each event. This page is not an active ruleset and cannot be accepted for competition entry.</p></div><Article sections={["Eligibility","Team Requirements","Roster Requirements","Rank Requirements","Registration","Roster Lock","Substitutes","Match Participation","Tournament Scoring","Season Points","Championship Qualification","Conduct","Disputes","Penalties"].map((title,index)=>[`${String(index+1).padStart(2,"0")} · ${title}`,`PLACEHOLDER — Event-specific ${title.toLowerCase()} requirements will be published and versioned before the applicable community event.`] as [string,string])}/></>;
- else if(type==="legal") content=<Article sections={[["Independent Community Tournament","ALCL is an independent community tournament organization. It is not an EA, Respawn, ALGS, or other EA-entity program."],["EA Disclaimer","This tournament is not affiliated with or sponsored by Electronic Arts Inc."],["Intellectual Property","ALCL uses original branding. Organizers and participants must have rights to uploaded names, logos, images, and other materials."],["Participant Responsibilities","Participants remain responsible for applicable EA terms, platform rules, published event rules, local law, and account standing."],["Rules of Conduct","Cheating, collusion, exploits, harassment, discriminatory conduct, and falsified information are prohibited."],["Privacy","ALCL collects only tournament-operational information. Retention details and organizer contact information require reviewed language before launch."],["Terms of Participation","Participation is subject to published event-specific eligibility, roster, scoring, dispute, and conduct rules."],["Contact","PLACEHOLDER — Add the organizer’s reviewed legal, privacy, and tournament-integrity contact details before launch."]]}/>;
- else content=<StandingsTable/>;
- return <AppShell><StandardHeader type={type}/><section className="container">{content}</section></AppShell>;
+function Article({ sections }: { sections: [string, string][] }) {
+  return (
+    <div className="grid grid-2">
+      {sections.map(([heading, body]) => (
+        <article className="card" key={heading}>
+          <h3>{heading}</h3>
+          <p>{body}</p>
+        </article>
+      ))}
+    </div>
+  );
 }
 
-function Article({sections}:{sections:[string,string][]}){return <div className="grid grid-2">{sections.map(([h,p])=><article className="card" key={h}><h3>{h}</h3><p>{p}</p></article>)}</div>}
-
-function TournamentDetail({id,leaf}:{id:string;leaf?:string}){
- const title=tourneys[Number(id)-1]??id.split("-").map(part=>part[0]?.toUpperCase()+part.slice(1)).join(" ");
- let content:React.ReactNode;
- if(leaf==="leaderboard") content=<><SectionTitle eyebrow="Live table" title="Tournament leaderboard"/><Leaderboard/></>;
- else if(leaf==="matches") content=<><SectionTitle eyebrow="Schedule" title="Matches & results"/><div className="grid">{[0,1,2].map(i=><MatchCard index={i} key={i}/>)}</div></>;
- else if(leaf==="rules") content=<Article sections={[["Published event rules","Event-specific eligibility, roster, scoring, dispute, and conduct rules are versioned before registration opens."],["Tournament Scoring","Placement, kills, bonuses, penalties, multipliers, match limits, and tiebreakers use the tournament’s immutable configuration snapshot."],["Fair play","EA’s applicable terms and ALCL conduct requirements apply to every participant."]]}/>;
- else if(leaf==="teams") content=<div className="grid grid-3">{teams.slice(0,20).map((team,index)=><TeamCard name={team} index={index} key={team}/>)}</div>;
- else if(leaf==="results") content=<><SectionTitle eyebrow="Audited source results" title="Event results"/><ScoreTable/></>;
- else if(leaf==="announcements") content=<Article sections={[["Registration open","Team managers can submit an eligible five-player registered roster."],["Roster lock reminder","Changes after the published deadline require organizer approval."],["Results policy","Raw organizer-entered results are retained with scoring and audit history."]]}/>;
- else if(leaf==="schedule") content=<><SectionTitle eyebrow="Event schedule" title="Community event timeline"/><TournamentTimeline/></>;
- else if(leaf==="registration") content=<div className="card"><StatusBadge/><h3>Player registration</h3><p>Every competitor needs a player account first. After you sign in, the team manager creates the team and adds registered players to the roster.</p><div className="actions"><AuthCtaButtons showCreateTeam /></div></div>;
- else content=<><div className="actions" style={{marginBottom:20}}>{["schedule","rules","registration","teams","leaderboard","matches","results","announcements"].map(section=><Link className="btn" href={`/tournaments/${id}/${section}`} key={section}>{section}</Link>)}</div><div className="grid grid-3"><StatCard label="Registered" value="17 / 20"/><StatCard label="Matches" value="6"/><StatCard label="Roster" value="5 players"/></div><div className="grid grid-2" style={{marginTop:18}}><div className="card"><StatusBadge/><h3>Registration closes soon</h3><Countdown/><div className="actions"><AuthCtaButtons showCreateTeam /><Link className="btn" href={`/tournaments/${id}/matches`}>View matches</Link></div></div><QualificationProgress value={80}/></div><div style={{marginTop:50}}><SectionTitle eyebrow="Format" title="Tournament journey"/><TournamentTimeline/></div><div style={{marginTop:50}}><SectionTitle eyebrow="Results" title="Latest scores"/><ScoreTable/></div></>;
- return <AppShell><PageHeader eyebrow="ALCL community tournament" title={leaf?`${title} · ${leaf}`:title} copy="Independent community competition with configurable Tournament Scoring and Season Qualification."/><section className="container"><div className="card" style={{marginBottom:20,borderColor:"#c7ff4740"}}><LegalDisclaimer/></div>{content}</section></AppShell>
+export async function RoutePage({ segments }: { segments: string[] }) {
+  const [root, id, leaf] = segments;
+  const key = segments.join("/");
+  if (root === "broadcast") return <BroadcastView type={id ?? "leaderboard"} />;
+  if (root === "login") return <AuthPage />;
+  if (root === "admin") return <AdminPage section={id} />;
+  if (root === "tournaments" && id) return <TournamentDetail id={id} leaf={leaf} />;
+  if (root === "league" && id) return <SeasonDetail season={id} />;
+  if (root === "teams" && id) return <TeamDetail id={id} />;
+  if (root === "players" && id) return <PlayerDetail id={id} />;
+  return <Directory type={root || key} />;
 }
 
-function SeasonDetail({season}:{season:string}){return <AppShell><PageHeader eyebrow="Season archive" title={`ALCL ${season.replace("-"," ")}`} copy="Season schedule, milestones, and cumulative performance."/><section className="container"><div className="grid grid-3"><StatCard label="Circuit events" value="5"/><StatCard label="Total teams" value="20"/><StatCard label="Current week" value="06"/></div><div style={{marginTop:50}}><TournamentTimeline/></div><div style={{marginTop:50}}><StandingsTable/></div></section></AppShell>}
-function TeamDetail({id}:{id:string}){const i=Math.max(0,(Number(id)||1)-1);const name=teams[i%teams.length];return <AppShell><PageHeader eyebrow={`#${i+1} · Community team`} title={name} copy="A fictional development team profile with original ALCL branding."/><section className="container"><div className="grid grid-4"><StatCard label="Season points" value={String(Math.max(20,126-i*5))}/><StatCard label="Event wins" value={String(Math.max(0,4-Math.floor(i/4)))}/><StatCard label="Kills" value={String(128-i*4)}/><StatCard label="Region" value={i%3===0?"Europe":"North America"}/></div><div className="grid grid-2" style={{marginTop:18}}><div className="card"><h3>Team profile</h3><p>Abbreviation: {name.slice(0,3).toUpperCase()} · Manager: Demo Manager {i+1}</p><p>Website and creator/social links are organizer-moderated before publication.</p><div className="actions"><button className="btn">Website</button><button className="btn">Creator links</button></div></div><div className="card"><h3>Achievements</h3><p>Community finalist · Match winner · Season Qualification contender</p><Link className="btn" href="/standings">Event history</Link></div></div><div style={{marginTop:45}}><SectionTitle eyebrow="Registered roster" title="3 starters · up to 2 substitutes"/><TeamRoster/></div><div style={{marginTop:40}}><SectionTitle eyebrow="Event history" title="Season performance"/><StandingsTable limit={5}/></div></section></AppShell>}
-function PlayerDetail({id}:{id:string}){const i=Math.max(0,(Number(id)||1)-1);const name=players[i%players.length];return <AppShell><PageHeader eyebrow={`${teams[i%teams.length]} · ${["IGL","Fragger","Support","Flex","Substitute"][i%5]}`} title={name} copy="Fictional player profile and organizer-entered ALCL competition performance."/><section className="container"><PlayerStats index={i}/><div className="grid grid-2" style={{marginTop:18}}><div className="card"><h3>Player details</h3><p>Region: {i%3===0?"Europe":"North America"} · Current rank: {i%19===0?"Predator":"Diamond"}</p><p>Rank history is self-reported or organizer-verified and never collected through EA credentials or private APIs.</p></div><div className="card"><h3>Achievements & links</h3><p>Community match winner · Top-five finisher · Social links pending moderation</p></div></div><div style={{marginTop:40}}><SectionTitle eyebrow="Event history" title="Recent performance"/><ScoreTable/></div></section></AppShell>}
+async function Directory({ type }: { type: string }) {
+  let content: React.ReactNode;
 
-function AdminPage({section}:{section?:string}){const name=section?section[0].toUpperCase()+section.slice(1):"Operations";return <AppShell><PageHeader eyebrow="Organizer console · RLS protected" title={name} copy="Dense competition administration with server-enforced policy checks and immutable audit history."/><section className="container"><div className="grid grid-4" style={{marginBottom:22}}><StatCard label="Pending review" value="08"/><StatCard label="Active events" value="03"/><StatCard label="Registered teams" value="20"/><StatCard label="Open flags" value="02"/></div><AdminActions title={name}/>
-{!section&&<div className="grid grid-3" style={{marginBottom:16}}><div className="card"><h3>Season operations</h3><p>Manage seasons, announcements, community championship qualification, and published rules.</p><button className="btn">Manage season</button></div><div className="card"><h3>Standings</h3><p>Recalculate deterministic standings from raw results and versioned scoring configuration.</p><button className="btn">Recalculate</button></div><div className="card"><h3>Audit logs</h3><p>Review append-only mutations, actor identity, timestamps, and before/after records.</p><button className="btn">View audit log</button></div></div>}
-{section==="registrations"&&<div className="card" style={{marginBottom:16}}><h3>Registration review</h3><p>Review team, five-player roster, rank snapshots, eligibility, and submission timestamp.</p><div className="actions"><button className="btn btn-primary">Approve</button><button className="btn">Request changes</button><button className="btn">Reject</button><button className="btn">Lock registration</button></div></div>}
-{section==="matches"&&<div className="card" style={{marginBottom:16}}><h3>Manual result entry</h3><p>Enter placements, team kills, player kills, bonuses, and penalties. Calculated totals are derived and auditable.</p><div className="actions"><button className="btn btn-primary">Create match</button><button className="btn">Enter results</button><button className="btn">Verify results</button></div></div>}
-{section==="live-data"&&<LiveApiAdmin/>}
-{section==="supporters"&&<div className="card" style={{marginBottom:16}}><h3>Supporter moderation</h3><p>Publishing requires category, content, rights, and tournament-guideline attestations. Prohibited categories are rejected server-side.</p><div className="actions"><button className="btn btn-primary">Add supporter</button><button className="btn">Review attestations</button></div></div>}
-{section==="scoring"&&<div className="card" style={{marginBottom:16}}><h3>Tournament Scoring configuration</h3><div className="grid grid-3"><label className="field">First-place points<input className="input" defaultValue="12"/></label><label className="field">Kill points<input className="input" defaultValue="1"/></label><label className="field">Maximum matches<input className="input" defaultValue="6"/></label><label className="field">Bonus configuration<input className="input" defaultValue="{}"/></label><label className="field">Penalty configuration<input className="input" defaultValue="{}"/></label><label className="field">Tiebreakers<input className="input" defaultValue="Points, wins, kills"/></label></div><div className="actions"><button className="btn btn-primary">Save versioned ruleset</button><button className="btn">Preview scoring</button></div></div>}
-<AdminTable kind={(section??"operation").slice(0,-1)}/></section></AppShell>}
+  if (type === "tournaments") {
+    content = (
+      <EmptyState
+        title="No tournaments published yet"
+        message="Organizers will publish events here when registration opens."
+      />
+    );
+  } else if (type === "teams") {
+    const teams = await listPublicTeams();
+    content = (
+      <>
+        <div className="toolbar">
+          <Search placeholder="Search teams…" />
+          <div className="actions" style={{ marginTop: 0 }}>
+            <AuthCtaButtons showCreateTeam compact />
+          </div>
+        </div>
+        {teams.length ? (
+          <div className="grid grid-3">
+            {teams.map((team) => (
+              <TeamCard
+                key={team.teamId}
+                teamId={team.teamId}
+                name={team.name}
+                shortName={team.shortName}
+                captainName={team.captainName}
+                memberCount={team.memberCount}
+              />
+            ))}
+          </div>
+        ) : (
+          <EmptyState
+            title="No teams registered yet"
+            message="Sign in and create a team to appear in the directory."
+          />
+        )}
+      </>
+    );
+  } else if (type === "players") {
+    const players = await listPublicPlayers();
+    content = (
+      <>
+        <div className="toolbar">
+          <Search placeholder="Search players…" />
+        </div>
+        {players.length ? (
+          <div className="grid grid-3">
+            {players.map((player) => (
+              <PlayerCard
+                key={player.playerId}
+                playerId={player.playerId}
+                name={player.displayName}
+                teamName={player.teamName}
+                platform={player.platform}
+                rank={player.rank}
+              />
+            ))}
+          </div>
+        ) : (
+          <EmptyState
+            title="No players listed yet"
+            message="Player profiles will appear here after accounts are created."
+          />
+        )}
+      </>
+    );
+  } else if (type === "standings") {
+    content = (
+      <EmptyState
+        title="No standings yet"
+        message="Standings will be calculated after event results are recorded."
+      />
+    );
+  } else if (type === "league") {
+    content = (
+      <>
+        <QualificationProgress />
+        <div style={{ marginTop: 40 }}>
+          <TournamentTimeline />
+        </div>
+      </>
+    );
+  } else if (type === "championship") {
+    content = (
+      <EmptyState
+        title="Championship field not set"
+        message="Qualified teams will appear here during the season."
+      />
+    );
+  } else if (type === "supporters") {
+    content = (
+      <EmptyState
+        title="No supporters published yet"
+        message="Community supporters will be listed here once approved."
+      />
+    );
+  } else if (type === "hall-of-fame") {
+    content = (
+      <EmptyState
+        title="Hall of fame is empty"
+        message="Season champions and record holders will be recorded here."
+      />
+    );
+  } else if (type === "rules") {
+    content = (
+      <>
+        <div className="card" style={{ marginBottom: 20 }}>
+          <h3>ALCL competition rules</h3>
+          <p>
+            Official event rules will be published and versioned before each tournament opens for
+            registration.
+          </p>
+        </div>
+        <Article
+          sections={[
+            "Eligibility",
+            "Team Requirements",
+            "Roster Requirements",
+            "Rank Requirements",
+            "Registration",
+            "Roster Lock",
+            "Substitutes",
+            "Match Participation",
+            "Tournament Scoring",
+            "Season Points",
+            "Championship Qualification",
+            "Conduct",
+            "Disputes",
+            "Penalties",
+          ].map(
+            (title, index) =>
+              [
+                `${String(index + 1).padStart(2, "0")} · ${title}`,
+                `Event-specific ${title.toLowerCase()} requirements will be published before the applicable community event.`,
+              ] as [string, string],
+          )}
+        />
+      </>
+    );
+  } else if (type === "legal") {
+    content = (
+      <Article
+        sections={[
+          [
+            "Independent Community Tournament",
+            "ALCL is an independent community tournament organization. It is not an EA, Respawn, ALGS, or other EA-entity program.",
+          ],
+          [
+            "EA Disclaimer",
+            "This tournament is not affiliated with or sponsored by Electronic Arts Inc.",
+          ],
+          [
+            "Intellectual Property",
+            "ALCL uses original branding. Organizers and participants must have rights to uploaded names, logos, images, and other materials.",
+          ],
+          [
+            "Participant Responsibilities",
+            "Participants remain responsible for applicable EA terms, platform rules, published event rules, local law, and account standing.",
+          ],
+          [
+            "Rules of Conduct",
+            "Cheating, collusion, exploits, harassment, discriminatory conduct, and falsified information are prohibited.",
+          ],
+          [
+            "Privacy",
+            "ALCL collects only tournament-operational information needed to run community events.",
+          ],
+          [
+            "Terms of Participation",
+            "Participation is subject to published event-specific eligibility, roster, scoring, dispute, and conduct rules.",
+          ],
+        ]}
+      />
+    );
+  } else {
+    content = (
+      <EmptyState title="Nothing published yet" message="Content for this section is coming soon." />
+    );
+  }
 
-function AuthPage(){return <AppShell><div className="container" style={{display:"grid",placeItems:"center",minHeight:"65vh"}}><div className="card" style={{width:"min(440px,100%)"}}><div className="eyebrow">Player sign in</div><h3 style={{fontSize:30}}>Sign in as a player</h3><p className="legal">Teams do not have logins. Only players sign in.</p><AuthForm/></div></div></AppShell>}
+  return (
+    <AppShell>
+      <StandardHeader type={type} />
+      <section className="container">{content}</section>
+    </AppShell>
+  );
+}
+
+function TournamentDetail({ id, leaf }: { id: string; leaf?: string }) {
+  const title = id.split("-").map((part) => part[0]?.toUpperCase() + part.slice(1)).join(" ");
+
+  let content: React.ReactNode;
+  if (leaf === "registration") {
+    content = (
+      <div className="card">
+        <StatusBadge status="Coming soon" />
+        <h3>Player registration</h3>
+        <p>
+          Every competitor needs a player account first. After you sign in, create a team and add
+          registered players to the roster.
+        </p>
+        <div className="actions">
+          <AuthCtaButtons showCreateTeam />
+        </div>
+      </div>
+    );
+  } else {
+    content = (
+      <EmptyState
+        title="Event not published yet"
+        message={`Details for ${title} will appear when organizers publish this tournament.`}
+      />
+    );
+  }
+
+  return (
+    <AppShell>
+      <PageHeader
+        eyebrow="ALCL community tournament"
+        title={leaf ? `${title} · ${leaf}` : title}
+        copy="Independent community competition with configurable tournament scoring and season qualification."
+      />
+      <section className="container">
+        <div className="card" style={{ marginBottom: 20, borderColor: "#c7ff4740" }}>
+          <LegalDisclaimer />
+        </div>
+        {content}
+      </section>
+    </AppShell>
+  );
+}
+
+function SeasonDetail({ season }: { season: string }) {
+  return (
+    <AppShell>
+      <PageHeader
+        eyebrow="Season archive"
+        title={`ALCL ${season.replace("-", " ")}`}
+        copy="Season schedule, milestones, and cumulative performance."
+      />
+      <section className="container">
+        <EmptyState
+          title="Season data not published"
+          message="Schedule and standings for this season will appear here."
+        />
+      </section>
+    </AppShell>
+  );
+}
+
+async function TeamDetail({ id }: { id: string }) {
+  const team = await getPublicTeam(id);
+
+  return (
+    <AppShell>
+      <PageHeader
+        eyebrow="Team profile"
+        title={team?.name ?? "Team not found"}
+        copy={
+          team
+            ? `${team.memberCount} player${team.memberCount === 1 ? "" : "s"} · ${team.captainName ? `Captain ${team.captainName}` : "No captain listed"}`
+            : "This team has not been registered yet, or the profile is not public."
+        }
+      />
+      <section className="container">
+        {team ? (
+          <div className="card">
+            <div className="team">
+              <div className="avatar">{team.shortName.slice(0, 2).toUpperCase()}</div>
+              <div>
+                <h3 style={{ margin: 0 }}>{team.name}</h3>
+                {team.captainName ? (
+                  <span style={{ color: "var(--muted)", fontSize: 12 }}>Captain · {team.captainName}</span>
+                ) : null}
+              </div>
+            </div>
+            <div className="meta" style={{ marginTop: 16 }}>
+              <span>{team.memberCount} rostered player{team.memberCount === 1 ? "" : "s"}</span>
+            </div>
+          </div>
+        ) : (
+          <EmptyState
+            title="Team not found"
+            message="This team has not been registered yet, or the profile is not public."
+          />
+        )}
+      </section>
+    </AppShell>
+  );
+}
+
+async function PlayerDetail({ id }: { id: string }) {
+  const player = await getPublicPlayer(id);
+
+  return (
+    <AppShell>
+      <PageHeader
+        eyebrow="Player profile"
+        title={player?.displayName ?? "Player not found"}
+        copy={
+          player
+            ? [player.teamName, player.platform, player.rank].filter(Boolean).join(" · ") ||
+              "ALCL competitor"
+            : "This player profile is not available yet."
+        }
+      />
+      <section className="container">
+        {player ? (
+          <div className="card">
+            <div className="team">
+              <div className="avatar">
+                {player.displayName
+                  .split(" ")
+                  .map((part) => part[0])
+                  .join("")
+                  .slice(0, 2)
+                  .toUpperCase()}
+              </div>
+              <div>
+                <h3 style={{ margin: 0 }}>{player.displayName}</h3>
+                {player.username ? (
+                  <span style={{ color: "var(--muted)", fontSize: 12 }}>@{player.username}</span>
+                ) : null}
+              </div>
+            </div>
+            <div className="meta" style={{ marginTop: 16 }}>
+              {player.teamName ? <span>{player.teamName}</span> : null}
+              {player.platform ? <span>{player.platform}</span> : null}
+              {player.rank ? <span>{player.rank}</span> : null}
+            </div>
+          </div>
+        ) : (
+          <EmptyState
+            title="Player not found"
+            message="This player profile is not available yet."
+          />
+        )}
+      </section>
+    </AppShell>
+  );
+}
+
+function AdminPage({ section }: { section?: string }) {
+  const name = section ? section[0].toUpperCase() + section.slice(1) : "Operations";
+  return (
+    <AppShell>
+      <PageHeader
+        eyebrow="Organizer console"
+        title={name}
+        copy="Competition administration with server-enforced policy checks and audit history."
+      />
+      <section className="container">
+        <AdminActions title={name} />
+        {section === "live-data" ? (
+          <LiveApiAdmin />
+        ) : (
+          <EmptyState
+            title="No records yet"
+            message="Admin records will appear here as the league operates."
+          />
+        )}
+        {!section || section === "registrations" || section === "matches" ? <AdminTable /> : null}
+      </section>
+    </AppShell>
+  );
+}
+
+function AuthPage() {
+  return (
+    <AppShell>
+      <div className="container" style={{ display: "grid", placeItems: "center", minHeight: "65vh" }}>
+        <div className="card" style={{ width: "min(440px, 100%)" }}>
+          <div className="eyebrow">Player sign in</div>
+          <h3 style={{ fontSize: 30 }}>Sign in as a player</h3>
+          <p className="legal">Teams do not have logins. Only players sign in.</p>
+          <AuthForm />
+        </div>
+      </div>
+    </AppShell>
+  );
+}

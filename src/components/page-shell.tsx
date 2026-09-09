@@ -3,7 +3,6 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { Container } from "@/components/ui";
 import { LegalDisclaimer } from "@/components/site-shell";
-import { isSupabaseConfigured } from "@/lib/supabase/server";
 
 export function PageHero({
   eyebrow,
@@ -107,7 +106,7 @@ export function DashboardShell({
         <Link className="sidebar-exit" href="/">Return to public site</Link>
       </aside>
       <main className="dashboard-main">
-        <header><div><p className="eyebrow">{admin ? "ORGANIZER WORKSPACE" : "COMPETITOR WORKSPACE"}</p><h1>{title}</h1><p>{description}</p></div>{isSupabaseConfigured() ? null : <span className="demo-pill">DEMO MODE</span>}</header>
+        <header><div><p className="eyebrow">{admin ? "ORGANIZER WORKSPACE" : "COMPETITOR WORKSPACE"}</p><h1>{title}</h1><p>{description}</p></div></header>
         {children}
       </main>
     </div>

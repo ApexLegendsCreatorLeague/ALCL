@@ -15,20 +15,37 @@ export function ForgotPasswordForm() {
 
     try {
       const formData = new FormData(event.currentTarget);
-      const response = await fetch("/api/auth/forgot-password", {
+      const validateResponse = await fetch("/api/auth/forgot-password", {
         method: "POST",
         credentials: "same-origin",
         body: formData,
       });
-      const result = (await response.json()) as { ok: boolean; message?: string };
+      const validateResult = (await validateResponse.json()) as {
+        ok: boolean;
+        message?: string;
+      };
 
-      if (!response.ok || !result.ok) {
-        setError(result.message ?? "The reset request could not be sent.");
+      if (!validateResponse.ok || !validateResult.ok) {
+        setError(validateResult.message ?? "The reset request could not be sent.");
+        return;
+      }
+
+      const dispatchResponse = await fetch("/api/auth/dispatch-reset", {
+        method: "POST",
+        credentials: "same-origin",
+      });
+      const dispatchResult = (await dispatchResponse.json()) as {
+        ok: boolean;
+        message?: string;
+      };
+
+      if (!dispatchResponse.ok || !dispatchResult.ok) {
+        setError(dispatchResult.message ?? "The reset email could not be sent. Try again in a few minutes.");
         return;
       }
 
       setMessage(
-        result.message ??
+        dispatchResult.message ??
           "If the email and account name match an ALCL player account, a password reset link is on its way.",
       );
     } catch {
