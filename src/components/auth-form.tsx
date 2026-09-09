@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useActionState, useEffect } from "react";
+import { useActionState, useState, type FormEvent } from "react";
 
-import { sendMagicLink, signInWithPassword } from "@/server/actions/auth";
+import { sendMagicLink } from "@/server/actions/auth";
 
 function safeNextPath(next: string | null) {
   if (!next || !next.startsWith("/") || next.startsWith("//")) {
@@ -19,18 +19,36 @@ export function AuthForm() {
   const nextPath = safeNextPath(searchParams.get("next"));
   const callbackError = searchParams.get("error");
 
-  const [passwordState, passwordAction, passwordPending] = useActionState(
-    signInWithPassword,
-    null,
-  );
+  const [passwordError, setPasswordError] = useState("");
+  const [passwordPending, setPasswordPending] = useState(false);
   const [magicState, magicAction, magicPending] = useActionState(sendMagicLink, null);
 
-  useEffect(() => {
-    if (passwordState?.ok) {
-      router.push(nextPath);
+  async function handlePasswordSignIn(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setPasswordError("");
+    setPasswordPending(true);
+
+    try {
+      const formData = new FormData(event.currentTarget);
+      const response = await fetch("/api/auth/sign-in", {
+        method: "POST",
+        body: formData,
+      });
+      const result = (await response.json()) as { ok: boolean; message?: string; redirectTo?: string };
+
+      if (!response.ok || !result.ok) {
+        setPasswordError(result.message ?? "Sign in failed.");
+        return;
+      }
+
+      router.push(result.redirectTo ?? nextPath);
       router.refresh();
+    } catch {
+      setPasswordError("Sign in could not reach the server. Try again.");
+    } finally {
+      setPasswordPending(false);
     }
-  }, [passwordState, nextPath, router]);
+  }
 
   const callbackMessage =
     callbackError === "auth_required"
@@ -47,7 +65,7 @@ export function AuthForm() {
         </p>
       ) : null}
 
-      <form action={passwordAction} className="form">
+      <form onSubmit={handlePasswordSignIn} className="form">
         <label className="field">
           Player email
           <input className="input" name="email" type="email" autoComplete="email" required />
@@ -63,8 +81,8 @@ export function AuthForm() {
             required
           />
         </label>
-        {passwordState && !passwordState.ok ? (
-          <p role="alert" className="legal">{passwordState.message}</p>
+        {passwordError ? (
+          <p role="alert" className="legal">{passwordError}</p>
         ) : null}
         <button className="btn btn-primary" disabled={passwordPending} type="submit">
           {passwordPending ? "Signing in…" : "Player sign in"}

@@ -2,23 +2,64 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useActionState, useEffect } from "react";
+import { useState, type FormEvent } from "react";
 
-import { signUpWithPassword } from "@/server/actions/auth";
+type RegisterResponse =
+  | { ok: true; redirectTo: "/" }
+  | { ok: true; redirectTo: null; emailConfirmationRequired?: boolean; needsSignIn?: boolean }
+  | { ok: false; message: string };
 
 export function PlayerRegisterForm() {
   const router = useRouter();
-  const [state, action, pending] = useActionState(signUpWithPassword, null);
+  const [error, setError] = useState("");
+  const [status, setStatus] = useState("");
+  const [pending, setPending] = useState(false);
 
-  useEffect(() => {
-    if (state?.ok && state.data.redirectTo) {
-      router.push(state.data.redirectTo);
-      router.refresh();
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError("");
+    setStatus("");
+    setPending(true);
+
+    try {
+      const formData = new FormData(event.currentTarget);
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        body: formData,
+      });
+      const result = (await response.json()) as RegisterResponse;
+
+      if (!response.ok || !result.ok) {
+        setError(!result.ok ? result.message : "Registration failed.");
+        return;
+      }
+
+      if (result.redirectTo) {
+        router.push(result.redirectTo);
+        router.refresh();
+        return;
+      }
+
+      if (result.emailConfirmationRequired) {
+        setStatus("Player account created. Confirm your email, then sign in.");
+        return;
+      }
+
+      if (result.needsSignIn) {
+        setStatus("Player account created. Sign in to continue.");
+        return;
+      }
+
+      setStatus("Player account created.");
+    } catch {
+      setError("Registration could not reach the server. Try again.");
+    } finally {
+      setPending(false);
     }
-  }, [router, state]);
+  }
 
   return (
-    <form action={action} className="form">
+    <form onSubmit={handleSubmit} className="form">
       <p className="eyebrow">Player account</p>
       <label className="field">
         Display name
@@ -60,22 +101,19 @@ export function PlayerRegisterForm() {
       <label className="field">
         Region
         <select className="input" name="region" defaultValue="North America" required>
-          <option>North America</option>
-          <option>Europe</option>
-          <option>Oceania</option>
-          <option>Asia Pacific</option>
+          <option value="North America">North America</option>
+          <option value="Europe">Europe</option>
+          <option value="Oceania">Oceania</option>
+          <option value="Asia Pacific">Asia Pacific</option>
         </select>
       </label>
-      {state && !state.ok ? (
-        <p role="alert" className="legal">{state.message}</p>
-      ) : state?.ok && state.data.emailConfirmationRequired ? (
+      {error ? (
+        <p role="alert" className="legal">{error}</p>
+      ) : null}
+      {status ? (
         <p role="status" className="legal">
-          Player account created. Confirm your email, then use{" "}
-          <Link href="/login">Player sign in</Link>.
-        </p>
-      ) : state?.ok && state.data.needsSignIn ? (
-        <p role="status" className="legal">
-          Player account created. <Link href="/login">Sign in</Link> to continue.
+          {status}{" "}
+          {status.includes("Sign in") ? <Link href="/login">Go to sign in</Link> : null}
         </p>
       ) : null}
       <button className="btn btn-primary" disabled={pending} type="submit">

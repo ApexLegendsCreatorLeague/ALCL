@@ -5,27 +5,9 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { siteUrl } from "@/lib/supabase/env";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { createActionClient, isSupabaseConfigured } from "@/lib/supabase/server";
-import { ensurePlayerRecord } from "@/server/players";
+import { registerPlayer } from "@/server/auth/register-player";
 import { actionFailure, actionSuccess, type ActionResult } from "@/server/action-result";
-
-async function bootstrapFirstOrganizer(userId: string) {
-  const admin = createAdminClient();
-  const { count, error } = await admin
-    .from("profile_roles")
-    .select("*", { count: "exact", head: true })
-    .in("role", ["admin", "organizer"]);
-  if (error || (count ?? 0) > 0) return;
-
-  await admin.from("profile_roles").upsert(
-    [
-      { profile_id: userId, role: "organizer", granted_by: userId },
-      { profile_id: userId, role: "admin", granted_by: userId },
-    ],
-    { onConflict: "profile_id,role", ignoreDuplicates: true },
-  );
-}
 
 const emailSchema = z.email().max(254);
 const passwordSchema = z.string().min(8).max(128);
@@ -66,47 +48,6 @@ type SignUpResult = {
   needsSignIn?: boolean;
 };
 
-type SignUpInput = {
-  email: string;
-  password: string;
-  displayName: string;
-  platform: "PC" | "PlayStation" | "Xbox" | "Nintendo Switch";
-  region: "North America" | "Europe" | "Oceania" | "Asia Pacific";
-};
-
-async function provisionPlayerAccount(userId: string, input: SignUpInput) {
-  const admin = createAdminClient();
-  await admin.from("profiles").upsert(
-    {
-      id: userId,
-      display_name: input.displayName,
-    },
-    { onConflict: "id" },
-  );
-  await admin.from("profile_roles").upsert(
-    { profile_id: userId, role: "player" },
-    { onConflict: "profile_id,role", ignoreDuplicates: true },
-  );
-  await ensurePlayerRecord(admin, userId, {
-    platform: input.platform,
-    region: input.region,
-  });
-}
-
-function mapSignUpError(message: string) {
-  const normalized = message.toLowerCase();
-  if (normalized.includes("already") || normalized.includes("registered")) {
-    return "An account with this email already exists. Sign in instead.";
-  }
-  if (normalized.includes("password")) {
-    return message;
-  }
-  if (normalized.includes("database error")) {
-    return "Registration failed while saving your account. Confirm Supabase migrations are applied.";
-  }
-  return message || "The player account could not be created.";
-}
-
 export async function signUpWithPassword(
   _previous: ActionResult<SignUpResult> | null,
   formData: FormData,
@@ -138,72 +79,24 @@ export async function signUpWithPassword(
   }
 
   const redirectBase = siteUrl((await headers()).get("origin") ?? "http://localhost:3000");
-  let userId: string | undefined;
-
-  try {
-    const admin = createAdminClient();
-    const { data, error } = await admin.auth.admin.createUser({
-      email: parsed.data.email,
-      password: parsed.data.password,
-      email_confirm: true,
-      user_metadata: { display_name: parsed.data.displayName },
-    });
-    if (error) {
-      return actionFailure("CONFLICT", mapSignUpError(error.message));
-    }
-    userId = data.user?.id;
-  } catch {
-    const supabase = await createActionClient();
-    const { data, error } = await supabase.auth.signUp({
-      email: parsed.data.email,
-      password: parsed.data.password,
-      options: {
-        emailRedirectTo: `${redirectBase}/auth/callback?next=/`,
-        data: { display_name: parsed.data.displayName },
-      },
-    });
-    if (error) {
-      return actionFailure("CONFLICT", mapSignUpError(error.message));
-    }
-    if (!data.user?.id) {
-      return actionFailure(
-        "INTERNAL_ERROR",
-        "Registration did not create a player account. Confirm sign-ups are enabled in Supabase Auth.",
-      );
-    }
-    userId = data.user.id;
-    if (!data.session) {
-      return actionSuccess({
-        redirectTo: null,
-        emailConfirmationRequired: true,
-      });
-    }
-  }
-
-  if (!userId) {
-    return actionFailure("INTERNAL_ERROR", "Registration did not create a player account.");
-  }
-
-  try {
-    await bootstrapFirstOrganizer(userId);
-    await provisionPlayerAccount(userId, parsed.data);
-  } catch (error) {
-    return actionFailure(
-      "INTERNAL_ERROR",
-      error instanceof Error ? error.message : "Your account was created but player setup failed.",
-    );
-  }
-
-  const supabase = await createActionClient();
-  const { error: signInError } = await supabase.auth.signInWithPassword({
-    email: parsed.data.email,
-    password: parsed.data.password,
+  const result = await registerPlayer({
+    ...parsed.data,
+    redirectBase,
   });
-  if (signInError) {
-    return actionSuccess({ redirectTo: null, needsSignIn: true });
+
+  if (!result.ok) {
+    return actionFailure("INTERNAL_ERROR", result.message);
   }
 
-  return actionSuccess({ redirectTo: "/" });
+  if (result.redirectTo) {
+    return actionSuccess({ redirectTo: result.redirectTo });
+  }
+
+  if ("emailConfirmationRequired" in result && result.emailConfirmationRequired) {
+    return actionSuccess({ redirectTo: null, emailConfirmationRequired: true });
+  }
+
+  return actionSuccess({ redirectTo: null, needsSignIn: true });
 }
 
 export async function sendMagicLink(
