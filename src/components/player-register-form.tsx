@@ -73,6 +73,10 @@ export function PlayerRegisterForm() {
           Player account created. Confirm your email, then use{" "}
           <Link href="/login">Player sign in</Link>.
         </p>
+      ) : state?.ok && state.data.needsSignIn ? (
+        <p role="status" className="legal">
+          Player account created. <Link href="/login">Sign in</Link> to continue.
+        </p>
       ) : null}
       <button className="btn btn-primary" disabled={pending} type="submit">
         {pending ? "Creating player account…" : "Create player account"}

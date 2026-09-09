@@ -8,7 +8,7 @@ import { sendMagicLink, signInWithPassword } from "@/server/actions/auth";
 
 function safeNextPath(next: string | null) {
   if (!next || !next.startsWith("/") || next.startsWith("//")) {
-    return "/dashboard/player";
+    return "/";
   }
   return next;
 }

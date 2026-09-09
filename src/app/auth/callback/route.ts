@@ -5,8 +5,8 @@ import { ensurePlayerRecord } from "@/server/players";
 
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get("code");
-  const next = request.nextUrl.searchParams.get("next") ?? "/dashboard/player";
-  const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/dashboard/player";
+  const next = request.nextUrl.searchParams.get("next") ?? "/";
+  const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/";
 
   if (!code) {
     return NextResponse.redirect(new URL("/login?error=auth_callback", request.url));
