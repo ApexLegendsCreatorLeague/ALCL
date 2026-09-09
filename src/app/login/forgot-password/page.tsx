@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 
 import { AppShell } from "@/components/app-shell";
 import { ForgotPasswordForm } from "@/components/forgot-password-form";
-import { DEFAULT_PLAYER_HOME } from "@/lib/auth/redirect-path";
+import { safeNextPath } from "@/lib/auth/redirect-path";
 import { getNavUser } from "@/server/auth/nav-user";
 
 export const metadata: Metadata = {
@@ -19,7 +19,7 @@ export default async function ForgotPasswordPage({
 }) {
   const user = await getNavUser();
   if (user) {
-    redirect(DEFAULT_PLAYER_HOME);
+    redirect(safeNextPath(undefined, "/dashboard"));
   }
 
   const { error } = await searchParams;

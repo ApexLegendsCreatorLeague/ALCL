@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 
 import { AppShell } from "@/components/app-shell";
 import { AuthForm } from "@/components/auth-form";
-import { DEFAULT_PLAYER_HOME } from "@/lib/auth/redirect-path";
+import { safeNextPath } from "@/lib/auth/redirect-path";
 import { getNavUser } from "@/server/auth/nav-user";
 
 export const metadata: Metadata = {
@@ -14,10 +14,15 @@ export const metadata: Metadata = {
   description: "Players sign in to ALCL. Teams do not have login credentials.",
 };
 
-export default async function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string }>;
+}) {
   const user = await getNavUser();
+  const { next } = await searchParams;
   if (user) {
-    redirect(DEFAULT_PLAYER_HOME);
+    redirect(safeNextPath(next, "/dashboard"));
   }
 
   return (

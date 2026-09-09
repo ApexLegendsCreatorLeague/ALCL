@@ -1,4 +1,4 @@
-export const DEFAULT_PLAYER_HOME = "/players/me";
+export const DEFAULT_PLAYER_HOME = "/dashboard";
 
 export function safeNextPath(next: string | null | undefined, fallback = DEFAULT_PLAYER_HOME) {
   if (!next || !next.startsWith("/") || next.startsWith("//")) {
