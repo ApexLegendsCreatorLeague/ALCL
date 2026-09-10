@@ -93,7 +93,7 @@ export function PlayerProfileView({
             {isOwner ? (
               <Link className="btn btn-primary profile-edit-btn" href={`/players/${profile.playerId}/edit`}>
                 <Pencil size={15} />
-                Edit profile
+                Edit Profile
               </Link>
             ) : null}
           </div>
@@ -101,7 +101,7 @@ export function PlayerProfileView({
             <div className="profile-identity">
               <div className="profile-avatar">{initials}</div>
               <div>
-                <p className="eyebrow">ALCL competitor</p>
+                <p className="eyebrow">ALCL Competitor</p>
                 <h1>{profile.displayName}</h1>
                 <div className="profile-tags">
                   {profile.username ? <span>@{profile.username}</span> : null}
@@ -115,7 +115,7 @@ export function PlayerProfileView({
                     {profile.teamName}
                   </Link>
                 ) : (
-                  <span className="profile-team-link muted">Free agent</span>
+                  <span className="profile-team-link muted">Free Agent</span>
                 )}
                 <SocialLinks profile={profile} />
               </div>
@@ -123,7 +123,7 @@ export function PlayerProfileView({
             <div className="profile-hero-stats">
               <StatTile label="Matches" value={String(profile.stats.matchesPlayed)} />
               <StatTile label="Kills" value={formatNumber(profile.stats.kills)} />
-              <StatTile label="Avg placement" value={profile.stats.avgPlacement?.toString() ?? "—"} />
+              <StatTile label="Avg Placement" value={profile.stats.avgPlacement?.toString() ?? "—"} />
               <StatTile label="Wins" value={String(profile.stats.wins)} />
             </div>
           </div>
@@ -135,10 +135,10 @@ export function PlayerProfileView({
         <div className="profile-section">
           <div className="section-head">
             <div>
-              <p className="eyebrow">Career totals</p>
-              <h2>Combat &amp; results</h2>
+              <p className="eyebrow">Career Totals</p>
+              <h2>Combat &amp; Results</h2>
             </div>
-            <span className="badge">Verified ALCL matches</span>
+            <span className="badge">Verified ALCL Matches</span>
           </div>
           {hasStats ? (
             <div className="grid grid-4">
@@ -146,14 +146,14 @@ export function PlayerProfileView({
               <StatCard label="Assists" value={formatNumber(profile.stats.assists)} />
               <StatCard label="Knocks" value={formatNumber(profile.stats.knocks)} />
               <StatCard label="Damage" value={formatNumber(profile.stats.damage)} />
-              <StatCard label="Kills / match" value={profile.stats.avgKills.toFixed(1)} />
-              <StatCard label="Damage / match" value={formatNumber(profile.stats.avgDamage)} />
-              <StatCard label="Best placement" value={profile.stats.bestPlacement?.toString() ?? "—"} />
-              <StatCard label="Top 5 finishes" value={String(profile.stats.top5)} />
+              <StatCard label="Kills / Match" value={profile.stats.avgKills.toFixed(1)} />
+              <StatCard label="Damage / Match" value={formatNumber(profile.stats.avgDamage)} />
+              <StatCard label="Best Placement" value={profile.stats.bestPlacement?.toString() ?? "—"} />
+              <StatCard label="Top 5 Finishes" value={String(profile.stats.top5)} />
             </div>
           ) : (
             <EmptyState
-              title="No verified match stats yet"
+              title="No Verified Match Stats Yet"
               message="Kills, damage, placement, and tournament history will populate after this player competes in verified ALCL matches."
             />
           )}
@@ -163,8 +163,8 @@ export function PlayerProfileView({
           <div className="profile-section">
             <div className="section-head">
               <div>
-                <p className="eyebrow">Recent matches</p>
-                <h2>Match log</h2>
+                <p className="eyebrow">Recent Matches</p>
+                <h2>Match Log</h2>
               </div>
             </div>
             {profile.recentMatches.length ? (
@@ -204,7 +204,7 @@ export function PlayerProfileView({
               </div>
             ) : (
               <EmptyState
-                title="No match history"
+                title="No Match History"
                 message="Recent verified performances will appear here once this player completes ALCL matches."
               />
             )}
@@ -212,11 +212,11 @@ export function PlayerProfileView({
 
           <aside className="profile-sidebar">
             <div className="card profile-side-card">
-              <p className="eyebrow">Competitor info</p>
+              <p className="eyebrow">Competitor Info</p>
               <ul className="profile-facts">
                 <li>
                   <Shield size={15} />
-                  <span>Member since</span>
+                  <span>Member Since</span>
                   <strong>{formatDate(profile.memberSince)}</strong>
                 </li>
                 <li>
@@ -226,8 +226,8 @@ export function PlayerProfileView({
                 </li>
                 <li>
                   <Crosshair size={15} />
-                  <span>Rank snapshot</span>
-                  <strong>{profile.rank ?? "Not set"}</strong>
+                  <span>Rank Snapshot</span>
+                  <strong>{profile.rank ?? "Not Set"}</strong>
                 </li>
                 <li>
                   <MapPin size={15} />
@@ -236,7 +236,7 @@ export function PlayerProfileView({
                 </li>
                 <li>
                   <Trophy size={15} />
-                  <span>Tournaments entered</span>
+                  <span>Tournaments Entered</span>
                   <strong>{profile.stats.tournamentsEntered}</strong>
                 </li>
               </ul>
@@ -244,7 +244,7 @@ export function PlayerProfileView({
             </div>
 
             <div className="card profile-side-card">
-              <p className="eyebrow">Tournament entries</p>
+              <p className="eyebrow">Tournament Entries</p>
               {profile.tournaments.length ? (
                 <ul className="profile-tournament-list">
                   {profile.tournaments.map((entry) => (
@@ -261,9 +261,9 @@ export function PlayerProfileView({
 
             <div className="card profile-side-card">
               <div className="profile-recruitment-head">
-                <p className="eyebrow">Team recruitment</p>
+                <p className="eyebrow">Team Recruitment</p>
                 {profile.recruitment.lookingForTeam ? (
-                  <span className="badge badge-live">Open to offers</span>
+                  <span className="badge badge-live">Open to Offers</span>
                 ) : null}
               </div>
               {profile.recruitment.recruitmentPitch ||
@@ -273,7 +273,7 @@ export function PlayerProfileView({
                   {topLegends.length ? (
                     <div className="profile-legend-block">
                       <p className="profile-recruitment-meta">
-                        <strong>Top legends used</strong>
+                        <strong>Top Legends Used</strong>
                       </p>
                       <ol className="profile-legend-list">
                         {topLegends.map((legend) => (
@@ -296,7 +296,7 @@ export function PlayerProfileView({
               ) : (
                 <p className="legal">
                   This player has not published recruitment details yet.
-                  {isOwner ? " Use Edit profile to tell captains why they should pick you up." : null}
+                  {isOwner ? " Use Edit Profile to tell captains why they should pick you up." : null}
                 </p>
               )}
             </div>
@@ -311,18 +311,18 @@ export function PlayerProfileNotFound({ lookupRef }: { lookupRef: string }) {
   return (
     <AppShell>
       <PageHeader
-        eyebrow="Player profile"
-        title="Player not found"
+        eyebrow="Player Profile"
+        title="Player Not Found"
         copy="This profile is unavailable or has not been published yet."
       />
       <section className="container">
         <EmptyState
-          title="Profile unavailable"
+          title="Profile Unavailable"
           message={`No public ALCL profile matches "${lookupRef}". Registered players appear in the directory after account setup completes.`}
         />
         <div className="actions" style={{ marginTop: 20 }}>
           <Link className="btn btn-primary" href="/players">
-            Back to players
+            Back to Players
           </Link>
         </div>
       </section>

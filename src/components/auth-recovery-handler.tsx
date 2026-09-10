@@ -6,7 +6,7 @@ export function AuthRecoveryHandler() {
   return (
     <AuthCallbackHandler
       recoveryOnly
-      eyebrow="Password reset"
+      eyebrow="Password Reset"
       title="One moment…"
       message="Confirming your reset link…"
     />

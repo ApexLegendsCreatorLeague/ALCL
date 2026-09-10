@@ -58,11 +58,11 @@ export function ForgotPasswordForm() {
   return (
     <form onSubmit={handleSubmit} className="form">
       <label className="field">
-        Player email
+        Player Email
         <input className="input" name="email" type="email" autoComplete="email" required />
       </label>
       <label className="field">
-        Account name
+        Account Name
         <input
           className="input"
           name="accountName"
@@ -71,7 +71,7 @@ export function ForgotPasswordForm() {
           minLength={2}
           maxLength={50}
           required
-          placeholder="Your ALCL display name"
+          placeholder="Your ALCL Display Name"
         />
       </label>
       <p className="legal">
@@ -89,7 +89,7 @@ export function ForgotPasswordForm() {
         </p>
       ) : null}
       <button className="btn btn-primary" disabled={pending} type="submit">
-        {pending ? "Sending reset link…" : "Email password reset link"}
+        {pending ? "Sending Reset Link…" : "Email Password Reset Link"}
       </button>
     </form>
   );

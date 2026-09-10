@@ -5,15 +5,15 @@ import { usePathname } from "next/navigation";
 
 const tabs = [
   { label: "Overview", href: "/dashboard" },
-  { label: "My profile", href: "/players/me" },
-  { label: "My team", href: "/dashboard/team" },
+  { label: "My Profile", href: "/players/me" },
+  { label: "My Team", href: "/dashboard/team" },
 ];
 
 export function DashboardTabs() {
   const pathname = usePathname();
 
   return (
-    <nav className="dashboard-tabs" aria-label="Player dashboard">
+    <nav className="dashboard-tabs" aria-label="Player Dashboard">
       {tabs.map((tab) => {
         const active =
           tab.href === "/dashboard"

@@ -47,9 +47,9 @@ function Field({
 export function PlayerProfileEditForm({ profile }: { profile: PlayerProfile }) {
   const [state, action, pending] = useActionState(savePlayerProfileAndRedirect, null);
   const legendFields = [
-    { name: "mainLegend1", label: "#1 Most played", value: profile.recruitment.topLegends[0] },
-    { name: "mainLegend2", label: "#2 Second main", value: profile.recruitment.topLegends[1] },
-    { name: "mainLegend3", label: "#3 Third main", value: profile.recruitment.topLegends[2] },
+    { name: "mainLegend1", label: "#1 Most Played", value: profile.recruitment.topLegends[0] },
+    { name: "mainLegend2", label: "#2 Second Main", value: profile.recruitment.topLegends[1] },
+    { name: "mainLegend3", label: "#3 Third Main", value: profile.recruitment.topLegends[2] },
   ] as const;
 
   return (
@@ -57,7 +57,7 @@ export function PlayerProfileEditForm({ profile }: { profile: PlayerProfile }) {
       <input type="hidden" name="playerId" value={profile.playerId} />
 
       <div className="profile-edit-intro">
-        <h3>Public profile details</h3>
+        <h3>Public Profile Details</h3>
         <p className="legal">
           These fields appear on your tournament player page. Display name and platform are set
           during registration.
@@ -83,7 +83,7 @@ export function PlayerProfileEditForm({ profile }: { profile: PlayerProfile }) {
       </div>
 
       <div className="profile-edit-recruitment">
-        <h4>Team recruitment</h4>
+        <h4>Team Recruitment</h4>
         <p className="legal">
           Help captains understand why they should draft you. This shows on your public profile when
           you are a free agent or actively looking.
@@ -99,7 +99,7 @@ export function PlayerProfileEditForm({ profile }: { profile: PlayerProfile }) {
         </label>
         <div className="form">
           <div className="field">
-            <span>Top 3 legends used</span>
+            <span>Top 3 Legends Used</span>
             <p className="legal">
               Captains use this to build balanced rosters and avoid duplicate legend picks.
             </p>
@@ -108,7 +108,7 @@ export function PlayerProfileEditForm({ profile }: { profile: PlayerProfile }) {
                 <label className="field" key={field.name}>
                   <span>{field.label}</span>
                   <select className="input" name={field.name} defaultValue={field.value ?? ""}>
-                    <option value="">Select legend</option>
+                    <option value="">Select Legend</option>
                     {APEX_LEGENDS.map((legend) => (
                       <option key={legend} value={legend}>
                         {legend}
@@ -127,7 +127,7 @@ export function PlayerProfileEditForm({ profile }: { profile: PlayerProfile }) {
             error={state && !state.ok ? state.fieldErrors?.availability?.[0] : undefined}
           />
           <Field
-            label="Pitch to captains"
+            label="Pitch to Captains"
             name="recruitmentPitch"
             defaultValue={profile.recruitment.recruitmentPitch}
             hint="What you bring to a roster, past experience, comms style, and what kind of team you want."
@@ -139,7 +139,7 @@ export function PlayerProfileEditForm({ profile }: { profile: PlayerProfile }) {
       </div>
 
       <div className="profile-edit-socials">
-        <h4>Social links</h4>
+        <h4>Social Links</h4>
         <p className="legal">Add the platforms you stream or post on. Handles and full URLs both work.</p>
         <div className="form">
           {PLAYER_SOCIAL_FIELDS.map((field) => (
@@ -163,7 +163,7 @@ export function PlayerProfileEditForm({ profile }: { profile: PlayerProfile }) {
 
       <div className="actions">
         <button className="btn btn-primary" type="submit" disabled={pending}>
-          {pending ? "Saving…" : "Save profile"}
+          {pending ? "Saving…" : "Save Profile"}
         </button>
       </div>
     </form>

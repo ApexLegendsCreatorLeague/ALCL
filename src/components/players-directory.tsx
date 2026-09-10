@@ -30,8 +30,8 @@ export function PlayersDirectory({ players }: { players: PublicPlayer[] }) {
             className="input"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search players…"
-            aria-label="Search players"
+            placeholder="Search Players…"
+            aria-label="Search Players"
           />
         </div>
       </div>
@@ -50,12 +50,12 @@ export function PlayersDirectory({ players }: { players: PublicPlayer[] }) {
         </div>
       ) : players.length ? (
         <EmptyState
-          title="No players match your search"
+          title="No Players Match Your Search"
           message="Try a different name, team, platform, or rank."
         />
       ) : (
         <EmptyState
-          title="No players listed yet"
+          title="No Players Listed Yet"
           message="Player profiles will appear here after accounts are created."
         />
       )}

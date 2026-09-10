@@ -36,7 +36,7 @@ export function AuthConfigBanner() {
       role="alert"
       style={{ marginBottom: "1rem", borderColor: "#ff6b3566" }}
     >
-      <strong>Server not connected to Supabase</strong>
+      <strong>Server Not Connected to Supabase</strong>
       <p className="legal" style={{ marginTop: 8 }}>
         Missing:{" "}
         {!status.hasSupabaseUrl ? "SUPABASE_URL " : ""}

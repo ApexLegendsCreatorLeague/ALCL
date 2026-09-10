@@ -8,7 +8,7 @@ import { safeNextPath } from "@/lib/auth/redirect-path";
 import { getNavUser } from "@/server/auth/nav-user";
 
 export const metadata: Metadata = {
-  title: "Forgot password",
+  title: "Forgot Password",
   description: "Reset your ALCL player account password.",
 };
 
@@ -32,8 +32,8 @@ export default async function ForgotPasswordPage({
     <AppShell>
       <div className="container" style={{ display: "grid", placeItems: "center", minHeight: "65vh" }}>
         <div className="card" style={{ width: "min(440px, 100%)" }}>
-          <div className="eyebrow">Password reset</div>
-          <h3 style={{ fontSize: 30 }}>Forgot your password?</h3>
+          <div className="eyebrow">Password Reset</div>
+          <h3 style={{ fontSize: 30 }}>Forgot Your Password?</h3>
           <p className="legal" style={{ marginBottom: "1rem" }}>
             Enter the email and account name from your player registration. We will email you a link
             to choose a new password.
@@ -45,7 +45,7 @@ export default async function ForgotPasswordPage({
           ) : null}
           <ForgotPasswordForm />
           <p className="legal">
-            <Link href="/login">Back to sign in</Link>
+            <Link href="/login">Back to Sign In</Link>
           </p>
         </div>
       </div>

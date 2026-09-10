@@ -57,18 +57,18 @@ export function NavProfileMenu({ user }: { user: NavUser }) {
         <div className="nav-profile-menu" role="menu">
           <Link href="/players/me" role="menuitem" onClick={() => setOpen(false)}>
             <UserRound size={15} aria-hidden="true" />
-            My profile
+            My Profile
           </Link>
           <Link href="/dashboard" role="menuitem" onClick={() => setOpen(false)}>
             Dashboard
           </Link>
           <Link href="/dashboard/team/create" role="menuitem" onClick={() => setOpen(false)}>
-            Create a team
+            Create a Team
           </Link>
           <form action={signOut}>
             <button type="submit" role="menuitem">
               <LogOut size={15} aria-hidden="true" />
-              Sign out
+              Sign Out
             </button>
           </form>
         </div>

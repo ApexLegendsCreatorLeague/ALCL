@@ -10,7 +10,7 @@ import { safeNextPath } from "@/lib/auth/redirect-path";
 import { getNavUser } from "@/server/auth/nav-user";
 
 export const metadata: Metadata = {
-  title: "Player registration",
+  title: "Player Registration",
   description: "Create your ALCL player account. Teams do not have separate logins.",
 };
 
@@ -29,8 +29,8 @@ export default async function RegisterPlayerPage({
     <AppShell>
       <div className="container" style={{ display: "grid", placeItems: "center", minHeight: "65vh" }}>
         <div className="card" style={{ width: "min(440px, 100%)" }}>
-          <div className="eyebrow">Player registration</div>
-          <h3 style={{ fontSize: 30 }}>Create your player account</h3>
+          <div className="eyebrow">Player Registration</div>
+          <h3 style={{ fontSize: 30 }}>Create Your Player Account</h3>
           <p className="legal" style={{ marginBottom: "1rem" }}>
             Every person who competes gets their own player login. Teams are just groups of those
             players — captains create teams after everyone has signed up.
@@ -38,7 +38,7 @@ export default async function RegisterPlayerPage({
           <AuthConfigBanner />
           <PlayerRegisterForm />
           <p className="legal">
-            Already have a player account? <Link href="/login">Sign in</Link>
+            Already have a player account? <Link href="/login">Sign In</Link>
           </p>
         </div>
       </div>

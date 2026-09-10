@@ -10,7 +10,7 @@ import { safeNextPath } from "@/lib/auth/redirect-path";
 import { getNavUser } from "@/server/auth/nav-user";
 
 export const metadata: Metadata = {
-  title: "Player sign in",
+  title: "Sign In",
   description: "Players sign in to ALCL. Teams do not have login credentials.",
 };
 
@@ -29,19 +29,19 @@ export default async function LoginPage({
     <AppShell>
       <div className="container" style={{ display: "grid", placeItems: "center", minHeight: "65vh" }}>
         <div className="card" style={{ width: "min(440px, 100%)" }}>
-          <div className="eyebrow">Player sign in</div>
-          <h3 style={{ fontSize: 30 }}>Sign in as a player</h3>
+          <div className="eyebrow">Sign In</div>
+          <h3 style={{ fontSize: 30 }}>Sign In as a Player</h3>
           <p className="legal" style={{ marginBottom: "1rem" }}>
             Only players have ALCL accounts. Teams are groups of players — they never sign in.
           </p>
-          <Suspense fallback={<p className="legal">Loading sign in…</p>}>
+          <Suspense fallback={<p className="legal">Loading Sign In…</p>}>
             <AuthForm />
           </Suspense>
           <p className="legal">
-            <Link href="/forgot-password">Forgot password?</Link>
+            <Link href="/forgot-password">Forgot Password?</Link>
           </p>
           <p className="legal">
-            No account yet? <Link href="/register">Create a player account</Link>
+            No account yet? <Link href="/register">Create a Player Account</Link>
           </p>
         </div>
       </div>

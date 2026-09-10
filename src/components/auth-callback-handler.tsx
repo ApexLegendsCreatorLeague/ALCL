@@ -8,7 +8,7 @@ import {
 } from "@/lib/auth/complete-auth-return";
 
 export function AuthCallbackHandler({
-  eyebrow = "Account access",
+  eyebrow = "Account Access",
   title = "One moment…",
   message = "Confirming your secure link…",
   recoveryOnly = false,

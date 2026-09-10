@@ -77,14 +77,14 @@ export function AuthForm() {
 
       <form onSubmit={handlePasswordSignIn} className="form">
         <label className="field">
-          Player email
+          Player Email
           <input className="input" name="email" type="email" autoComplete="email" required />
         </label>
         <label className="field">
           <span className="field-label-row">
             <span>Password</span>
             <Link className="auth-forgot-link" href="/forgot-password">
-              Forgot password?
+              Forgot Password?
             </Link>
           </span>
           <input
@@ -100,18 +100,18 @@ export function AuthForm() {
           <p role="alert" className="legal">{passwordError}</p>
         ) : null}
         <button className="btn btn-primary" disabled={passwordPending} type="submit">
-          {passwordPending ? "Signing in…" : "Player sign in"}
+          {passwordPending ? "Signing In…" : "Sign In"}
         </button>
       </form>
 
       <div aria-hidden="true" className="legal" style={{ margin: "1.25rem 0" }}>
-        or use a magic link
+        Or Use a Magic Link
       </div>
 
       <form action={magicAction} className="form">
         <input type="hidden" name="next" value={nextPath} />
         <label className="field">
-          Player email for magic link
+          Player Email for Magic Link
           <input className="input" name="email" type="email" autoComplete="email" required />
         </label>
         {magicState ? (
@@ -120,12 +120,12 @@ export function AuthForm() {
           </p>
         ) : null}
         <button className="btn" disabled={magicPending} type="submit">
-          {magicPending ? "Sending…" : "Email magic link"}
+          {magicPending ? "Sending…" : "Email Magic Link"}
         </button>
       </form>
 
       <p className="legal">
-        Need an account? <Link href="/register">Create a player account</Link>. Teams are built
+        Need an account? <Link href="/register">Create a Player Account</Link>. Teams are built
         after players sign in — teams do not log in.
       </p>
       <p className="legal">

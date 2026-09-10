@@ -8,9 +8,14 @@ import { useNavSessionReady, useNavUser } from "@/components/auth-session-provid
 type AuthCtaButtonsProps = {
   showCreateTeam?: boolean;
   compact?: boolean;
+  createTeamOnly?: boolean;
 };
 
-export function AuthCtaButtons({ showCreateTeam = false, compact = false }: AuthCtaButtonsProps) {
+export function AuthCtaButtons({
+  showCreateTeam = false,
+  compact = false,
+  createTeamOnly = false,
+}: AuthCtaButtonsProps) {
   const user = useNavUser();
   const ready = useNavSessionReady();
 
@@ -18,15 +23,26 @@ export function AuthCtaButtons({ showCreateTeam = false, compact = false }: Auth
     return null;
   }
 
+  if (createTeamOnly) {
+    return (
+      <Link
+        className="btn btn-primary"
+        href={user ? "/dashboard/team/create" : "/login?next=/dashboard/team/create"}
+      >
+        Create a Team
+      </Link>
+    );
+  }
+
   if (user) {
     return (
       <>
         <Link className="btn btn-primary" href="/players/me">
-          My profile {!compact ? <ArrowRight size={14} /> : null}
+          My Profile {!compact ? <ArrowRight size={14} /> : null}
         </Link>
         {showCreateTeam ? (
           <Link className="btn" href="/dashboard/team/create">
-            Create a team
+            Create a Team
           </Link>
         ) : null}
       </>
@@ -39,11 +55,11 @@ export function AuthCtaButtons({ showCreateTeam = false, compact = false }: Auth
         Register {!compact ? <ArrowRight size={14} /> : null}
       </Link>
       <Link className="btn" href="/login">
-        Player sign in
+        Sign In
       </Link>
       {showCreateTeam ? (
         <Link className="btn" href="/login?next=/dashboard/team/create">
-          Create a team
+          Create a Team
         </Link>
       ) : null}
     </>

@@ -32,7 +32,7 @@ export function TournamentCard({
         <span><Crosshair size={16} /> {tournament.format}</span>
       </div>
       <div className="card-actions">
-        <Link href={`/tournaments/${tournament.id}`}>View tournament <ArrowRight size={16} /></Link>
+        <Link href={`/tournaments/${tournament.id}`}>View Tournament <ArrowRight size={16} /></Link>
         <Link href="/rules">Rules</Link>
       </div>
     </Card>
@@ -162,11 +162,11 @@ export function TournamentTimeline() {
   return (
     <ol className="timeline">
       {[
-        ["Sep 5", "Registration opens"],
-        ["Sep 9", "Roster lock"],
-        ["Sep 11", "Manager check-in"],
-        ["Sep 12", "Community event"],
-        ["Sep 13", "Audited results published"],
+        ["Sep 5", "Registration Opens"],
+        ["Sep 9", "Roster Lock"],
+        ["Sep 11", "Manager Check-In"],
+        ["Sep 12", "Community Event"],
+        ["Sep 13", "Audited Results Published"],
       ].map(([date, label], index) => (
         <li key={label} className={index === 0 ? "active" : ""}>
           <i />

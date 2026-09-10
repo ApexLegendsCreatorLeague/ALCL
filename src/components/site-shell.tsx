@@ -46,7 +46,7 @@ export function Navbar() {
             <Search size={18} />
           </Link>
           <Link className="button button-secondary nav-login" href="/login">
-            Player sign in
+            Sign In
           </Link>
           <Link className="button button-primary nav-register" href="/register">
             Register
@@ -107,7 +107,7 @@ export function Footer() {
             <strong>Organization</strong>
             <Link href="/supporters">Community supporters</Link>
             <Link href="/legal">Legal & disclaimer</Link>
-            <Link href="/login">Player sign in</Link>
+            <Link href="/login">Sign In</Link>
           </div>
         </div>
         <div className="footer-bottom">

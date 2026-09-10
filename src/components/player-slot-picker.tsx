@@ -87,7 +87,7 @@ export function PlayerSlotPicker({
             className="input"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search registered ALCL players"
+            placeholder="Search Registered ALCL Players"
             required={required}
           />
           {searching ? <p className="legal">Searching players…</p> : null}

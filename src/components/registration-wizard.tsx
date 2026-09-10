@@ -198,11 +198,11 @@ export function RegistrationWizard() {
               <p className="legal">You are Player 1 on the roster and control registration, roster, and lineup changes.</p>
             </div>
             <div className="grid grid-2">
-              <Field label="Team name" value={form.teamName} onChange={(value) => setForm({ ...form, teamName: value })} />
+              <Field label="Team Name" value={form.teamName} onChange={(value) => setForm({ ...form, teamName: value })} />
               <Field label="Abbreviation" value={form.abbreviation} maxLength={5} onChange={(value) => setForm({ ...form, abbreviation: value.toUpperCase() })} />
               <Select label="Region" value={form.region} options={["North America", "Europe", "Oceania", "Asia Pacific"]} onChange={(value) => setForm({ ...form, region: value })} />
-              <Field label="Website (optional)" value={form.website} onChange={(value) => setForm({ ...form, website: value })} />
-              <Field label="Social link (optional)" value={form.socialLink} onChange={(value) => setForm({ ...form, socialLink: value })} />
+              <Field label="Website (Optional)" value={form.website} onChange={(value) => setForm({ ...form, website: value })} />
+              <Field label="Social Link (Optional)" value={form.socialLink} onChange={(value) => setForm({ ...form, socialLink: value })} />
             </div>
           </div>
         ) : null}
@@ -213,15 +213,15 @@ export function RegistrationWizard() {
               <div className="card" key={index}>
                 <strong>
                   {index === 0
-                    ? "Player 1 · Team manager (you)"
+                    ? "Player 1 · Team Manager (You)"
                     : index < 3
                       ? `Player ${index + 1} · Starter`
-                      : `Substitute ${index - 2} (optional)`}
+                      : `Substitute ${index - 2} (Optional)`}
                 </strong>
                 <div className="grid grid-2" style={{ marginTop: 12 }}>
                   {index === 0 ? (
                     <label className="field">
-                      Registered player
+                      Registered Player
                       <input
                         className="input"
                         readOnly
@@ -230,7 +230,7 @@ export function RegistrationWizard() {
                     </label>
                   ) : (
                     <PlayerSlotPicker
-                      label="Registered player"
+                      label="Registered Player"
                       value={slot.player}
                       required={index < 3}
                       excludeIds={selectedIds.filter((id) => id !== slot.player?.playerId)}
@@ -244,7 +244,7 @@ export function RegistrationWizard() {
                     onChange={(value) => updateSlot(index, { role: value as RosterSlot["role"] })}
                   />
                   <Select
-                    label="Rank snapshot"
+                    label="Rank Snapshot"
                     value={slot.rank}
                     options={["Platinum", "Diamond", "Master", "Predator"]}
                     onChange={(value) => updateSlot(index, { rank: value as RosterSlot["rank"] })}
@@ -264,7 +264,7 @@ export function RegistrationWizard() {
         {step === 2 ? (
           <div className="form">
             <div className="card">
-              <strong>{eligible ? "Roster currently eligible" : "Roster needs changes"}</strong>
+              <strong>{eligible ? "Roster Currently Eligible" : "Roster Needs Changes"}</strong>
               <p>Maximum one Predator rank snapshot across the roster. Current count: {predatorCount}.</p>
             </div>
             <Check checked={form.eligibilityAccepted} onChange={(value) => setForm({ ...form, eligibilityAccepted: value })}>
@@ -300,7 +300,7 @@ export function RegistrationWizard() {
         {step === 4 ? (
           <div className="form">
             <div className="card">
-              <strong>Create team</strong>
+              <strong>Create Team</strong>
               <p>You will remain the team manager. Roster players are linked as registered ALCL accounts.</p>
             </div>
             <Check checked={form.rulesAccepted} onChange={(value) => setForm({ ...form, rulesAccepted: value })}>
@@ -315,7 +315,7 @@ export function RegistrationWizard() {
           {step < 4 ? (
             <button className="btn btn-primary" disabled={!canContinue} type="button" onClick={() => setStep(step + 1)}>Continue <ChevronRight size={14} /></button>
           ) : (
-            <button className="btn btn-primary" disabled={!canContinue || submitting} type="button" onClick={submit}>{submitting ? "Creating team…" : "Create team"}</button>
+            <button className="btn btn-primary" disabled={!canContinue || submitting} type="button" onClick={submit}>{submitting ? "Creating Team…" : "Create Team"}</button>
           )}
         </div>
       </div>

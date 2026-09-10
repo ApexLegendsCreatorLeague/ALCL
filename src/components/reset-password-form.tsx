@@ -47,7 +47,7 @@ export function ResetPasswordForm() {
   return (
     <form onSubmit={handleSubmit} className="form">
       <label className="field">
-        New password
+        New Password
         <input
           className="input"
           name="password"
@@ -58,7 +58,7 @@ export function ResetPasswordForm() {
         />
       </label>
       <label className="field">
-        Confirm new password
+        Confirm New Password
         <input
           className="input"
           name="confirmPassword"
@@ -74,10 +74,10 @@ export function ResetPasswordForm() {
         </p>
       ) : null}
       <button className="btn btn-primary" disabled={pending} type="submit">
-        {pending ? "Updating password…" : "Save new password"}
+        {pending ? "Updating Password…" : "Save New Password"}
       </button>
       <p className="legal">
-        Link expired? <Link href="/forgot-password">Request a new reset link</Link>
+        Link expired? <Link href="/forgot-password">Request a New Reset Link</Link>
       </p>
     </form>
   );

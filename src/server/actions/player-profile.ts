@@ -122,11 +122,16 @@ export async function updatePlayerProfile(
     .eq("id", user.id);
 
   if (error) {
+    const missingColumn = /column .* does not exist|could not find the .* column/i.test(
+      error.message,
+    );
     const message = error.message.includes("profiles_username_key")
       ? "That username is already taken."
-      : error.message.includes("_url") || error.message.includes("main_legend")
-        ? "Enter valid profile details."
-        : "Your profile could not be saved.";
+      : missingColumn
+        ? "Profile save needs a Supabase update. Run supabase/scripts/add-profile-fields-all.sql in the SQL Editor."
+        : error.message.includes("_url") || error.message.includes("main_legend")
+          ? "Enter valid profile details."
+          : "Your profile could not be saved.";
     return actionFailure("CONFLICT", message);
   }
 

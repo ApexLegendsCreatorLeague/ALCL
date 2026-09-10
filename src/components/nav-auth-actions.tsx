@@ -11,7 +11,7 @@ export function NavAuthActions() {
   const ready = useNavSessionReady();
 
   if (!ready) {
-    return <span className="nav-auth-loading" aria-label="Checking sign-in status" />;
+    return <span className="nav-auth-loading" aria-label="Checking Sign-In Status" />;
   }
 
   if (user) {
@@ -21,7 +21,7 @@ export function NavAuthActions() {
   return (
     <>
       <Link className="btn nav-login" href="/login">
-        Player sign in
+        Sign In
       </Link>
       <Link className="btn btn-primary nav-cta" href="/register">
         Register <ArrowRight size={14} />

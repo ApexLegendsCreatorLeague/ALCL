@@ -64,9 +64,9 @@ export function PlayerRegisterForm() {
 
   return (
     <form onSubmit={handleSubmit} className="form">
-      <p className="eyebrow">Player account</p>
+      <p className="eyebrow">Player Account</p>
       <label className="field">
-        Display name
+        Display Name
         <input
           className="input"
           name="displayName"
@@ -75,7 +75,7 @@ export function PlayerRegisterForm() {
           minLength={2}
           maxLength={50}
           required
-          placeholder="Your in-game name"
+          placeholder="Your In-Game Name"
         />
       </label>
       <label className="field">
@@ -83,7 +83,7 @@ export function PlayerRegisterForm() {
         <input className="input" name="email" type="email" autoComplete="email" required />
       </label>
       <label className="field">
-        ALCL password
+        ALCL Password
         <input
           className="input"
           name="password"
@@ -117,14 +117,14 @@ export function PlayerRegisterForm() {
       {status ? (
         <p role="status" className="legal">
           {status}{" "}
-          {status.includes("Sign in") ? <Link href="/login">Go to sign in</Link> : null}
+          {status.includes("Sign in") ? <Link href="/login">Go to Sign In</Link> : null}
         </p>
       ) : null}
       <button className="btn btn-primary" disabled={pending} type="submit">
-        {pending ? "Creating player account…" : "Create player account"}
+        {pending ? "Creating Player Account…" : "Create Player Account"}
       </button>
       <p className="legal">
-        Already have a player account? <Link href="/login">Sign in</Link>. Create teams from your
+        Already have a player account? <Link href="/login">Sign In</Link>. Create teams from your
         dashboard after you sign in — teams never log in.
       </p>
       <p className="legal">

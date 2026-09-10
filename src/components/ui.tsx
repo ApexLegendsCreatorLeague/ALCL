@@ -117,7 +117,7 @@ export function StatCard({
 }
 
 export function EmptyState({
-  title = "Nothing here yet",
+  title = "Nothing Here Yet",
   description = "Published information will appear here.",
 }: {
   title?: string;

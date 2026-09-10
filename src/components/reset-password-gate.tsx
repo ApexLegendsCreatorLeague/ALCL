@@ -99,7 +99,7 @@ export function ResetPasswordGate() {
           That reset link expired or was already used. Request a new one below.
         </p>
         <p className="legal">
-          <Link href="/forgot-password">Request a new reset link</Link>
+          <Link href="/forgot-password">Request a New Reset Link</Link>
         </p>
       </>
     );

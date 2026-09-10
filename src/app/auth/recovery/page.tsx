@@ -4,7 +4,7 @@ import { AppShell } from "@/components/app-shell";
 import { AuthRecoveryHandler } from "@/components/auth-recovery-handler";
 
 export const metadata: Metadata = {
-  title: "Confirming reset link",
+  title: "Confirming Reset Link",
   description: "Confirm your ALCL password reset link.",
 };
 

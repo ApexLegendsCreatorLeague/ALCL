@@ -45,22 +45,22 @@ export function Footer() {
             <strong style={{ color: "white" }}>Players</strong>
             {!ready ? null : user ? (
               <>
-                <Link href="/players/me">My profile</Link>
-                <Link href="/dashboard/team/create">Create a team</Link>
+                <Link href="/players/me">My Profile</Link>
+                <Link href="/dashboard/team/create">Create a Team</Link>
                 <Link href="/dashboard">Dashboard</Link>
               </>
             ) : (
               <>
-                <Link href="/login">Player sign in</Link>
-                <Link href="/register">Create player account</Link>
-                <Link href="/login?next=/dashboard/team/create">Create a team</Link>
+                <Link href="/login">Sign In</Link>
+                <Link href="/register">Create Player Account</Link>
+                <Link href="/login?next=/dashboard/team/create">Create a Team</Link>
               </>
             )}
           </div>
           <div className="footer-links">
             <strong style={{ color: "white" }}>ALCL</strong>
             <Link href="/championship">Championship</Link>
-            <Link href="/hall-of-fame">Hall of fame</Link>
+            <Link href="/hall-of-fame">Hall of Fame</Link>
             <Link href="/supporters">Supporters</Link>
             <Link href="/legal">Legal</Link>
           </div>
@@ -71,7 +71,7 @@ export function Footer() {
   );
 }
 
-export function StatusBadge({ status = "Coming soon" }: { status?: string }) {
+export function StatusBadge({ status = "Coming Soon" }: { status?: string }) {
   const live = /live|open|active/i.test(status);
   return (
     <span className={`badge ${live ? "badge-live" : "badge-warn"}`}>
@@ -99,7 +99,7 @@ export function Hero() {
   return (
     <section className="hero">
       <div className="container" style={{ position: "relative", zIndex: 1 }}>
-        <div className="eyebrow">ALCL community league</div>
+        <div className="eyebrow">ALCL Community League</div>
         <h1 className="display">
           THE ARENA
           <br />
@@ -113,13 +113,13 @@ export function Hero() {
           {!ready ? null : user ? (
             <>
               <Link className="btn btn-primary" href="/players/me">
-                My profile <ArrowRight size={15} />
+                My Profile <ArrowRight size={15} />
               </Link>
               <Link className="btn" href="/dashboard/team/create">
-                Create a team
+                Create a Team
               </Link>
               <Link className="btn btn-ghost" href="/tournaments">
-                Explore tournaments
+                Explore Tournaments
               </Link>
             </>
           ) : (
@@ -128,10 +128,10 @@ export function Hero() {
                 Register <ArrowRight size={15} />
               </Link>
               <Link className="btn" href="/login">
-                Player sign in
+                Sign In
               </Link>
               <Link className="btn btn-ghost" href="/tournaments">
-                Explore tournaments
+                Explore Tournaments
               </Link>
             </>
           )}
@@ -146,7 +146,7 @@ type CardProps = { name?: string; index?: number };
 export function TournamentCard({ name = "ALCL event" }: CardProps) {
   return (
     <div className="card card-accent">
-      <StatusBadge status="Coming soon" />
+      <StatusBadge status="Coming Soon" />
       <h3>{name}</h3>
       <p>Event details will appear here once organizers publish the next tournament.</p>
     </div>
@@ -159,24 +159,34 @@ export function TeamCard({
   shortName,
   captainName,
   memberCount,
+  compact = false,
+  spotlight = false,
 }: CardProps & {
   teamId?: string;
   shortName?: string;
   captainName?: string | null;
   memberCount?: number;
+  compact?: boolean;
+  spotlight?: boolean;
 }) {
   const body = (
     <>
       <div className="team">
         <div className="avatar">{(shortName ?? name).slice(0, 2).toUpperCase()}</div>
-        <div>
-          <h3 style={{ margin: 0 }}>{name}</h3>
-          {captainName ? (
-            <span style={{ color: "var(--muted)", fontSize: 11 }}>Captain · {captainName}</span>
+        <div className="directory-card-copy">
+          <h3>{name}</h3>
+          {compact || spotlight ? (
+            memberCount !== undefined ? (
+              <span className="directory-card-sub">
+                {memberCount} player{memberCount === 1 ? "" : "s"}
+              </span>
+            ) : null
+          ) : captainName ? (
+            <span className="directory-card-sub">Captain · {captainName}</span>
           ) : null}
         </div>
       </div>
-      {memberCount !== undefined ? (
+      {!compact && !spotlight && memberCount !== undefined ? (
         <div className="meta">
           <span>{memberCount} player{memberCount === 1 ? "" : "s"}</span>
         </div>
@@ -184,11 +194,19 @@ export function TeamCard({
     </>
   );
 
+  const cardClass = spotlight
+    ? "card directory-card directory-card-spotlight"
+    : compact
+      ? "card directory-card directory-card-compact"
+      : "card directory-card";
+
   if (teamId) {
     return (
-      <Link href={`/teams/${teamId}`} className="card directory-card">
+      <Link href={`/teams/${teamId}`} className={cardClass}>
         {body}
-        <ChevronRight className="directory-card-chevron" size={18} aria-hidden="true" />
+        {!spotlight ? (
+          <ChevronRight className="directory-card-chevron" size={compact ? 16 : 18} aria-hidden="true" />
+        ) : null}
       </Link>
     );
   }
@@ -202,11 +220,15 @@ export function PlayerCard({
   teamName,
   platform,
   rank,
+  compact = false,
+  spotlight = false,
 }: CardProps & {
   playerId?: string;
   teamName?: string | null;
   platform?: string | null;
   rank?: string | null;
+  compact?: boolean;
+  spotlight?: boolean;
 }) {
   const initials = name
     .split(" ")
@@ -215,18 +237,22 @@ export function PlayerCard({
     .slice(0, 2)
     .toUpperCase();
 
+  const compactSub = teamName ?? platform ?? rank ?? null;
+
   const body = (
     <>
       <div className="team">
         <div className="avatar">{initials}</div>
-        <div>
-          <h3 style={{ margin: 0 }}>{name}</h3>
-          {teamName ? (
-            <span style={{ color: "var(--lime)", fontSize: 11 }}>{teamName}</span>
+        <div className="directory-card-copy">
+          <h3>{name}</h3>
+          {compact || spotlight ? (
+            compactSub ? <span className="directory-card-sub">{compactSub}</span> : null
+          ) : teamName ? (
+            <span className="directory-card-sub directory-card-sub-accent">{teamName}</span>
           ) : null}
         </div>
       </div>
-      {platform || rank ? (
+      {!compact && !spotlight && (platform || rank) ? (
         <div className="meta">
           {platform ? <span>{platform}</span> : null}
           {rank ? <span>{rank}</span> : null}
@@ -235,11 +261,19 @@ export function PlayerCard({
     </>
   );
 
+  const cardClass = spotlight
+    ? "card directory-card directory-card-spotlight"
+    : compact
+      ? "card directory-card directory-card-compact"
+      : "card directory-card";
+
   if (playerId) {
     return (
-      <Link href={`/players/${playerId}`} className="card directory-card">
+      <Link href={`/players/${playerId}`} className={cardClass}>
         {body}
-        <ChevronRight className="directory-card-chevron" size={18} aria-hidden="true" />
+        {!spotlight ? (
+          <ChevronRight className="directory-card-chevron" size={compact ? 16 : 18} aria-hidden="true" />
+        ) : null}
       </Link>
     );
   }
@@ -276,7 +310,7 @@ export function StatCard({ label, value, change }: { label: string; value: strin
 export function StandingsTable() {
   return (
     <EmptyState
-      title="No standings yet"
+      title="No Standings Yet"
       message="Season standings will appear after the first completed event."
     />
   );
@@ -284,7 +318,7 @@ export function StandingsTable() {
 
 export function ScoreTable() {
   return (
-    <EmptyState title="No match results yet" message="Results will appear after matches are recorded." />
+    <EmptyState title="No Match Results Yet" message="Results will appear after matches are recorded." />
   );
 }
 
@@ -295,7 +329,7 @@ export function Leaderboard() {
 export function AdminTable() {
   return (
     <EmptyState
-      title="Nothing to review"
+      title="Nothing to Review"
       message="Registrations, matches, and other admin records will appear here."
     />
   );
@@ -303,15 +337,15 @@ export function AdminTable() {
 
 export function MatchCard() {
   return (
-    <EmptyState title="No matches scheduled" message="Match cards will appear once events are published." />
+    <EmptyState title="No Matches Scheduled" message="Match cards will appear once events are published." />
   );
 }
 
 export function QualificationProgress() {
   return (
     <div className="card">
-      <strong>Championship qualification</strong>
-      <p>Qualification tracking will begin once the season is underway.</p>
+      <strong>Championship Qualification</strong>
+      <p>Qualification Tracking will begin once the Season is underway.</p>
     </div>
   );
 }
@@ -319,14 +353,14 @@ export function QualificationProgress() {
 export function TournamentTimeline() {
   return (
     <EmptyState
-      title="No schedule published"
+      title="No Schedule Published"
       message="Organizers will publish the event timeline before registration opens."
     />
   );
 }
 
 export function TeamRoster() {
-  return <EmptyState title="No roster yet" message="Registered players will appear on the team roster." />;
+  return <EmptyState title="No Roster Yet" message="Registered players will appear on the team roster." />;
 }
 
 export function Search({ placeholder = "Search ALCL…" }: { placeholder?: string }) {
@@ -346,7 +380,7 @@ export function Search({ placeholder = "Search ALCL…" }: { placeholder?: strin
 }
 
 export function Modal({
-  title = "Confirm action",
+  title = "Confirm Action",
   children,
   onClose,
 }: {
@@ -384,7 +418,7 @@ export function Toast({ message, onClose }: { message: string; onClose?: () => v
   return <div className="toast">✓ {message}</div>;
 }
 
-export function EmptyState({ title = "Nothing here yet", message }: { title?: string; message?: string }) {
+export function EmptyState({ title = "Nothing Here Yet", message }: { title?: string; message?: string }) {
   return (
     <div className="state">
       <Trophy size={28} />
@@ -407,8 +441,8 @@ export function ErrorState() {
   return (
     <div className="state">
       <X size={28} />
-      <h3>Couldn&apos;t load this view</h3>
-      <button className="btn">Try again</button>
+      <h3>Couldn&apos;t Load This View</h3>
+      <button className="btn">Try Again</button>
     </div>
   );
 }
@@ -460,12 +494,12 @@ export function BroadcastView({ type }: { type: string }) {
   return (
     <div className="broadcast">
       <div className="broadcast-panel">
-        <div className="eyebrow">ALCL · Public streaming overlay</div>
+        <div className="eyebrow">ALCL · Public Streaming Overlay</div>
         <h2 className="display" style={{ fontSize: 42, margin: "10px 0" }}>
           {type.toUpperCase()}
         </h2>
         <EmptyState
-          title="No broadcast data"
+          title="No Broadcast Data"
           message="Live overlay data will appear when an event is in progress."
         />
         <p className="legal">This tournament is not affiliated with or sponsored by Electronic Arts Inc.</p>

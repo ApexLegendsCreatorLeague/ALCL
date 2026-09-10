@@ -26,12 +26,12 @@ import { getPlayerProfile } from "@/server/player-profile";
 import { getPublicTeam, listPublicPlayers, listPublicTeams } from "@/server/public-directory";
 
 export async function HomePage() {
-  const [players, teams] = await Promise.all([listPublicPlayers(6), listPublicTeams(6)]);
+  const [players, teams] = await Promise.all([listPublicPlayers(5), listPublicTeams(5)]);
   return (
     <AppShell>
       <section className="hero">
         <div className="container" style={{ position: "relative", zIndex: 1 }}>
-          <div className="eyebrow">ALCL community league</div>
+          <div className="eyebrow">ALCL Community League</div>
           <h1 className="display">
             THE ARENA
             <br />
@@ -41,34 +41,23 @@ export async function HomePage() {
             Independent community tournaments for Apex Legends. Compete in structured seasons, build
             your legacy, and earn your place at the ALCL Championship.
           </p>
-          <div className="actions">
-            <Link className="btn btn-primary" href="/register">
-              Create player account
-            </Link>
-            <Link className="btn" href="/login">
-              Player sign in
-            </Link>
-            <Link className="btn btn-ghost" href="/tournaments">
-              Explore tournaments
-            </Link>
-          </div>
         </div>
       </section>
 
       <section className="section">
         <div className="container">
           <SectionTitle
-            eyebrow="Next up"
-            title="Enter the circuit"
-            copy="Tournaments, standings, and schedules will appear here as organizers publish them."
+            eyebrow="Next Up"
+            title="Enter The Circuit"
+            copy="Tournaments, Standings, and Schedules will appear here as Organizers publish them."
             action={
               <Link className="btn" href="/tournaments">
-                View tournaments
+                View Tournaments
               </Link>
             }
           />
           <EmptyState
-            title="No tournaments published yet"
+            title="No Tournaments Published Yet"
             message="Check back soon — the first ALCL events are being prepared."
           />
         </div>
@@ -77,16 +66,16 @@ export async function HomePage() {
       <section className="section" style={{ background: "#0b0e13" }}>
         <div className="container">
           <SectionTitle
-            eyebrow="Season leaderboard"
+            eyebrow="Season Leaderboard"
             title="Standings"
             action={
               <Link className="btn" href="/standings">
-                Full standings
+                Full Standings
               </Link>
             }
           />
           <EmptyState
-            title="No standings yet"
+            title="No Standings Yet"
             message="Season standings will appear after the first completed event."
           />
         </div>
@@ -96,42 +85,63 @@ export async function HomePage() {
         <div className="container">
           <SectionTitle
             eyebrow="Community"
-            title="Teams & players"
-            copy="Registered teams and player profiles appear here as the league grows."
+            title="Teams & Players"
+            copy="Registered Teams and Player Profiles appear here as the league grows."
             action={
               players.length || teams.length ? (
-                <Link className="btn" href="/players">
-                  View all players
-                </Link>
+                <div className="actions" style={{ marginTop: 0 }}>
+                  <Link className="btn" href="/players">
+                    View All Players
+                  </Link>
+                  <Link className="btn" href="/teams">
+                    View All Teams
+                  </Link>
+                </div>
               ) : undefined
             }
           />
           {players.length || teams.length ? (
-            <div className="grid grid-3">
-              {teams.map((team) => (
-                <TeamCard
-                  key={team.teamId}
-                  teamId={team.teamId}
-                  name={team.name}
-                  shortName={team.shortName}
-                  captainName={team.captainName}
-                  memberCount={team.memberCount}
-                />
-              ))}
-              {players.map((player) => (
-                <PlayerCard
-                  key={player.playerId}
-                  playerId={player.playerId}
-                  name={player.displayName}
-                  teamName={player.teamName}
-                  platform={player.platform}
-                  rank={player.rank}
-                />
-              ))}
+            <div className="home-spotlight">
+              {players.length ? (
+                <div className="home-spotlight-row">
+                  <p className="home-spotlight-label">Latest Players</p>
+                  <div className="home-spotlight-grid">
+                    {players.map((player) => (
+                      <PlayerCard
+                        key={player.playerId}
+                        playerId={player.playerId}
+                        name={player.displayName}
+                        teamName={player.teamName}
+                        platform={player.platform}
+                        rank={player.rank}
+                        spotlight
+                      />
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+              {teams.length ? (
+                <div className="home-spotlight-row">
+                  <p className="home-spotlight-label">Latest Teams</p>
+                  <div className="home-spotlight-grid">
+                    {teams.map((team) => (
+                      <TeamCard
+                        key={team.teamId}
+                        teamId={team.teamId}
+                        name={team.name}
+                        shortName={team.shortName}
+                        captainName={team.captainName}
+                        memberCount={team.memberCount}
+                        spotlight
+                      />
+                    ))}
+                  </div>
+                </div>
+              ) : null}
             </div>
           ) : (
             <EmptyState
-              title="No teams or players listed yet"
+              title="No Teams or Players Listed Yet"
               message="Create a player account and form a team to get started."
             />
           )}
@@ -143,64 +153,64 @@ export async function HomePage() {
 
 const info: Record<string, [string, string, string]> = {
   league: [
-    "ALCL league",
+    "ALCL League",
     "The ALCL League",
-    "Season schedule, milestones, and cumulative performance will be published here.",
+    "Season Schedule, Milestones, and Cumulative Performance will be published here.",
   ],
   tournaments: [
-    "Competition hub",
-    "Find your next fight",
-    "Browse open registrations, live events, and completed community tournaments.",
+    "Competition Hub",
+    "Find Your Next Fight",
+    "Browse Open Registrations, Live Events, and completed Community Tournaments.",
   ],
   standings: [
-    "Season standings",
-    "Every point matters",
-    "Cumulative standings across the ALCL season circuit.",
+    "Season Standings",
+    "Every Point Matters",
+    "Cumulative Standings across The ALCL Season Circuit.",
   ],
   teams: [
-    "Team directory",
-    "Built to compete",
-    "Discover squads and follow their path through the circuit.",
+    "Team Directory",
+    "Built To Compete",
+    "Discover Squads and follow their path through the Circuit.",
   ],
   players: [
-    "Player directory",
-    "Meet the competitors",
-    "Profiles, performance snapshots, and team affiliations for ALCL competitors.",
+    "Player Directory",
+    "Meet The Competitors",
+    "Profiles, Performance Snapshots, and Team Affiliations for ALCL Competitors.",
   ],
   championship: [
-    "The final stage",
+    "The Final Stage",
     "ALCL Championship",
-    "The season’s best teams converge for one decisive weekend.",
+    "The Season’s best Teams converge for one decisive weekend.",
   ],
   supporters: [
-    "Community powered",
-    "ALCL supporters",
+    "Community Powered",
+    "ALCL Supporters",
     "The people and groups helping independent competition thrive.",
   ],
   rules: [
-    "Competition guide",
-    "Rules & format",
+    "Competition Guide",
+    "Rules & Format",
     "Clear standards for fair, consistent, and community-first competition.",
   ],
   "hall-of-fame": [
-    "ALCL history",
-    "Hall of fame",
+    "ALCL History",
+    "Hall of Fame",
     "Celebrating champions, record breakers, and unforgettable seasons.",
   ],
   legal: [
     "Policies",
-    "Legal & integrity",
+    "Legal & Integrity",
     "How ALCL operates, protects competitors, and communicates its independent status.",
   ],
   dashboard: [
-    "Competitor portal",
-    "Your dashboard",
+    "Competitor Portal",
+    "Your Dashboard",
     "Your season at a glance—registrations, matches, and account actions.",
   ],
 };
 
 function StandardHeader({ type }: { type: string }) {
-  const data = info[type] ?? ["ALCL", "Competition center", "Everything you need for the current ALCL season."];
+  const data = info[type] ?? ["ALCL", "Competition Center", "Everything you need for the current ALCL season."];
   return <PageHeader eyebrow={data[0]} title={data[1]} copy={data[2]} />;
 }
 
@@ -236,8 +246,8 @@ async function Directory({ type }: { type: string }) {
   if (type === "tournaments") {
     content = (
       <EmptyState
-        title="No tournaments published yet"
-        message="Organizers will publish events here when registration opens."
+        title="No Tournaments published yet"
+        message="Organizers will publish Events here when registration opens."
       />
     );
   } else if (type === "teams") {
@@ -245,9 +255,9 @@ async function Directory({ type }: { type: string }) {
     content = (
       <>
         <div className="toolbar">
-          <Search placeholder="Search teams…" />
+          <Search placeholder="Search Teams…" />
           <div className="actions" style={{ marginTop: 0 }}>
-            <AuthCtaButtons showCreateTeam compact />
+            <AuthCtaButtons createTeamOnly compact />
           </div>
         </div>
         {teams.length ? (
@@ -265,7 +275,7 @@ async function Directory({ type }: { type: string }) {
           </div>
         ) : (
           <EmptyState
-            title="No teams registered yet"
+            title="No Teams Registered Yet"
             message="Sign in and create a team to appear in the directory."
           />
         )}
@@ -277,7 +287,7 @@ async function Directory({ type }: { type: string }) {
   } else if (type === "standings") {
     content = (
       <EmptyState
-        title="No standings yet"
+        title="No Standings Yet"
         message="Standings will be calculated after event results are recorded."
       />
     );
@@ -293,21 +303,21 @@ async function Directory({ type }: { type: string }) {
   } else if (type === "championship") {
     content = (
       <EmptyState
-        title="Championship field not set"
+        title="Championship Field Not Set"
         message="Qualified teams will appear here during the season."
       />
     );
   } else if (type === "supporters") {
     content = (
       <EmptyState
-        title="No supporters published yet"
+        title="No Supporters Published Yet"
         message="Community supporters will be listed here once approved."
       />
     );
   } else if (type === "hall-of-fame") {
     content = (
       <EmptyState
-        title="Hall of fame is empty"
+        title="Hall of Fame Is Empty"
         message="Season champions and record holders will be recorded here."
       />
     );
@@ -315,7 +325,7 @@ async function Directory({ type }: { type: string }) {
     content = (
       <>
         <div className="card" style={{ marginBottom: 20 }}>
-          <h3>ALCL competition rules</h3>
+          <h3>ALCL Competition Rules</h3>
           <p>
             Official event rules will be published and versioned before each tournament opens for
             registration.
@@ -384,7 +394,7 @@ async function Directory({ type }: { type: string }) {
     );
   } else {
     content = (
-      <EmptyState title="Nothing published yet" message="Content for this section is coming soon." />
+      <EmptyState title="Nothing Published Yet" message="Content for this section is coming soon." />
     );
   }
 
@@ -403,8 +413,8 @@ function TournamentDetail({ id, leaf }: { id: string; leaf?: string }) {
   if (leaf === "registration") {
     content = (
       <div className="card">
-        <StatusBadge status="Coming soon" />
-        <h3>Player registration</h3>
+        <StatusBadge status="Coming Soon" />
+        <h3>Player Registration</h3>
         <p>
           Every competitor needs a player account first. After you sign in, create a team and add
           registered players to the roster.
@@ -417,7 +427,7 @@ function TournamentDetail({ id, leaf }: { id: string; leaf?: string }) {
   } else {
     content = (
       <EmptyState
-        title="Event not published yet"
+        title="Event Not Published Yet"
         message={`Details for ${title} will appear when organizers publish this tournament.`}
       />
     );
@@ -426,7 +436,7 @@ function TournamentDetail({ id, leaf }: { id: string; leaf?: string }) {
   return (
     <AppShell>
       <PageHeader
-        eyebrow="ALCL community tournament"
+        eyebrow="ALCL Community Tournament"
         title={leaf ? `${title} · ${leaf}` : title}
         copy="Independent community competition with configurable tournament scoring and season qualification."
       />
@@ -444,13 +454,13 @@ function SeasonDetail({ season }: { season: string }) {
   return (
     <AppShell>
       <PageHeader
-        eyebrow="Season archive"
+        eyebrow="Season Archive"
         title={`ALCL ${season.replace("-", " ")}`}
         copy="Season schedule, milestones, and cumulative performance."
       />
       <section className="container">
         <EmptyState
-          title="Season data not published"
+          title="Season Data Not Published"
           message="Schedule and standings for this season will appear here."
         />
       </section>
@@ -464,8 +474,8 @@ async function TeamDetail({ id }: { id: string }) {
   return (
     <AppShell>
       <PageHeader
-        eyebrow="Team profile"
-        title={team?.name ?? "Team not found"}
+        eyebrow="Team Profile"
+        title={team?.name ?? "Team Not Found"}
         copy={
           team
             ? `${team.memberCount} player${team.memberCount === 1 ? "" : "s"} · ${team.captainName ? `Captain ${team.captainName}` : "No captain listed"}`
@@ -490,7 +500,7 @@ async function TeamDetail({ id }: { id: string }) {
           </div>
         ) : (
           <EmptyState
-            title="Team not found"
+            title="Team Not Found"
             message="This team has not been registered yet, or the profile is not public."
           />
         )}
@@ -514,7 +524,7 @@ function AdminPage({ section }: { section?: string }) {
   return (
     <AppShell>
       <PageHeader
-        eyebrow="Organizer console"
+        eyebrow="Organizer Console"
         title={name}
         copy="Competition administration with server-enforced policy checks and audit history."
       />
@@ -524,7 +534,7 @@ function AdminPage({ section }: { section?: string }) {
           <LiveApiAdmin />
         ) : (
           <EmptyState
-            title="No records yet"
+            title="No Records Yet"
             message="Admin records will appear here as the league operates."
           />
         )}
@@ -539,8 +549,8 @@ function AuthPage() {
     <AppShell>
       <div className="container" style={{ display: "grid", placeItems: "center", minHeight: "65vh" }}>
         <div className="card" style={{ width: "min(440px, 100%)" }}>
-          <div className="eyebrow">Player sign in</div>
-          <h3 style={{ fontSize: 30 }}>Sign in as a player</h3>
+          <div className="eyebrow">Sign In</div>
+          <h3 style={{ fontSize: 30 }}>Sign In as a Player</h3>
           <p className="legal">Teams do not have logins. Only players sign in.</p>
           <AuthForm />
         </div>

@@ -84,7 +84,7 @@ export function DashboardShell({
         ["Overview", "/admin"],
         ["Tournaments", "/admin/tournaments"],
         ["Matches", "/admin/matches"],
-        ["Live data", "/admin/live-data"],
+        ["Live Data", "/admin/live-data"],
         ["Registrations", "/admin/registrations"],
         ["Teams", "/admin/teams"],
         ["Players", "/admin/players"],
@@ -93,8 +93,8 @@ export function DashboardShell({
       ]
     : [
         ["Overview", "/dashboard"],
-        ["My team", "/dashboard/team"],
-        ["Player profile", "/players/me"],
+        ["My Team", "/dashboard/team"],
+        ["Player Profile", "/players/me"],
       ];
   return (
     <div className="dashboard-layout">
@@ -103,7 +103,7 @@ export function DashboardShell({
         <nav>
           {links.map(([label, href]) => <Link href={href} key={href}>{label}</Link>)}
         </nav>
-        <Link className="sidebar-exit" href="/">Return to public site</Link>
+        <Link className="sidebar-exit" href="/">Return to Public Site</Link>
       </aside>
       <main className="dashboard-main">
         <header><div><p className="eyebrow">{admin ? "ORGANIZER WORKSPACE" : "COMPETITOR WORKSPACE"}</p><h1>{title}</h1><p>{description}</p></div></header>

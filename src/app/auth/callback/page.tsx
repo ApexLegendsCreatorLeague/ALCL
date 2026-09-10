@@ -4,7 +4,7 @@ import { AppShell } from "@/components/app-shell";
 import { AuthCallbackHandler } from "@/components/auth-callback-handler";
 
 export const metadata: Metadata = {
-  title: "Confirming sign in",
+  title: "Confirming Sign In",
   description: "Complete your secure ALCL sign-in or account link.",
 };
 

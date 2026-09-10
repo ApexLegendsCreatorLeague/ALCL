@@ -10,7 +10,7 @@ import { getPlayerProfile } from "@/server/player-profile";
 
 type Props = { params: Promise<{ id: string }> };
 
-export const metadata: Metadata = { title: "Edit player profile" };
+export const metadata: Metadata = { title: "Edit Player Profile" };
 
 export default async function EditPlayerProfilePage({ params }: Props) {
   const { id } = await params;
@@ -24,12 +24,12 @@ export default async function EditPlayerProfilePage({ params }: Props) {
     return (
       <AppShell>
         <PageHeader
-          eyebrow="Edit profile"
-          title="Profile not found"
+          eyebrow="Edit Profile"
+          title="Profile Not Found"
           copy="This player profile does not exist."
         />
         <section className="container">
-          <EmptyState title="Profile unavailable" message="This player profile does not exist." />
+          <EmptyState title="Profile Unavailable" message="This player profile does not exist." />
         </section>
       </AppShell>
     );
@@ -42,14 +42,14 @@ export default async function EditPlayerProfilePage({ params }: Props) {
   return (
     <AppShell>
       <PageHeader
-        eyebrow="Your profile"
-        title="Edit public profile"
+        eyebrow="Your Profile"
+        title="Edit Public Profile"
         copy="Update the details fans and tournament viewers see on your ALCL player page."
       />
       <section className="container profile-edit-page">
         <div className="actions" style={{ marginBottom: 18 }}>
           <Link className="btn" href={`/players/${profile.playerId}`}>
-            Back to profile
+            Back to Profile
           </Link>
         </div>
         <PlayerProfileEditForm profile={profile} />

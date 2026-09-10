@@ -23,7 +23,7 @@ export default async function DashboardRoute({
   const focusedTeam = focusedTeamId ? await getManagedTeam(focusedTeamId) : null;
 
   const title =
-    view === "team" ? (focusedTeam?.name ?? "My team") : "Player dashboard";
+    view === "team" ? (focusedTeam?.name ?? "My Team") : "Player Dashboard";
 
   const copy =
     view === "team"
@@ -32,7 +32,7 @@ export default async function DashboardRoute({
 
   return (
     <AppShell>
-      <PageHeader eyebrow="Signed in" title={title} copy={copy} />
+      <PageHeader eyebrow="Signed In" title={title} copy={copy} />
       <section className="container dashboard-page">
         <DashboardTabs />
         <DashboardAlert
@@ -50,7 +50,7 @@ export default async function DashboardRoute({
                   label="Registration"
                   value={focusedTeam.registrationStatus ?? "Not submitted"}
                 />
-                <StatCard label="Roster size" value={String(focusedTeam.members.length)} />
+                <StatCard label="Roster Size" value={String(focusedTeam.members.length)} />
                 <StatCard label="Event" value={focusedTeam.tournamentName ?? "—"} />
               </div>
               <div className="card" style={{ marginTop: 18 }}>
@@ -59,20 +59,20 @@ export default async function DashboardRoute({
                     focusedTeam.registrationStatus === "approved"
                       ? "Approved"
                       : focusedTeam.registrationStatus === "pending"
-                        ? "Pending review"
-                        : "Team created"
+                        ? "Pending Review"
+                        : "Team Created"
                   }
                 />
                 <h3>{focusedTeam.name}</h3>
                 <p>You are the team manager for this roster.</p>
                 <div className="actions">
                   <Link className="btn btn-primary" href="/dashboard/team/create">
-                    Create another team
+                    Create Another Team
                   </Link>
                 </div>
               </div>
               <div className="card" style={{ marginTop: 18 }}>
-                <h3>Roster players</h3>
+                <h3>Roster Players</h3>
                 {focusedTeam.members.length === 0 ? (
                   <p className="legal">No roster players linked yet.</p>
                 ) : (
@@ -88,11 +88,11 @@ export default async function DashboardRoute({
             </div>
           ) : (
             <div className="card" style={{ marginTop: 18 }}>
-              <h3>No team yet</h3>
+              <h3>No Team Yet</h3>
               <p>Create a team to register for ALCL events. You will be Player 1 and the manager.</p>
               <div className="actions">
                 <Link className="btn btn-primary" href="/dashboard/team/create">
-                  Create a team
+                  Create a Team
                 </Link>
               </div>
             </div>
@@ -102,32 +102,32 @@ export default async function DashboardRoute({
         {view === "overview" || view !== "team" ? (
           <div style={{ marginTop: 18 }}>
             <div className="grid grid-4">
-              <StatCard label="Display name" value={player.displayName} />
-              <StatCard label="Teams managed" value={String(player.managedTeams.length)} />
+              <StatCard label="Display Name" value={player.displayName} />
+              <StatCard label="Teams Managed" value={String(player.managedTeams.length)} />
               <StatCard label="Platform" value={player.platform ?? "—"} />
               <StatCard label="Rank" value={player.rank ?? "—"} />
             </div>
             <div className="grid grid-2" style={{ marginTop: 18 }}>
               <div className="card">
-                <h3>Welcome back, {player.displayName}</h3>
+                <h3>Welcome Back, {player.displayName}</h3>
                 <p>Signed in as a player. Teams never log in — only player accounts do.</p>
                 <div className="actions">
                   <Link className="btn btn-primary" href={`/players/${player.playerId}`}>
-                    View profile
+                    View Profile
                   </Link>
                   {player.managedTeams[0] ? (
                     <Link className="btn" href={`/dashboard/team?team=${player.managedTeams[0].id}`}>
-                      Open my team
+                      Open My Team
                     </Link>
                   ) : (
                     <Link className="btn" href="/dashboard/team/create">
-                      Create a team
+                      Create a Team
                     </Link>
                   )}
                 </div>
               </div>
               <div className="card">
-                <h3>Registration status</h3>
+                <h3>Registration Status</h3>
                 {player.managedTeams.length === 0 ? (
                   <p>You have not created a team yet. Start there before event registration.</p>
                 ) : (

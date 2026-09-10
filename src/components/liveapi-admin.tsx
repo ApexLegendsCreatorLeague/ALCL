@@ -5,7 +5,7 @@ export async function LiveApiAdmin() {
   if (!isSupabaseConfigured()) {
     return (
       <div className="card" style={{ marginBottom: 16 }}>
-        <h3>Live match data</h3>
+        <h3>Live Match Data</h3>
         <p>
           Connect Supabase and apply the LiveAPI migration before starting the
           observer collector. No game or account credentials are collected.
@@ -24,7 +24,7 @@ export async function LiveApiAdmin() {
   if (!sessions?.length) {
     return (
       <div className="card" style={{ marginBottom: 16 }}>
-        <h3>Awaiting an observer connection</h3>
+        <h3>Awaiting an Observer Connection</h3>
         <p>
           Start the read-only collector on the observer PC. A session appears
           here after its first signed event batch reaches ALCL.
@@ -75,7 +75,7 @@ export async function LiveApiAdmin() {
             <section className="card" key={session.id}>
               <div className="toolbar">
                 <div>
-                  <div className="eyebrow">Observer session</div>
+                  <div className="eyebrow">Observer Session</div>
                   <h3>{session.status.replaceAll("_", " ")}</h3>
                 </div>
                 <span className="badge">{session.raw_event_count} events</span>
@@ -102,14 +102,14 @@ export async function LiveApiAdmin() {
                       {team.damage} damage
                     </p>
                     <label className="field">
-                      ALCL team
+                      ALCL Team
                       <select
                         className="input"
                         defaultValue={bindingByKey.get(team.liveapi_team_key) ?? ""}
                         name="teamId"
                         required
                       >
-                        <option value="">Select registered team</option>
+                        <option value="">Select Registered Team</option>
                         {(eligibleTeams ?? []).map((eligible) => (
                           <option key={eligible.id} value={eligible.id}>
                             {eligible.name} ({eligible.short_name})
@@ -118,7 +118,7 @@ export async function LiveApiAdmin() {
                       </select>
                     </label>
                     <button className="btn" type="submit">
-                      Save binding
+                      Save Binding
                     </button>
                   </form>
                 ))}
@@ -127,7 +127,7 @@ export async function LiveApiAdmin() {
                 <form action={verifyLiveApiDraft} className="actions">
                   <input name="sessionId" type="hidden" value={session.id} />
                   <button className="btn btn-primary" type="submit">
-                    Verify and publish results
+                    Verify and Publish Results
                   </button>
                 </form>
               ) : null}
