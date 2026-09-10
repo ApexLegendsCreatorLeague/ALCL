@@ -72,6 +72,59 @@ export type PlayerProfile = {
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
+const PROFILE_SELECT_FULL =
+  "display_name, username, bio, youtube_url, x_url, tiktok_url, instagram_url, twitch_url, kick_url, looking_for_team, main_legend_1, main_legend_2, main_legend_3, availability, recruitment_pitch, country_code, is_active, created_at";
+
+const PROFILE_SELECT_CORE =
+  "display_name, username, bio, country_code, is_active, created_at";
+
+type ProfileRow = {
+  display_name: string;
+  username: string | null;
+  bio: string | null;
+  youtube_url?: string | null;
+  x_url?: string | null;
+  tiktok_url?: string | null;
+  instagram_url?: string | null;
+  twitch_url?: string | null;
+  kick_url?: string | null;
+  looking_for_team?: boolean;
+  main_legend_1?: string | null;
+  main_legend_2?: string | null;
+  main_legend_3?: string | null;
+  availability?: string | null;
+  recruitment_pitch?: string | null;
+  country_code: string | null;
+  is_active: boolean;
+  created_at: string;
+};
+
+async function fetchActiveProfile(admin: NonNullable<ReturnType<typeof adminOrNull>>, profileId: string) {
+  const full = await admin
+    .from("profiles")
+    .select(PROFILE_SELECT_FULL)
+    .eq("id", profileId)
+    .eq("is_active", true)
+    .maybeSingle();
+
+  if (!full.error && full.data) {
+    return full.data as ProfileRow;
+  }
+
+  const core = await admin
+    .from("profiles")
+    .select(PROFILE_SELECT_CORE)
+    .eq("id", profileId)
+    .eq("is_active", true)
+    .maybeSingle();
+
+  if (core.error || !core.data) {
+    return null;
+  }
+
+  return core.data as ProfileRow;
+}
+
 function adminOrNull() {
   if (!isSupabaseConfigured() || !supabaseServiceRoleKey()) {
     return null;
@@ -163,14 +216,7 @@ export async function getPlayerProfile(ref: string): Promise<PlayerProfile | nul
     return null;
   }
 
-  const { data: profile } = await admin
-    .from("profiles")
-    .select(
-      "display_name, username, bio, youtube_url, x_url, tiktok_url, instagram_url, twitch_url, kick_url, looking_for_team, main_legend_1, main_legend_2, main_legend_3, availability, recruitment_pitch, country_code, is_active, created_at",
-    )
-    .eq("id", player.profile_id)
-    .eq("is_active", true)
-    .maybeSingle();
+  const profile = await fetchActiveProfile(admin, player.profile_id);
 
   if (!profile) {
     return null;
@@ -352,17 +398,17 @@ export async function getPlayerProfile(ref: string): Promise<PlayerProfile | nul
     rank: player.rank,
     bio: profile.bio,
     recruitment: {
-      lookingForTeam: profile.looking_for_team,
+      lookingForTeam: profile.looking_for_team ?? false,
       topLegends: topLegendsFromProfile(profile),
-      availability: profile.availability,
-      recruitmentPitch: profile.recruitment_pitch,
+      availability: profile.availability ?? null,
+      recruitmentPitch: profile.recruitment_pitch ?? null,
     },
-    youtubeUrl: profile.youtube_url,
-    xUrl: profile.x_url,
-    tiktokUrl: profile.tiktok_url,
-    instagramUrl: profile.instagram_url,
-    twitchUrl: profile.twitch_url,
-    kickUrl: profile.kick_url,
+    youtubeUrl: profile.youtube_url ?? null,
+    xUrl: profile.x_url ?? null,
+    tiktokUrl: profile.tiktok_url ?? null,
+    instagramUrl: profile.instagram_url ?? null,
+    twitchUrl: profile.twitch_url ?? null,
+    kickUrl: profile.kick_url ?? null,
     countryCode: player.country_code ?? profile.country_code,
     teamId,
     teamName,

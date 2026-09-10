@@ -307,7 +307,7 @@ export function PlayerProfileView({
   );
 }
 
-export function PlayerProfileNotFound({ ref }: { ref: string }) {
+export function PlayerProfileNotFound({ lookupRef }: { lookupRef: string }) {
   return (
     <AppShell>
       <PageHeader
@@ -318,7 +318,7 @@ export function PlayerProfileNotFound({ ref }: { ref: string }) {
       <section className="container">
         <EmptyState
           title="Profile unavailable"
-          message={`No public ALCL profile matches "${ref}". Registered players appear in the directory after account setup completes.`}
+          message={`No public ALCL profile matches "${lookupRef}". Registered players appear in the directory after account setup completes.`}
         />
         <div className="actions" style={{ marginTop: 20 }}>
           <Link className="btn btn-primary" href="/players">

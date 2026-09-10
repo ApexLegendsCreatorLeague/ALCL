@@ -22,7 +22,7 @@ export default async function PlayerProfilePage({ params, searchParams }: Props)
   const [profile, user] = await Promise.all([getPlayerProfile(id), getCurrentUser()]);
 
   if (!profile) {
-    return <PlayerProfileNotFound ref={id} />;
+    return <PlayerProfileNotFound lookupRef={id} />;
   }
 
   const isOwner = Boolean(user && profile.profileId === user.id);

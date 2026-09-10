@@ -502,7 +502,7 @@ async function TeamDetail({ id }: { id: string }) {
 async function PlayerDetail({ id }: { id: string }) {
   const profile = await getPlayerProfile(id);
   if (!profile) {
-    return <PlayerProfileNotFound ref={id} />;
+    return <PlayerProfileNotFound lookupRef={id} />;
   }
   const user = await getCurrentUser();
   const isOwner = Boolean(user && profile.profileId === user.id);
