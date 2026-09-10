@@ -5,6 +5,11 @@ import { z } from "zod";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/server";
+import { isValidApexTag, normalizeApexTag } from "@/server/rank-provider";
+import {
+  insertRankSnapshots,
+  refreshVerifiedRanksForRoster,
+} from "@/server/rank-verification";
 import { ensurePlayerRecord } from "@/server/players";
 import { assignTeamManager } from "@/server/teams";
 import type { Database } from "@/types/database";
@@ -12,13 +17,19 @@ import type { Database } from "@/types/database";
 const rosterSlotSchema = z.object({
   playerId: z.uuid().nullable(),
   role: z.enum(["IGL", "Fragger", "Support", "Flex", "Substitute"]),
-  rank: z.enum(["Platinum", "Diamond", "Master", "Predator"]),
   isSubstitute: z.boolean(),
 });
 
 const schema = z.object({
   teamName: z.string().trim().min(2).max(80),
   abbreviation: z.string().trim().min(2).max(5),
+  teamTag: z
+    .string()
+    .trim()
+    .transform((value) => normalizeApexTag(value))
+    .refine((value) => isValidApexTag(value), {
+      message: "Team Tag must be 3-4 letters or numbers.",
+    }),
   region: z.enum(["North America", "Europe", "Oceania", "Asia Pacific"]),
   website: z.string().trim().url().or(z.literal("")),
   socialLink: z.string().trim().url().or(z.literal("")),
@@ -89,6 +100,7 @@ async function ensureTeam(
       short_name: payload.abbreviation.toUpperCase(),
       slug: `${baseSlug}-${randomUUID().slice(0, 6)}`,
       captain_id: userId,
+      apex_team_tag: payload.teamTag,
     })
     .select("id")
     .single();
@@ -156,14 +168,6 @@ async function syncRosterMembers(
       throw new Error("Every roster slot must reference a registered ALCL player account.");
     }
 
-    await supabase
-      .from("players")
-      .update({
-        rank: slot.rank,
-        rank_captured_at: new Date().toISOString(),
-      })
-      .eq("id", playerId);
-
     await ensureTeamMember(supabase, teamId, playerId, playerId === managerPlayerId);
 
     const { error: rosterPlayerError } = await supabase.from("roster_players").upsert(
@@ -199,14 +203,10 @@ function validateRoster(
     return "Each roster slot must use a different registered player.";
   }
 
-  if (roster.filter((slot) => slot.playerId && slot.rank === "Predator").length > 1) {
-    return "This event allows at most one Predator rank snapshot per roster.";
-  }
-
   return null;
 }
 
-function buildSnapshot(payload: RegistrationPayload, managerProfileId: string) {
+function buildSnapshot(payload: Record<string, unknown>, managerProfileId: string) {
   return {
     ...payload,
     managerProfileId,
@@ -260,9 +260,42 @@ export async function POST(request: NextRequest) {
     .select("*", { count: "exact", head: true });
   const canCreateTeamDirectly = isOrganizer || (teamCountBefore ?? 0) === 0;
 
+  const rosterPlayerIds = parsed.data.roster
+    .map((slot) => slot.playerId)
+    .filter(Boolean) as string[];
+
+  let verifiedRanks: Awaited<ReturnType<typeof refreshVerifiedRanksForRoster>>;
+  try {
+    verifiedRanks = await refreshVerifiedRanksForRoster(
+      supabase,
+      rosterPlayerIds,
+      parsed.data.teamTag,
+    );
+    if (verifiedRanks.filter((entry) => entry.rank === "Predator").length > 1) {
+      return NextResponse.json(
+        { message: "This event allows at most one Predator rank snapshot per roster." },
+        { status: 422 },
+      );
+    }
+  } catch (error) {
+    return NextResponse.json(
+      {
+        message:
+          error instanceof Error
+            ? error.message
+            : "Roster rank verification failed. Every player must verify with the team Tag first.",
+      },
+      { status: 422 },
+    );
+  }
+
   let team: { id: string };
   try {
     team = await ensureTeam(supabase, user.id, parsed.data);
+    await supabase
+      .from("teams")
+      .update({ apex_team_tag: parsed.data.teamTag })
+      .eq("id", team.id);
     await assignTeamManager(supabase, user.id);
   } catch (error) {
     return NextResponse.json(
@@ -326,13 +359,6 @@ export async function POST(request: NextRequest) {
           slot.playerId!,
           slot.playerId === managerPlayerId,
         );
-        await supabase
-          .from("players")
-          .update({
-            rank: slot.rank,
-            rank_captured_at: new Date().toISOString(),
-          })
-          .eq("id", slot.playerId!);
       }
     }
   } catch (error) {
@@ -388,7 +414,37 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const snapshot = buildSnapshot(parsed.data, user.id);
+  try {
+    await insertRankSnapshots(
+      supabase,
+      openTournament.id,
+      verifiedRanks.map((entry) => ({
+        playerId: entry.playerId,
+        rank: entry.rank,
+        snapshot: entry.snapshot,
+      })),
+    );
+  } catch (error) {
+    return NextResponse.json(
+      {
+        message:
+          error instanceof Error ? error.message : "Registration created, but rank snapshots failed.",
+      },
+      { status: 500 },
+    );
+  }
+
+  const snapshot = buildSnapshot(
+    {
+      ...parsed.data,
+      verifiedRanks: verifiedRanks.map((entry) => ({
+        playerId: entry.playerId,
+        rank: entry.rank,
+        uid: entry.uid,
+      })),
+    },
+    user.id,
+  );
   const contentHash = createHash("sha256").update(JSON.stringify(snapshot)).digest("hex");
   const { error: snapshotError } = await supabase.from("registration_snapshots").insert({
     registration_id: registration.id,

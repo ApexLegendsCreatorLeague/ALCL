@@ -19,6 +19,7 @@
     "db:link": "npx supabase link",
     "db:push": "npx supabase db push",
     "db:push:stats": "powershell -ExecutionPolicy Bypass -File scripts/push-stat-tracking.ps1",
+    "db:push:rank-verify": "powershell -Command \"Get-Content supabase/scripts/add-rank-verification.sql | npx supabase db execute --linked\"",
     "supabase:push-recovery-template": "node scripts/push-supabase-recovery-template.mjs",
     "db:lint": "npx supabase db lint",
     "verify": "pnpm typecheck && pnpm lint && pnpm test && pnpm build"

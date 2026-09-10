@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
 
   const { data: players, error } = await supabase
     .from("players")
-    .select("id, profile_id, platform, rank")
+    .select("id, profile_id, platform, rank, apex_tag, rank_verified_at")
     .in("profile_id", [...profiles.keys()]);
 
   if (error) {
@@ -70,6 +70,8 @@ export async function GET(request: NextRequest) {
         username: profile.username,
         platform: player.platform,
         rank: player.rank,
+        apexTag: player.apex_tag,
+        rankVerified: Boolean(player.rank_verified_at),
       };
     })
     .filter((row): row is NonNullable<typeof row> => row !== null)

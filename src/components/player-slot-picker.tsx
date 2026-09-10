@@ -11,6 +11,7 @@ export type SelectedPlayer = {
 type SearchResult = SelectedPlayer & {
   platform: string | null;
   rank: string | null;
+  rankVerified: boolean;
 };
 
 export function PlayerSlotPicker({
@@ -113,6 +114,9 @@ export function PlayerSlotPicker({
                   {player.username ? (
                     <span style={{ color: "var(--muted)", marginLeft: 8 }}>@{player.username}</span>
                   ) : null}
+                  <span style={{ color: "var(--muted)", marginLeft: 8 }}>
+                    {player.rankVerified ? `Verified ${player.rank ?? "rank"}` : "Rank not verified"}
+                  </span>
                 </button>
               ))}
             </div>

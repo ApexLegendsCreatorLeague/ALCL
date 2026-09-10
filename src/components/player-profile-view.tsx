@@ -228,9 +228,18 @@ export function PlayerProfileView({
                 </li>
                 <li>
                   <Crosshair size={15} />
-                  <span>Rank Snapshot</span>
-                  <strong>{profile.rank ?? "Not Set"}</strong>
+                  <span>Verified Rank</span>
+                  <strong>
+                    {profile.rankVerifiedAt ? (profile.rank ?? "Verified") : "Not Verified"}
+                  </strong>
                 </li>
+                {profile.apexTag ? (
+                  <li>
+                    <Crosshair size={15} />
+                    <span>Team Tag</span>
+                    <strong>{profile.apexTag}</strong>
+                  </li>
+                ) : null}
                 <li>
                   <MapPin size={15} />
                   <span>Region</span>

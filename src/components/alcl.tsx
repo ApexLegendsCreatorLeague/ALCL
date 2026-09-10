@@ -13,6 +13,7 @@ import {
   Users,
   X,
 } from "lucide-react";
+import { AlclBrand } from "@/components/alcl-logo";
 import { useNavSessionReady, useNavUser } from "@/components/auth-session-provider";
 
 export function LegalDisclaimer() {
@@ -27,9 +28,7 @@ export function Footer() {
       <div className="container">
         <div className="footer-grid">
           <div>
-            <div className="brand">
-              <span className="brand-mark">A</span>ALCL
-            </div>
+            <AlclBrand href="/" className="brand-footer" />
             <p style={{ color: "var(--muted)", maxWidth: 410, lineHeight: 1.6 }}>
               Independent community tournaments for Apex Legends. Built for competitors, organizers, and fans.
             </p>

@@ -28,6 +28,8 @@ export type PlayerDashboardData = {
   playerId: string;
   platform: string | null;
   rank: string | null;
+  apexTag: string | null;
+  rankVerifiedAt: string | null;
   countryCode: string;
   managedTeams: ManagedTeamSummary[];
 };
@@ -44,7 +46,7 @@ export async function getPlayerDashboard(): Promise<PlayerDashboardData> {
       .single(),
     supabase
       .from("players")
-      .select("id, platform, rank, country_code")
+      .select("id, platform, rank, apex_tag, rank_verified_at, country_code")
       .eq("profile_id", user.id)
       .single(),
   ]);
@@ -138,6 +140,8 @@ export async function getPlayerDashboard(): Promise<PlayerDashboardData> {
     playerId: player.id,
     platform: player.platform,
     rank: player.rank,
+    apexTag: player.apex_tag,
+    rankVerifiedAt: player.rank_verified_at,
     countryCode: player.country_code ?? profile?.country_code ?? "US",
     managedTeams,
   };

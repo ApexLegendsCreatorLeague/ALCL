@@ -145,6 +145,7 @@ type TeamsRow = Timestamped & {
   slug: string;
   captain_id: string;
   logo_path: string | null;
+  apex_team_tag: string | null;
   is_active: boolean;
 };
 type PlayersRow = Timestamped & {
@@ -154,6 +155,10 @@ type PlayersRow = Timestamped & {
   country_code: string;
   rank: string | null;
   rank_captured_at: string | null;
+  apex_uid: string | null;
+  apex_tag: string | null;
+  rank_verified_at: string | null;
+  rank_verification_source: string | null;
   eligibility_verified_at: string | null;
   is_active: boolean;
 };

@@ -27,6 +27,10 @@ export const metadata: Metadata = {
     images: [{ url: "/alcl-og.svg", width: 1200, height: 630, alt: "ALCL original community tournament branding" }],
   },
   robots: { index: true, follow: true },
+  icons: {
+    icon: [{ url: "/alcl-mark.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/alcl-mark.svg", type: "image/svg+xml" }],
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

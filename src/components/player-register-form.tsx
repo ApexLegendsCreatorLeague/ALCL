@@ -75,9 +75,13 @@ export function PlayerRegisterForm() {
           minLength={2}
           maxLength={50}
           required
-          placeholder="Your In-Game Name"
+          placeholder="Your Apex Name (No Tag Prefix)"
         />
       </label>
+      <p className="legal">
+        Use your exact Apex in-game name without the Tag prefix. You will verify rank and team Tag
+        from your dashboard after sign-up.
+      </p>
       <label className="field">
         Email
         <input className="input" name="email" type="email" autoComplete="email" required />

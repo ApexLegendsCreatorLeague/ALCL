@@ -59,6 +59,8 @@ export type PlayerProfile = {
   username: string | null;
   platform: string | null;
   rank: string | null;
+  rankVerifiedAt: string | null;
+  apexTag: string | null;
   bio: string | null;
   recruitment: PlayerRecruitment;
   countryCode: string | null;
@@ -209,7 +211,7 @@ export async function getPlayerProfile(ref: string): Promise<PlayerProfile | nul
 
   const { data: player } = await admin
     .from("players")
-    .select("id, profile_id, platform, rank, country_code, created_at")
+    .select("id, profile_id, platform, rank, apex_tag, rank_verified_at, country_code, created_at")
     .eq("id", playerId)
     .maybeSingle();
 
@@ -424,6 +426,8 @@ export async function getPlayerProfile(ref: string): Promise<PlayerProfile | nul
     username: profile.username,
     platform: formatPlatform(player.platform),
     rank: player.rank,
+    rankVerifiedAt: player.rank_verified_at,
+    apexTag: player.apex_tag,
     bio: profile.bio,
     recruitment: {
       lookingForTeam: profile.looking_for_team ?? false,

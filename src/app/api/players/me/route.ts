@@ -26,7 +26,11 @@ export async function GET() {
   }
 
   const [{ data: player, error: playerError }, { data: profile }] = await Promise.all([
-    supabase.from("players").select("id, platform, rank").eq("profile_id", user.id).single(),
+    supabase
+      .from("players")
+      .select("id, platform, rank, apex_tag, rank_verified_at")
+      .eq("profile_id", user.id)
+      .single(),
     supabase.from("profiles").select("display_name, username").eq("id", user.id).single(),
   ]);
 
@@ -42,5 +46,7 @@ export async function GET() {
     email: user.email ?? null,
     platform: player.platform,
     rank: player.rank,
+    apexTag: player.apex_tag,
+    rankVerifiedAt: player.rank_verified_at,
   });
 }

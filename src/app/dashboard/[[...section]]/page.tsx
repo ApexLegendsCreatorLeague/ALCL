@@ -5,6 +5,8 @@ import { AppShell } from "@/components/app-shell";
 import { PageHeader, StatCard, StatusBadge } from "@/components/alcl";
 import { DashboardAlert } from "@/components/dashboard-alert";
 import { DashboardTabs } from "@/components/dashboard-tabs";
+import { VerifyRankPanel } from "@/components/verify-rank-panel";
+import { formatPlatform } from "@/server/public-directory";
 import { getManagedTeam, getPlayerDashboard } from "@/server/player-dashboard";
 
 export const metadata: Metadata = { title: "Dashboard" };
@@ -105,7 +107,19 @@ export default async function DashboardRoute({
               <StatCard label="Display Name" value={player.displayName} />
               <StatCard label="Teams Managed" value={String(player.managedTeams.length)} />
               <StatCard label="Platform" value={player.platform ?? "-"} />
-              <StatCard label="Rank" value={player.rank ?? "-"} />
+              <StatCard
+                label="Verified Rank"
+                value={player.rankVerifiedAt ? (player.rank ?? "-") : "Not verified"}
+              />
+            </div>
+            <div style={{ marginTop: 18 }}>
+              <VerifyRankPanel
+                displayName={player.displayName}
+                platform={formatPlatform(player.platform)}
+                currentRank={player.rank}
+                currentTag={player.apexTag}
+                verifiedAt={player.rankVerifiedAt}
+              />
             </div>
             <div className="grid grid-2" style={{ marginTop: 18 }}>
               <div className="card">

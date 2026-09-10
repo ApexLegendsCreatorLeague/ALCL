@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Menu, Search, ShieldCheck } from "lucide-react";
+import { AlclBrand } from "@/components/alcl-logo";
 import { EA_DISCLAIMER, EA_POLICY_REVIEWED_AT } from "@/config/community-tournament";
 import { Container } from "@/components/ui";
 
@@ -13,20 +14,7 @@ const nav = [
 ];
 
 export function Brand({ compact = false }: { compact?: boolean }) {
-  return (
-    <Link className="brand" href="/" aria-label="ALCL home">
-      <span className="brand-mark" aria-hidden="true">
-        <i />
-        <b>AL</b>
-      </span>
-      {!compact ? (
-        <span>
-          <strong>ALCL</strong>
-          <small>Creator League</small>
-        </span>
-      ) : null}
-    </Link>
-  );
+  return <AlclBrand compact={compact} />;
 }
 
 export function Navbar() {

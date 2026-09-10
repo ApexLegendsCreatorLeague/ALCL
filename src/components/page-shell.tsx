@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { Container } from "@/components/ui";
+import { AlclSidebarBrand } from "@/components/alcl-logo";
 import { LegalDisclaimer } from "@/components/site-shell";
 import { signOut } from "@/server/actions/auth";
 
@@ -102,7 +103,7 @@ export function DashboardShell({
   return (
     <div className="dashboard-layout">
       <aside className="dashboard-sidebar">
-        <Link href="/" className="sidebar-brand">ALCL <span>{admin ? "CONTROL" : "PORTAL"}</span></Link>
+        <AlclSidebarBrand suffix={admin ? "CONTROL" : "PORTAL"} />
         <nav>
           {links.map(([label, href]) => {
             const current = activePath ?? (admin ? "/admin" : "/dashboard");
