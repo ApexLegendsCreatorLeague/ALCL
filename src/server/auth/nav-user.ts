@@ -19,11 +19,17 @@ export async function getNavUser(): Promise<NavUser | null> {
       return null;
     }
 
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("display_name, username")
-      .eq("id", user.id)
-      .maybeSingle();
+    const [{ data: profile }, { data: roles }] = await Promise.all([
+      supabase.from("profiles").select("display_name, username").eq("id", user.id).maybeSingle(),
+      supabase.from("profile_roles").select("role, expires_at").eq("profile_id", user.id),
+    ]);
+
+    const now = Date.now();
+    const canManageCompetitions = (roles ?? []).some(
+      ({ role, expires_at }) =>
+        (role === "admin" || role === "organizer") &&
+        (!expires_at || Date.parse(expires_at) > now),
+    );
 
     return navUserFromParts({
       profileId: user.id,
@@ -31,6 +37,7 @@ export async function getNavUser(): Promise<NavUser | null> {
       username: profile?.username ?? null,
       email: user.email,
       metadataDisplayName: user.user_metadata?.display_name,
+      canManageCompetitions,
     });
   } catch {
     return null;

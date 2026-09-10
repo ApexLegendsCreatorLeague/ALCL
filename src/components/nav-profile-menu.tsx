@@ -62,6 +62,11 @@ export function NavProfileMenu({ user }: { user: NavUser }) {
           <Link href="/dashboard" role="menuitem" onClick={() => setOpen(false)}>
             Dashboard
           </Link>
+          {user.canManageCompetitions ? (
+            <Link href="/admin" role="menuitem" onClick={() => setOpen(false)}>
+              Admin
+            </Link>
+          ) : null}
           <Link href="/dashboard/team/create" role="menuitem" onClick={() => setOpen(false)}>
             Create a Team
           </Link>

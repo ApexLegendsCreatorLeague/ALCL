@@ -149,6 +149,46 @@ button { cursor: pointer; }
 }
 .dashboard-alert-warn { border-color: #ff986f66; }
 .dashboard-alert-success { border-color: #c7ff4755; }
+.dashboard-layout { display:grid; grid-template-columns:260px minmax(0,1fr); min-height:calc(100vh - 72px); background:#080a0e; }
+.dashboard-sidebar { border-right:1px solid var(--line); padding:28px 18px; display:flex; flex-direction:column; gap:24px; position:sticky; top:72px; height:calc(100vh - 72px); }
+.sidebar-brand { font:800 22px var(--font-display); color:white; text-decoration:none; }
+.sidebar-brand span { color:var(--lime); margin-left:6px; font-size:11px; letter-spacing:.16em; }
+.dashboard-sidebar nav { display:grid; gap:6px; }
+.dashboard-sidebar nav a { display:block; padding:10px 12px; border-radius:8px; color:var(--muted); font-size:13px; font-weight:700; text-decoration:none; border:1px solid transparent; }
+.dashboard-sidebar nav a:hover,
+.dashboard-sidebar nav a.active { color:white; border-color:#343c48; background:#12161e; }
+.sidebar-footer { margin-top:auto; display:grid; gap:8px; }
+.sidebar-exit { color:var(--muted); font-size:12px; font-weight:700; text-decoration:none; background:none; border:none; padding:0; cursor:pointer; text-align:left; }
+.sidebar-exit:hover { color:var(--lime); }
+.dashboard-main { padding:34px 28px 60px; }
+.dashboard-main header { margin-bottom:24px; max-width:900px; }
+.dashboard-main header h1 { font:700 clamp(28px,4vw,42px) var(--font-display); margin:8px 0; }
+.dashboard-main header p { color:var(--muted); line-height:1.65; max-width:760px; }
+.admin-content { display:grid; gap:18px; }
+.admin-stat-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+.admin-stat { display:grid; gap:8px; min-height:96px; }
+.admin-stat span { color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.12em; font-weight:800; }
+.admin-stat strong { font:700 34px var(--font-display); color:var(--lime); }
+.admin-split { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.2fr); gap:18px; }
+.admin-stack { display:grid; gap:14px; }
+.admin-form { display:grid; gap:14px; }
+.admin-form-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.admin-form-span { grid-column:1 / -1; }
+.admin-form-card h3 { margin:8px 0 0; }
+.admin-review-grid { display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; align-items:end; }
+.admin-inline-form { display:flex; flex-wrap:wrap; gap:8px; align-items:end; }
+.admin-list-row { display:flex; justify-content:space-between; gap:16px; align-items:center; padding:14px 0; border-top:1px solid var(--line); }
+.admin-list-row:first-child { border-top:none; padding-top:0; }
+.admin-list-actions { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+.admin-placement-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:10px; }
+.field { display:grid; gap:6px; font-size:12px; font-weight:700; color:#b7bfca; }
+.field textarea.input { min-height:110px; resize:vertical; }
+.admin-table { width:100%; border-collapse:collapse; }
+.admin-table th,
+.admin-table td { padding:12px 10px; border-bottom:1px solid var(--line); text-align:left; font-size:13px; }
+.admin-table th { color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.08em; }
+@media(max-width:1100px){.dashboard-layout{grid-template-columns:1fr}.dashboard-sidebar{position:static;height:auto;border-right:none;border-bottom:1px solid var(--line)}.dashboard-sidebar nav{grid-template-columns:repeat(3,minmax(0,1fr))}.admin-split,.admin-form-grid,.admin-stat-grid{grid-template-columns:1fr}.admin-placement-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:640px){.dashboard-sidebar nav{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboard-main{padding:24px 16px 48px}.admin-placement-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .brand { font: 800 23px var(--font-display); letter-spacing: -.05em; display: flex; align-items: center; gap: 10px; }
 .brand-mark { width: 27px; height: 27px; background: var(--lime); color: #071000; display: grid; place-items: center; font-size: 13px; transform: skew(-8deg); }
 .nav-links { display: flex; align-items: center; gap: 20px; color: #adb5c2; font-size: 13px; flex: 1 1 auto; min-width: 0; overflow: hidden; }

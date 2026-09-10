@@ -3,4 +3,5 @@ export type NavUser = {
   displayName: string;
   username: string | null;
   initials: string;
+  canManageCompetitions?: boolean;
 };

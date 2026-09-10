@@ -3,8 +3,6 @@ import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { AuthCtaButtons } from "@/components/auth-cta-buttons";
 import {
-  AdminActions,
-  AdminTable,
   BroadcastView,
   EmptyState,
   LegalDisclaimer,
@@ -18,7 +16,6 @@ import {
   TournamentTimeline,
 } from "./alcl";
 import { AuthForm } from "@/components/auth-form";
-import { LiveApiAdmin } from "@/components/liveapi-admin";
 import { PlayerProfileNotFound, PlayerProfileView } from "@/components/player-profile-view";
 import { PlayersDirectory } from "@/components/players-directory";
 import { getCurrentUser } from "@/server/auth";
@@ -232,7 +229,6 @@ export async function RoutePage({ segments }: { segments: string[] }) {
   const key = segments.join("/");
   if (root === "broadcast") return <BroadcastView type={id ?? "leaderboard"} />;
   if (root === "login") return <AuthPage />;
-  if (root === "admin") return <AdminPage section={id} />;
   if (root === "tournaments" && id) return <TournamentDetail id={id} leaf={leaf} />;
   if (root === "league" && id) return <SeasonDetail season={id} />;
   if (root === "teams" && id) return <TeamDetail id={id} />;
@@ -517,31 +513,6 @@ async function PlayerDetail({ id }: { id: string }) {
   const user = await getCurrentUser();
   const isOwner = Boolean(user && profile.profileId === user.id);
   return <PlayerProfileView profile={profile} isOwner={isOwner} />;
-}
-
-function AdminPage({ section }: { section?: string }) {
-  const name = section ? section[0].toUpperCase() + section.slice(1) : "Operations";
-  return (
-    <AppShell>
-      <PageHeader
-        eyebrow="Organizer Console"
-        title={name}
-        copy="Competition administration with server-enforced policy checks and audit history."
-      />
-      <section className="container">
-        <AdminActions title={name} />
-        {section === "live-data" ? (
-          <LiveApiAdmin />
-        ) : (
-          <EmptyState
-            title="No Records Yet"
-            message="Admin records will appear here as the league operates."
-          />
-        )}
-        {!section || section === "registrations" || section === "matches" ? <AdminTable /> : null}
-      </section>
-    </AppShell>
-  );
 }
 
 function AuthPage() {

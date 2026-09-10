@@ -157,6 +157,7 @@ export async function submitMatchResult(
   const placementTable = scoring.placement_points as Record<string, number>;
   const placementPoints = Number(placementTable[String(parsed.data.placement)] ?? 0);
   const killPoints = parsed.data.kills * Number(scoring.points_per_kill);
+  const now = new Date().toISOString();
   const { data, error } = await supabase.from("match_results").insert({
     match_id: parsed.data.matchId,
     team_id: parsed.data.teamId,
@@ -168,9 +169,43 @@ export async function submitMatchResult(
     penalty_points: parsed.data.penaltyPoints,
     evidence_path: parsed.data.evidencePath ?? null,
     submitted_by: user.id,
+    verified_by: user.id,
+    verified_at: now,
+    review_status: "verified",
+    ingestion_source: "manual",
   }).select("id").single();
   if (error || !data) return actionFailure("CONFLICT", error?.message ?? "Result entry failed.");
+  const { data: matchRow } = await supabase
+    .from("matches")
+    .select("event_id")
+    .eq("id", parsed.data.matchId)
+    .single();
+  if (matchRow?.event_id) await recalculateEventStandings(matchRow.event_id);
   revalidatePath("/admin/matches");
+  revalidatePath("/standings");
+  return actionSuccess(data);
+}
+
+export async function updateTournamentStatus(input: {
+  tournamentId: string;
+  status: "draft" | "registration" | "active" | "complete" | "cancelled";
+}): Promise<ActionResult<{ id: string }>> {
+  const parsed = z.object({
+    tournamentId: z.uuid(),
+    status: z.enum(["draft", "registration", "active", "complete", "cancelled"]),
+  }).safeParse(input);
+  if (!parsed.success) return invalid(parsed.error);
+  await requireCompetitionManager();
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("tournaments")
+    .update({ status: parsed.data.status })
+    .eq("id", parsed.data.tournamentId)
+    .select("id")
+    .single();
+  if (error || !data) return actionFailure("CONFLICT", error?.message ?? "Status update failed.");
+  revalidatePath("/admin/tournaments");
+  revalidatePath("/tournaments");
   return actionSuccess(data);
 }
 

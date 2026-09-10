@@ -13,6 +13,7 @@ export function navUserFromParts(input: {
   username?: string | null;
   email?: string | null;
   metadataDisplayName?: unknown;
+  canManageCompetitions?: boolean;
 }): NavUser {
   const displayName =
     input.displayName.trim() ||
@@ -25,6 +26,7 @@ export function navUserFromParts(input: {
     displayName,
     username: input.username ?? null,
     initials: initialsFor(displayName),
+    canManageCompetitions: input.canManageCompetitions ?? false,
   };
 }
 

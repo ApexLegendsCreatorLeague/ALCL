@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { Container } from "@/components/ui";
 import { LegalDisclaimer } from "@/components/site-shell";
+import { signOut } from "@/server/actions/auth";
 
 export function PageHero({
   eyebrow,
@@ -73,22 +74,24 @@ export function DashboardShell({
   description,
   children,
   admin = false,
+  activePath,
 }: {
   title: string;
   description: string;
   children: ReactNode;
   admin?: boolean;
+  activePath?: string;
 }) {
   const links = admin
     ? [
         ["Overview", "/admin"],
+        ["Registrations", "/admin/registrations"],
         ["Tournaments", "/admin/tournaments"],
         ["Matches", "/admin/matches"],
         ["Live Data", "/admin/live-data"],
-        ["Registrations", "/admin/registrations"],
+        ["Scoring", "/admin/scoring"],
         ["Teams", "/admin/teams"],
         ["Players", "/admin/players"],
-        ["Scoring", "/admin/scoring"],
         ["Supporters", "/admin/supporters"],
       ]
     : [
@@ -101,12 +104,29 @@ export function DashboardShell({
       <aside className="dashboard-sidebar">
         <Link href="/" className="sidebar-brand">ALCL <span>{admin ? "CONTROL" : "PORTAL"}</span></Link>
         <nav>
-          {links.map(([label, href]) => <Link href={href} key={href}>{label}</Link>)}
+          {links.map(([label, href]) => {
+            const current = activePath ?? (admin ? "/admin" : "/dashboard");
+            const isActive =
+              current === href ||
+              (href !== "/admin" && href !== "/dashboard" && current.startsWith(`${href}/`));
+            return (
+              <Link className={isActive ? "active" : ""} href={href} key={href}>
+                {label}
+              </Link>
+            );
+          })}
         </nav>
-        <Link className="sidebar-exit" href="/">Return to Public Site</Link>
+        <div className="sidebar-footer">
+          <Link className="sidebar-exit" href="/">Return to Public Site</Link>
+          {admin ? (
+            <form action={signOut}>
+              <button className="sidebar-exit" type="submit">Sign Out</button>
+            </form>
+          ) : null}
+        </div>
       </aside>
       <main className="dashboard-main">
-        <header><div><p className="eyebrow">{admin ? "ORGANIZER WORKSPACE" : "COMPETITOR WORKSPACE"}</p><h1>{title}</h1><p>{description}</p></div></header>
+        <header><div><p className="eyebrow">{admin ? "Organizer Workspace" : "Competitor Workspace"}</p><h1>{title}</h1><p>{description}</p></div></header>
         {children}
       </main>
     </div>
