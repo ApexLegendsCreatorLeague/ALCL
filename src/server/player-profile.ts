@@ -6,6 +6,7 @@ import { isSupabaseConfigured } from "@/lib/supabase/server";
 import { topLegendsFromProfile } from "@/lib/apex-legends";
 import type { PlayerSocialLinks } from "@/lib/social-links";
 import { formatPlatform } from "@/server/public-directory";
+import { normalizePlayerName } from "@/server/liveapi-player-match";
 
 export type PlayerCareerStats = {
   matchesPlayed: number;
@@ -241,15 +242,42 @@ export async function getPlayerProfile(ref: string): Promise<PlayerProfile | nul
     teamName = team?.name ?? null;
   }
 
-  const { data: resultRows } = await admin
-    .from("match_player_results")
-    .select("match_id, team_id, kills, assists, damage, knocks, verified_at, created_at")
-    .eq("player_id", player.id)
-    .not("verified_at", "is", null)
-    .order("created_at", { ascending: false })
-    .limit(50);
+  const [{ data: resultRowsById }, { data: resultRowsByName }] = await Promise.all([
+    admin
+      .from("match_player_results")
+      .select(
+        "match_id, team_id, player_id, source_player_name, kills, assists, damage, knocks, verified_at, created_at",
+      )
+      .eq("player_id", player.id)
+      .not("verified_at", "is", null)
+      .order("created_at", { ascending: false })
+      .limit(50),
+    admin
+      .from("match_player_results")
+      .select(
+        "match_id, team_id, player_id, source_player_name, kills, assists, damage, knocks, verified_at, created_at",
+      )
+      .is("player_id", null)
+      .not("verified_at", "is", null)
+      .order("created_at", { ascending: false })
+      .limit(50),
+  ]);
 
-  const verifiedResults = resultRows ?? [];
+  const normalizedDisplayName = normalizePlayerName(profile.display_name);
+  const seen = new Set<string>();
+  const verifiedResults = [...(resultRowsById ?? []), ...(resultRowsByName ?? [])]
+    .filter((row) => {
+      if (row.player_id === player.id) return true;
+      return normalizePlayerName(row.source_player_name) === normalizedDisplayName;
+    })
+    .filter((row) => {
+      const key = `${row.match_id}:${row.source_player_name}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at))
+    .slice(0, 50);
   const matchIds = [...new Set(verifiedResults.map((row) => row.match_id))];
 
   const [{ data: matches }, { data: matchPlayers }] = await Promise.all([

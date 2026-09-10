@@ -28,7 +28,7 @@ export default async function DashboardRoute({
   const copy =
     view === "team"
       ? "Manage the team you captain, review roster players, and track registration status."
-      : "Your home base after sign-in — profile, team, and next steps.";
+      : "Your home base after sign-in - profile, team, and next steps.";
 
   return (
     <AppShell>
@@ -51,7 +51,7 @@ export default async function DashboardRoute({
                   value={focusedTeam.registrationStatus ?? "Not submitted"}
                 />
                 <StatCard label="Roster Size" value={String(focusedTeam.members.length)} />
-                <StatCard label="Event" value={focusedTeam.tournamentName ?? "—"} />
+                <StatCard label="Event" value={focusedTeam.tournamentName ?? "-"} />
               </div>
               <div className="card" style={{ marginTop: 18 }}>
                 <StatusBadge
@@ -104,13 +104,13 @@ export default async function DashboardRoute({
             <div className="grid grid-4">
               <StatCard label="Display Name" value={player.displayName} />
               <StatCard label="Teams Managed" value={String(player.managedTeams.length)} />
-              <StatCard label="Platform" value={player.platform ?? "—"} />
-              <StatCard label="Rank" value={player.rank ?? "—"} />
+              <StatCard label="Platform" value={player.platform ?? "-"} />
+              <StatCard label="Rank" value={player.rank ?? "-"} />
             </div>
             <div className="grid grid-2" style={{ marginTop: 18 }}>
               <div className="card">
                 <h3>Welcome Back, {player.displayName}</h3>
-                <p>Signed in as a player. Teams never log in — only player accounts do.</p>
+                <p>Signed in as a player. Teams never log in - only player accounts do.</p>
                 <div className="actions">
                   <Link className="btn btn-primary" href={`/players/${player.playerId}`}>
                     View Profile

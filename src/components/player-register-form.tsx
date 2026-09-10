@@ -125,7 +125,7 @@ export function PlayerRegisterForm() {
       </button>
       <p className="legal">
         Already have a player account? <Link href="/login">Sign In</Link>. Create teams from your
-        dashboard after you sign in — teams never log in.
+        dashboard after you sign in - teams never log in.
       </p>
       <p className="legal">
         ALCL will never request an EA password, authentication token, or private game-account access.

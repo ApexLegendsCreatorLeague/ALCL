@@ -2,6 +2,10 @@ import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, LiveApiSessionStatus } from "@/types/database";
+import {
+  buildTeamPlayerNameMaps,
+  resolvePlayerIdForTeam,
+} from "@/server/liveapi-player-match";
 
 export async function materializeLiveApiResults(
   admin: SupabaseClient<Database>,
@@ -83,19 +87,25 @@ export async function materializeLiveApiResults(
     return { status: "failed", generatedResults: 0, error: resultsError.message };
   }
 
+  const boundTeamIds = [...new Set(teamIds.values())];
+  const playerNameMaps = await buildTeamPlayerNameMaps(admin, session.match_id, boundTeamIds);
+
   const playerResults = (players ?? [])
     .filter((player) => teamIds.has(player.liveapi_team_key))
-    .map((player) => ({
-      match_id: session.match_id,
-      team_id: teamIds.get(player.liveapi_team_key)!,
-      player_id: null,
-      source_player_name: player.player_name,
-      kills: player.kills,
-      assists: player.assists,
-      damage: player.damage,
-      knocks: player.knocks,
-      source_session_id: sessionId,
-    }));
+    .map((player) => {
+      const teamId = teamIds.get(player.liveapi_team_key)!;
+      return {
+        match_id: session.match_id,
+        team_id: teamId,
+        player_id: resolvePlayerIdForTeam(playerNameMaps, teamId, player.player_name),
+        source_player_name: player.player_name,
+        kills: player.kills,
+        assists: player.assists,
+        damage: player.damage,
+        knocks: player.knocks,
+        source_session_id: sessionId,
+      };
+    });
   if (playerResults.length > 0) {
     const { error } = await admin.from("match_player_results").upsert(playerResults, {
       onConflict: "match_id,source_session_id,source_player_name",

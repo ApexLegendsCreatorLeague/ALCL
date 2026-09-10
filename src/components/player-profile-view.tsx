@@ -12,7 +12,7 @@ function formatNumber(value: number) {
 }
 
 function formatDate(value: string | null) {
-  if (!value) return "—";
+  if (!value) return "-";
   return new Date(value).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
@@ -120,11 +120,13 @@ export function PlayerProfileView({
                 <SocialLinks profile={profile} />
               </div>
             </div>
-            <div className="profile-hero-stats">
+            <div className="profile-hero-stats profile-hero-stats-tracked">
               <StatTile label="Matches" value={String(profile.stats.matchesPlayed)} />
               <StatTile label="Kills" value={formatNumber(profile.stats.kills)} />
-              <StatTile label="Avg Placement" value={profile.stats.avgPlacement?.toString() ?? "—"} />
-              <StatTile label="Wins" value={String(profile.stats.wins)} />
+              <StatTile label="Assists" value={formatNumber(profile.stats.assists)} />
+              <StatTile label="Knocks" value={formatNumber(profile.stats.knocks)} />
+              <StatTile label="Damage" value={formatNumber(profile.stats.damage)} />
+              <StatTile label="Avg Placement" value={profile.stats.avgPlacement?.toString() ?? "-"} />
             </div>
           </div>
           {profile.bio ? <p className="profile-bio">{profile.bio}</p> : null}
@@ -148,13 +150,13 @@ export function PlayerProfileView({
               <StatCard label="Damage" value={formatNumber(profile.stats.damage)} />
               <StatCard label="Kills / Match" value={profile.stats.avgKills.toFixed(1)} />
               <StatCard label="Damage / Match" value={formatNumber(profile.stats.avgDamage)} />
-              <StatCard label="Best Placement" value={profile.stats.bestPlacement?.toString() ?? "—"} />
+              <StatCard label="Best Placement" value={profile.stats.bestPlacement?.toString() ?? "-"} />
               <StatCard label="Top 5 Finishes" value={String(profile.stats.top5)} />
             </div>
           ) : (
             <EmptyState
               title="No Verified Match Stats Yet"
-              message="Kills, damage, placement, and tournament history will populate after this player competes in verified ALCL matches."
+              message="Kills, assists, knocks, damage, and placement populate after verified ALCL matches. Your ALCL display name must match your in-game name for LiveAPI tracking."
             />
           )}
         </div>
@@ -191,8 +193,8 @@ export function PlayerProfileView({
                             {match.map ? ` · ${match.map}` : ""}
                           </div>
                         </td>
-                        <td>{match.teamName ?? "—"}</td>
-                        <td>{match.placement ? `#${match.placement}` : "—"}</td>
+                        <td>{match.teamName ?? "-"}</td>
+                        <td>{match.placement ? `#${match.placement}` : "-"}</td>
                         <td>{match.kills}</td>
                         <td>{match.assists}</td>
                         <td>{match.knocks}</td>
@@ -222,7 +224,7 @@ export function PlayerProfileView({
                 <li>
                   <Target size={15} />
                   <span>Platform</span>
-                  <strong>{profile.platform ?? "—"}</strong>
+                  <strong>{profile.platform ?? "-"}</strong>
                 </li>
                 <li>
                   <Crosshair size={15} />
@@ -232,7 +234,7 @@ export function PlayerProfileView({
                 <li>
                   <MapPin size={15} />
                   <span>Region</span>
-                  <strong>{profile.countryCode ?? "—"}</strong>
+                  <strong>{profile.countryCode ?? "-"}</strong>
                 </li>
                 <li>
                   <Trophy size={15} />

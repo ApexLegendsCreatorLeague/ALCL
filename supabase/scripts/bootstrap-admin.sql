@@ -1,10 +1,10 @@
 -- Bootstrap the first ALCL administrator (Supabase SQL Editor)
 --
--- Option A — by email (easiest after the player has registered):
+-- Option A - by email (easiest after the player has registered):
 --   1. Replace the email below
 --   2. Run this script
 --
--- Option B — by UUID:
+-- Option B - by UUID:
 --   Authentication → Users → copy UUID → replace in the profile_id filter
 
 -- Grant platform admin + organizer (owner) to one account:

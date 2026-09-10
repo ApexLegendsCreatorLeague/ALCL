@@ -1,8 +1,8 @@
-# Supabase SQL Editor — ALCL install (3-part)
+# Supabase SQL Editor - ALCL install (3-part)
 
 Do **not** run `seed.sql` on production.
 
-## Step 0 — Reset (start over)
+## Step 0 - Reset (start over)
 
 If tables already exist or a prior install failed partway:
 
@@ -10,7 +10,7 @@ If tables already exist or a prior install failed partway:
 2. Paste into SQL Editor → **Run** (confirm destructive warning)
 3. Optional: **Authentication → Users** → delete all users for a fully clean slate
 
-## Step 1 — Install (run each file separately)
+## Step 1 - Install (run each file separately)
 
 Run **one file per query**. Wait for success before the next.
 
@@ -21,10 +21,10 @@ Run **one file per query**. Wait for success before the next.
 | 3 | `part3-liveapi.sql` | 204 |
 
 Copy the **entire** file each time (Ctrl+A, Ctrl+C). If you see
-`syntax error at end of input`, the paste was truncated — paste again or use a
+`syntax error at end of input`, the paste was truncated - paste again or use a
 smaller file.
 
-## Step 2 — Verify
+## Step 2 - Verify
 
 Run `verify-schema.sql`. Expect:
 
@@ -32,7 +32,7 @@ Run `verify-schema.sql`. Expect:
 - `app_roles_count` → `6`
 - `compliance_rows` → `1`
 
-## Step 3 — Profile role columns (run once)
+## Step 3 - Profile role columns (run once)
 
 Run **`add-profile-role-flags.sql`** in the SQL Editor.
 
@@ -42,11 +42,11 @@ After that, **Table Editor → profiles** shows:
 |--------|---------|
 | `is_player` | Player rights (teams, dashboard) |
 | `is_admin` | Admin rights |
-| `is_owner` | Owner rights — ALL access (backed by `organizer` role) |
+| `is_owner` | Owner rights - ALL access (backed by `organizer` role) |
 
 These stay in sync automatically when `profile_roles` changes.
 
-## Step 3b — Profile social links (run once)
+## Step 3b - Profile social links (run once)
 
 Run **`add-profile-socials.sql`** in the SQL Editor.
 
@@ -63,7 +63,7 @@ Adds to **Table Editor → profiles**:
 
 The verify query at the bottom should return all six `has_*` columns as `true`.
 
-## Step 3c — Profile recruitment fields (run once)
+## Step 3c - Profile recruitment fields (run once)
 
 Run **`add-profile-recruitment.sql`** in the SQL Editor.
 
@@ -75,7 +75,7 @@ Adds captain-facing recruitment fields to **profiles**:
 | `availability` | Scrim / match schedule |
 | `recruitment_pitch` | Free-form pitch to captains |
 
-## Step 3d — Top 3 main legends (run once)
+## Step 3d - Top 3 main legends (run once)
 
 Run **`add-profile-main-legends.sql`** in the SQL Editor.
 
@@ -87,7 +87,7 @@ Adds to **profiles**:
 | `main_legend_2` | Second main |
 | `main_legend_3` | Third main |
 
-## Step 4 — Staff roles (admin / owner)
+## Step 4 - Staff roles (admin / owner)
 
 After a player registers on the site:
 
@@ -98,12 +98,12 @@ After a player registers on the site:
 
 For email-based lookup instead, use **`bootstrap-admin.sql`** or **`manage-staff-roles.sql`**.
 
-## Step 5 — Password reset email (required once)
+## Step 5 - Password reset email (required once)
 
 The default Supabase reset email uses a PKCE link that often fails with `otp_expired`.
 ALCL uses a direct `token_hash` link instead (`supabase/templates/recovery.html`).
 
-**Option A — script (fastest):**
+**Option A - script (fastest):**
 
 1. Create a token at https://supabase.com/dashboard/account/tokens
 2. Run:
@@ -113,7 +113,7 @@ $env:SUPABASE_ACCESS_TOKEN = "your-token"
 npm run supabase:push-recovery-template
 ```
 
-**Option B — Dashboard:**
+**Option B - Dashboard:**
 
 1. **Authentication → URL Configuration**
    - Site URL: `https://thessiatournamentsite.com`
@@ -121,6 +121,6 @@ npm run supabase:push-recovery-template
 2. **Authentication → Email Templates → Reset password**
    - Copy the contents of `supabase/templates/recovery.html`
 
-## Step 6 — Vercel
+## Step 6 - Vercel
 
 Set env vars from Supabase **Settings → API**, redeploy, and set `SITE_URL=https://thessiatournamentsite.com`.

@@ -8,7 +8,7 @@ applied.
 
 1. Open [supabase.com/dashboard](https://supabase.com/dashboard) and create a
    project named **ALCL** (dedicated project; do not reuse unrelated apps).
-2. Save the **database password** — you cannot recover it later.
+2. Save the **database password** - you cannot recover it later.
 3. Pick a region close to your players (for example `us-west-1`).
 
 Or via CLI (replace placeholders):
@@ -31,7 +31,7 @@ npx supabase db push
 ```
 
 This applies all files in `supabase/migrations/`. **Do not** run
-`supabase/seed.sql` on production — it is fictional demo data only.
+`supabase/seed.sql` on production - it is fictional demo data only.
 
 Optional lint before push:
 
@@ -96,7 +96,7 @@ Auth settings for early testing.
 
 ## 6. Bootstrap the first organizer / admin
 
-Create the first account **on your site** — not in the Supabase dashboard:
+Create the first account **on your site** - not in the Supabase dashboard:
 
 1. Open `https://your-app.vercel.app/login`.
 2. Use **Create account** (display name, email, password).
@@ -118,7 +118,7 @@ Fallback only if sign-up fails: `supabase/scripts/bootstrap-admin.sql` in SQL Ed
 
 ## 8. What changes when Supabase is connected
 
-- `isSupabaseConfigured()` becomes true — auth gates and API routes use the database.
+- `isSupabaseConfigured()` becomes true - auth gates and API routes use the database.
 - Public tournament/standings pages may still show demo content until wired to
   live queries; create leagues/tournaments via admin or SQL for real events.
 

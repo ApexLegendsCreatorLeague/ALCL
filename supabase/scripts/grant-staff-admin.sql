@@ -2,7 +2,7 @@
 --
 -- Role mapping (shows on profiles table after add-profile-role-flags.sql):
 --   admin role      → is_admin = true
---   organizer role  → is_owner = true  (Owner — ALL rights)
+--   organizer role  → is_owner = true  (Owner - ALL rights)
 --   player role     → is_player = true (everyone)
 --
 -- Run block 1 → block 2 → block 3
@@ -36,7 +36,7 @@ on conflict (profile_id, role) do nothing
 returning profile_id, role, granted_at;
 
 -- ---------------------------------------------------------------------------
--- 3) Verify — profiles table flags (and underlying roles)
+-- 3) Verify - profiles table flags (and underlying roles)
 -- ---------------------------------------------------------------------------
 select
   p.display_name,

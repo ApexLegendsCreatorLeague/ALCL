@@ -17,7 +17,7 @@ export default function CreateTeamPage() {
       <PageHeader
         eyebrow="Team Manager Setup"
         title="Create a Team"
-        copy="You will be the team manager — one account controls the team. Add registered player accounts to your roster."
+        copy="You will be the team manager - one account controls the team. Add registered player accounts to your roster."
       />
       <section className="container dashboard-page">
         <DashboardTabs />

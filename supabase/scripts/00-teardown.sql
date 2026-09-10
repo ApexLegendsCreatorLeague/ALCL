@@ -1,5 +1,5 @@
 -- ALCL reset for hosted Supabase (run in SQL Editor, confirm destructive warning)
--- No transaction wrapper — Supabase rejects some DDL inside BEGIN/COMMIT.
+-- No transaction wrapper - Supabase rejects some DDL inside BEGIN/COMMIT.
 -- After this: npx supabase link && npx supabase db push
 
 -- 1) Auth trigger from ALCL migrations

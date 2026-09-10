@@ -279,7 +279,7 @@ export function RegistrationWizard() {
         {step === 3 ? (
           <div className="grid grid-2">
             <div className="card"><small>TEAM</small><h3>{form.teamName} · {form.abbreviation}</h3><p>{form.region}</p></div>
-            <div className="card"><small>MANAGER</small><h3>{manager?.displayName ?? "—"}</h3><p>{manager?.email ?? "Your player account"}</p></div>
+            <div className="card"><small>MANAGER</small><h3>{manager?.displayName ?? "-"}</h3><p>{manager?.email ?? "Your player account"}</p></div>
             <div className="card"><small>ROSTER PLAYERS</small><h3>{selectedIds.length} registered players</h3><p>{predatorCount} Predator rank snapshot</p></div>
             <div className="card" style={{ gridColumn: "1 / -1" }}>
               {form.roster.filter((slot) => slot.player).map((slot, slotIndex) => (

@@ -170,7 +170,7 @@ export async function listAdminRegistrations(): Promise<AdminRegistrationRow[]> 
       status: row.status,
       createdAt: row.created_at,
       teamName: team?.name ?? "Unknown Team",
-      teamShortName: team?.short_name ?? "—",
+      teamShortName: team?.short_name ?? "-",
       tournamentName: tournament?.name ?? "Unknown Tournament",
       rejectionReason: row.rejection_reason,
     };
@@ -205,7 +205,7 @@ export async function listAdminTournaments(): Promise<AdminTournamentRow[]> {
       name: row.name,
       slug: row.slug,
       status: row.status,
-      seasonName: season?.name ?? "—",
+      seasonName: season?.name ?? "-",
       maxTeams: row.max_teams,
       registrationOpensAt: row.registration_opens_at,
       startsAt: row.starts_at,

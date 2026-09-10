@@ -6,7 +6,7 @@
 -- You will see:
 --   is_player  = competition participant (teams, dashboard)
 --   is_admin   = platform admin
---   is_owner   = site/league owner (ALL rights — maps to organizer role)
+--   is_owner   = site/league owner (ALL rights - maps to organizer role)
 
 alter table public.profiles
   add column if not exists is_player boolean not null default true,

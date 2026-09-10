@@ -4,7 +4,7 @@ export const BRAND = {
   tagline: "Where communities compete.",
   organizationStatement:
     "ALCL is an independent community tournament organization.",
-  defaultTitle: "ALCL — Community Tournament Platform",
+  defaultTitle: "ALCL - Community Tournament Platform",
   defaultDescription:
     "Follow independent community tournaments, teams, players, results, and season standings.",
 } as const;

@@ -33,7 +33,7 @@ where lower(u.email) = lower('player@example.com')
 on conflict (profile_id, role) do nothing;
 
 -- ---------------------------------------------------------------------------
--- 3) Grant OWNER access (organizer role — league / org owner)
+-- 3) Grant OWNER access (organizer role - league / org owner)
 -- Replace owner@example.com with the account email.
 -- ---------------------------------------------------------------------------
 insert into public.profile_roles (profile_id, role, granted_by)

@@ -55,7 +55,7 @@ export async function HomePage() {
           />
           <EmptyState
             title="No Tournaments Published Yet"
-            message="Check back soon — the first ALCL events are being prepared."
+            message="Check back soon - the first ALCL events are being prepared."
           />
         </div>
       </section>
@@ -202,7 +202,7 @@ const info: Record<string, [string, string, string]> = {
   dashboard: [
     "Competitor Portal",
     "Your Dashboard",
-    "Your season at a glance—registrations, matches, and account actions.",
+    "Your season at a glance: registrations, matches, and account actions.",
   ],
 };
 

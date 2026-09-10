@@ -126,7 +126,7 @@ export function AuthForm() {
 
       <p className="legal">
         Need an account? <Link href="/register">Create a Player Account</Link>. Teams are built
-        after players sign in — teams do not log in.
+        after players sign in - teams do not log in.
       </p>
       <p className="legal">
         ALCL will never request an EA password, authentication token, or private game-account access.

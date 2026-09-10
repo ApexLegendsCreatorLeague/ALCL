@@ -32,7 +32,7 @@ export default async function LoginPage({
           <div className="eyebrow">Sign In</div>
           <h3 style={{ fontSize: 30 }}>Sign In as a Player</h3>
           <p className="legal" style={{ marginBottom: "1rem" }}>
-            Only players have ALCL accounts. Teams are groups of players — they never sign in.
+            Only players have ALCL accounts. Teams are groups of players - they never sign in.
           </p>
           <Suspense fallback={<p className="legal">Loading Sign In…</p>}>
             <AuthForm />

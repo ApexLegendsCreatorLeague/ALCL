@@ -1,4 +1,4 @@
-/** Client-safe Supabase env (NEXT_PUBLIC_* only — available in the browser bundle). */
+/** Client-safe Supabase env (NEXT_PUBLIC_* only - available in the browser bundle). */
 
 export function publicSupabaseUrl() {
   return process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() || undefined;

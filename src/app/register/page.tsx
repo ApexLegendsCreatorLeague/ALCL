@@ -33,7 +33,7 @@ export default async function RegisterPlayerPage({
           <h3 style={{ fontSize: 30 }}>Create Your Player Account</h3>
           <p className="legal" style={{ marginBottom: "1rem" }}>
             Every person who competes gets their own player login. Teams are just groups of those
-            players — captains create teams after everyone has signed up.
+            players - captains create teams after everyone has signed up.
           </p>
           <AuthConfigBanner />
           <PlayerRegisterForm />
